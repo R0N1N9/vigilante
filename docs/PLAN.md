@@ -144,7 +144,7 @@ Features:
 
 ### 5.5 Sex offender registry (needs special handling, see section 8)
 - **NSOPW has no public API.** Its [Conditions of Use](https://nsopw.gov/en/conditions) bind you to every state's terms, and many states prohibit scraping, redistribution, or using the data to harass or take vigilante action.
-- **Recommended design:** an "Registry lookup" panel that **deep-links** to the NSOPW / state registry search, pre-filled for your AOI. Where a state offers a **licensed bulk download** (e.g. Hawaii, Connecticut), import that file locally under its license and show addresses as a *static awareness layer* with the agency's disclaimer and a "last updated" date.
+- **Recommended design:** a "Registry lookup" panel that **deep-links** to the NSOPW / state registry search, pre-filled for your AOI. Where a state offers a **licensed bulk download** (e.g. Hawaii, Connecticut), import that file locally under its license and show addresses as a *static awareness layer* with the agency's disclaimer and a "last updated" date.
 - **Not recommended:** scraping NSOPW, combining registry data with other people-data, or building "track this person" alerts. These raise legal and safety problems (see section 8).
 
 ### 5.6 Aircraft
