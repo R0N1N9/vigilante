@@ -30,8 +30,8 @@ The design idea is a dispatch console that stays calm when nothing is happening 
 | Basemap | **Protomaps / OpenFreeMap** vector tiles, plus optional satellite (Esri World Imagery, Mapbox) | Google Maps can be added as an optional layer through its Map Tiles API. It costs money and has strict terms, so it should not be the default. |
 | Ingestion | Rust async workers (tokio + reqwest + tungstenite) | Workers poll APIs and hold WebSockets open, then normalize everything into a single `Event` schema. |
 | Storage | **SQLite** with FTS5 (full-text news search) and R*Tree (spatial queries) | Runs on the laptop with no server, and supports replay and history. |
-| Audio | Webview `<audio>` / HLS.js for streams; **whisper.cpp** (local) for transcription | Transcription runs on the laptop, so it is private and free. |
-| AI (optional) | Local **Ollama** model, or the Claude API for summaries and classification | Uses: morning brief, news relevance scoring, incident summaries. |
+| Audio | Webview `<audio>` / HLS.js for streams; **whisper.cpp** for transcription, with a small model on the CPU by default | The `tiny` and `base` Whisper models run on most laptops without a GPU. A cloud speech-to-text option can be added later. |
+| AI (optional) | **Cloud LLM** (e.g. a small, fast Claude model through the Claude API), off by default | Uses: morning brief, news relevance scoring, incident summaries. The app has to run on ordinary laptops, so no local LLM. Rule-based relevance works without any AI. |
 | Plugins | Each data source is a "connector" module behind a common trait or interface | Lets new sources be added without touching the core. |
 
 ### Core data model
@@ -120,7 +120,7 @@ Legend: **Free** / **Key** (free API key) / **Paid** / **Unofficial** (undocumen
 |---|---|---|
 | **Self-hosted SDR**: RTL-SDR dongle + [trunk-recorder](https://github.com/robotastic/trunk-recorder) + [rdio-scanner](https://github.com/chuot/rdio-scanner) | HW, Free | **Best option.** Records individual calls with talkgroup metadata. Hardware costs about $40–100. |
 | **OpenMHz** | Free | Hosted per-call audio with a JSON API, for systems someone else already feeds. |
-| **Broadcastify** live feeds | Paid / restricted | The live-feed catalog API is [closed to new scanner apps](https://support.broadcastify.com/hc/en-us/articles/204740425-Live-Audio-Feed-Catalog-API). Broadcastify Calls API access [requires an application](https://www.broadcastify.com/calls/dev/client-api). |
+| **Broadcastify** live feeds | Free to *listen* on their site; no API | The live-feed catalog API is [closed to new scanner apps](https://support.broadcastify.com/hc/en-us/articles/204740425-Live-Audio-Feed-Catalog-API). Broadcastify Calls API access [requires an application](https://www.broadcastify.com/calls/dev/client-api). |
 | Radio frequency database | RadioReference (premium) | Lists the systems, talkgroups and frequencies in your county. |
 
 Features:
@@ -254,26 +254,91 @@ This is the part that makes Vigilante more than a set of tabs.
 
 ---
 
-## 9. Roadmap
+## 9. Decisions (Nov 2026)
 
-| Phase | Scope | Outcome |
+| Question | Decision | Effect on the design |
 |---|---|---|
-| **0. Spike** (1 wk) | Tauri + MapLibre + deck.gl in one window; pop a second window onto another monitor; check WebGL performance | Proves the stack |
-| **1. Core** (2–3 wk) | AOI editor, Event store, panel/workspace system, layout profiles, theme | Empty console that looks right |
-| **2. Live map** (2 wk) | Aircraft (adsb.lol), vessels (aisstream), NWS alerts, USGS, FIRMS | First "wow" demo |
-| **3. News** (2 wk) | RSS / Google News / GDELT / Bluesky connectors, gazetteer geocoding, dedupe, FTS search | Local news wall |
-| **4. Radio** (3 wk) | OpenMHz connector, channel strips, whisper.cpp transcripts, keyword alerts; optional trunk-recorder sidecar | Scanner console |
-| **5. Public safety** (2 wk) | City open-data crime/CAD, 311, 511 incidents and cameras, registry lookup panel | Neighborhood picture |
-| **6. Fusion** (3 wk) | Correlator, Developing Incident cards, alert rules, ntfy push, daily brief, replay | The differentiator |
-| **7. Polish** | Command palette, sounds, red-light mode, installers and auto-update, connector SDK docs | v1.0 |
+| First area | **Denver**, then **Atlanta** | AOIs are grouped into **city packs** (section 10). The app supports several cities from day one. |
+| Radio hardware | Baofeng **UV-5RM** handhelds (not available yet); Broadcastify for online listening | See 9.1 and 9.2 |
+| Paid services | **None for now** | Phases 0–5 use only free and free-key sources. Paid connectors are stubs. |
+| Users | Solo testing first, **watch group later** | Local-first now, but the data model is ready for sharing (9.3). |
+| AI | Must run on almost any laptop, so **cloud AI, optional** | Off by default. Bring your own API key, stored in the OS keychain. |
+| Map | Google Maps is the long-term preference; **start with a free dark map + satellite toggle** | Free satellite imagery: **USGS National Map imagery** (public domain, sharp US aerial photos), with Esri World Imagery as a fallback (attribution required). Google can be added later as a provider plugin (Maps JS / Map Tiles API, which needs a billing account but has a free monthly usage tier). |
+
+### 9.1 What the Baofeng UV-5RM can and can't do
+- It receives **analog FM only**. Denver's and Atlanta's police and fire run on **digital P25 trunked systems**, many of them encrypted, which a Baofeng **cannot** decode.
+- Still useful:
+  - **NOAA Weather Radio** (162.400–162.550 MHz)
+  - ham radio **SKYWARN / ARES** nets during severe weather
+  - analog channels that remain (some businesses, events, rail)
+- **Line-in connector:** a cheap Kenwood 2-pin to 3.5 mm audio cable runs from the radio to the laptop's mic or line input. The app treats that as a "radio channel": level meter, recording, and Whisper transcription with keyword alerts.
+- Transmitting: ham bands require an amateur license. The UV-5RM is **not certified for GMRS/FRS**, so watch-group radio chat should use GMRS radios (license, no exam) or Meshtastic.
+- Later upgrade: an **RTL-SDR v4** (~$40) with trunk-recorder can decode *unencrypted* P25 talkgroups, which is the only way to get scanner audio Broadcastify doesn't carry.
+
+### 9.2 Broadcastify approach (free)
+- No API and no embed player. The embed player was [retired](https://forums.radioreference.com/threads/why-was-the-embedded-feed-function-removed-without-notice.502303/), and the catalog API excludes scanner apps.
+- **Plan:** a **"Web Radio" panel**, an in-app browser view that opens Broadcastify's own listen pages for feeds saved per city. It behaves exactly like listening in a normal browser: their player, their ads, their terms. The app adds a saved feed list, tags each feed by agency, and remembers the panel's monitor position.
+- **No stream-URL scraping and no rebroadcasting to the watch group.** Each member listens through their own Broadcastify session.
+- Transcription of Broadcastify audio is **not** in scope (no clean way to get the audio). Transcription will come from the line-in Baofeng, OpenMHz, or an SDR.
+
+### 9.3 Ready for watch-group sharing
+- Every Event and note has a UUID, an author, and a `shared: bool` flag. Nothing is shared unless the user marks it.
+- Later, a **sync server**: self-hosted **PocketBase** (free, a single binary) or a free hosted tier. It would provide a shared incident log, shared AOIs and city packs, and member alerts through **ntfy**.
+- Only *your own notes and incident summaries* are shared. Raw third-party data (Broadcastify audio, registry records) is never redistributed.
 
 ---
 
-## 10. Open questions to settle before building
+## 10. City packs
 
-1. **Where is the first AOI?** (country/state/city) Data availability varies enormously by city: some have real-time CAD and open crime data, others have almost nothing. Phase 5 should start from what your city actually publishes.
-2. **Will you buy SDR hardware?** (~$40–150 for an RTL-SDR plus antennas.) It is the most reliable way to get scanner audio and low-latency aircraft and vessel data.
-3. **Budget for paid APIs?** (Broadcastify, SpotCrime/CrimeoMeter, RadioReference premium, TomTom.)
-4. **Solo tool, or shared with a watch group?** Sharing would add a small sync server, a shared incident log, and Meshtastic integration.
-5. **AI:** local only (Ollama, private, free) or cloud (better quality, costs money, sends data off the laptop)?
-6. **Google Maps specifically,** or is a sleek dark vector map (free) acceptable, with satellite imagery as a toggle?
+A city pack is a JSON file (`packs/denver.json`, `packs/atlanta.json`) listing that city's AOI presets, feeds, endpoints, gazetteer seeds and saved radio feeds. Switching cities from the command bar swaps the pack. You can also watch both cities at once, one per monitor.
+
+> Status notes come from web research in Nov 2026. Items marked *verify* must be checked during implementation.
+
+### Denver, CO
+| Category | Source | Notes |
+|---|---|---|
+| Police radio | **Denver PD encrypted since July 2019** ([CPR](https://www.cpr.org/2019/08/08/the-denver-police-just-encrypted-their-scanners-and-journalists-are-protesting-the-silence)); Aurora since 2016 | Don't expect DPD audio. Check suburban agencies on Colorado DTRS (P25) for unencrypted talkgroups. *verify* |
+| Fire/EMS radio | Broadcastify **"Denver Fire Alerting and EMS"** ([feed](https://Broadcastify.com/listen/feed/7435)) | Station alerting, Fire 1, and Denver Health EMS. Tactical and fireground channels are encrypted. |
+| Crime | Denver Open Data **DenverCrime** ArcGIS FeatureServer + CSV | Updated Mon–Fri with about a **2-day lag**. CC BY 3.0. Shows trends, not live events. |
+| Traffic | **COtrip** (CDOT) API at maps.cotrip.org | Key requirements *verify* |
+| Weather | NWS **Boulder (BOU)** office alerts; NASA FIRMS (wildfire smoke and fires); AirNow (ozone and smoke) | |
+| Aircraft | adsb.lol / airplanes.live | Filter out DEN airliners at cruise altitude. Highlight **helicopters** (Flight For Life, news, law enforcement) and orbits. |
+| News | Denver Post, Denverite, CPR News, Denver7, 9NEWS, KDVR FOX31, CBS Colorado, Axios Denver, Westword; r/Denver | RSS + Google News RSS + GDELT |
+| Vessels | Low value (no major waterways) | Layer off by default |
+
+### Atlanta, GA
+| Category | Source | Notes |
+|---|---|---|
+| Police radio | APD encryption status **unclear**. *verify* on Broadcastify Fulton County. Georgia State Patrol has mostly moved to SouthernLinc LTE (not receivable). | |
+| Fire/EMS radio | Broadcastify **Atlanta Fire Rescue** and **Atlanta Metro** multi-agency feeds ([Fulton County list](https://www.broadcastify.com/listen/ctid/442)) | Run by volunteers, so availability varies. Fulton County Public Safety P25 system: [RadioReference sid 8340](https://radioreference.com/db/sid/8340). |
+| Crime | **APD Open Data Portal** (opendata.atlantapd.org, ArcGIS) | REST endpoint *verify* |
+| Traffic | **Georgia 511 API** ([docs](https://511ga.org/developers/doc)) | Free key, **10 calls / 60 s**. Cameras, alerts, message signs: a strong source for the camera wall. |
+| Weather | NWS **Peachtree City (FFC)** alerts; severe storms and tornado warnings are the main hazard | |
+| Aircraft | adsb.lol / airplanes.live | ATL is the world's busiest airport, so **aggressive filtering** (below 3,000 ft AGL, helicopters, orbits) is essential |
+| News | AJC, 11Alive, WSB-TV, FOX 5 Atlanta, Atlanta News First, WABE, Axios Atlanta; r/Atlanta | |
+| Vessels | Low value (Lake Lanier and the Chattahoochee only) | Layer off by default |
+
+### Both cities
+- **PulsePoint:** look up agencies by coordinates; neither city has been confirmed as participating. *verify*. Opt-in, since it's an unofficial connector.
+- **Registry lookup:** deep links to the [Colorado](https://apps.colorado.gov/apps/dps/sor/) and [Georgia](https://state.sor.gbi.ga.gov/sort_public/) state registry searches and to NSOPW. *verify* URLs. No scraping.
+
+---
+
+## 11. Roadmap
+
+| Phase | Scope | Outcome |
+|---|---|---|
+| **0. Spike** (1 wk) | Tauri + MapLibre + deck.gl; **Denver** AOI; dark basemap + USGS satellite toggle; **live aircraft** (adsb.lol) with helicopter and orbit highlighting; NWS alerts; pop the map out to a second window | First demo, using only free sources that need no key |
+| **1. Core** (2–3 wk) | AOI editor, **city packs** (Denver + Atlanta), Event store, panel/workspace system, layout profiles per monitor setup, theme | Console shell |
+| **2. Map layers** (2 wk) | Denver crime (30/90-day heatmap), Georgia 511 + COtrip incidents and cameras, USGS, FIRMS, AirNow | Rich map |
+| **3. News** (2 wk) | RSS / Google News / GDELT / Reddit / Bluesky, gazetteer geocoding, dedupe, search | Local news wall |
+| **4. Radio** (2–3 wk) | **Web Radio panel** (Broadcastify), **line-in channel** for the Baofeng with Whisper transcripts and keyword alerts, OpenMHz connector | Scanner console |
+| **5. Public safety** (2 wk) | APD open data, 311, registry lookup panel, opt-in PulsePoint | Neighborhood picture |
+| **6. Fusion** (3 wk) | Correlator, Developing Incident cards, alert rules, desktop and ntfy alerts, replay, optional cloud-AI daily brief | The differentiator |
+| **7. Watch group** | PocketBase sync, shared incident log, member roles, shared city packs | Multi-user |
+| **8. Polish** | Command palette, sounds, red-light mode, installers + auto-update, optional Google Maps provider | v1.0 |
+
+## 12. Remaining open items
+- Check the *verify* items in section 10 as each connector is built.
+- Decide later whether to buy an RTL-SDR, which would unlock unencrypted P25 audio and your own ADS-B receiver.
+- Choose a cloud AI provider when the AI features land (phase 6).
