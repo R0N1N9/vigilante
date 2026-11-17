@@ -1,6 +1,5 @@
 import react from '@vitejs/plugin-react';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { EnvHttpProxyAgent, fetch as ufetch } from 'undici';
 import { defineConfig, type Plugin } from 'vite';
 import hosts from './config/hosts.json' with { type: 'json' };
 
@@ -9,7 +8,16 @@ import hosts from './config/hosts.json' with { type: 'json' };
  * reach data APIs without CORS issues. The desktop app uses the Rust core instead.
  */
 function devProxy(): Plugin {
-  const dispatcher = new EnvHttpProxyAgent();
+  // Plain fetch normally. Only behind an HTTP(S) proxy (e.g. a corporate network) load undici's proxy agent.
+  const proxied = !!(process.env.HTTPS_PROXY || process.env.https_proxy || process.env.HTTP_PROXY || process.env.http_proxy);
+  let fetcher: Promise<(url: URL, init: Record<string, unknown>) => Promise<Response>> | null = null;
+  const getFetch = () =>
+    (fetcher ??= proxied
+      ? import('undici').then(({ EnvHttpProxyAgent, fetch }) => {
+          const dispatcher = new EnvHttpProxyAgent();
+          return (url: URL, init: Record<string, unknown>) => fetch(url, { ...init, dispatcher } as never) as unknown as Promise<Response>;
+        })
+      : Promise.resolve((url: URL, init: Record<string, unknown>) => fetch(url, init as RequestInit)));
   const allowed = new Set<string>(hosts.get);
   const handler = async (req: IncomingMessage, res: ServerResponse) => {
     try {
@@ -19,15 +27,15 @@ function devProxy(): Plugin {
         res.end('host not allowed');
         return;
       }
+      const ufetch = await getFetch();
       let r = await ufetch(target, {
-        dispatcher,
         redirect: 'manual',
         headers: { 'User-Agent': 'Vigilante/0.1 (dev)', Accept: 'application/geo+json, application/json, application/rss+xml, application/xml, */*' },
       });
       for (let hop = 0; hop < 5 && r.status >= 300 && r.status < 400 && r.headers.get('location'); hop++) {
         const next = new URL(r.headers.get('location')!, target);
         if (next.protocol !== 'https:' || !allowed.has(next.hostname)) break;
-        r = await ufetch(next, { dispatcher, redirect: 'manual', headers: { 'User-Agent': 'Vigilante/0.1 (dev)' } });
+        r = await ufetch(next, { redirect: 'manual', headers: { 'User-Agent': 'Vigilante/0.1 (dev)' } });
       }
       res.statusCode = r.status;
       res.setHeader('Content-Type', r.headers.get('content-type') ?? 'application/json');
