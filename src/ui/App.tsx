@@ -18,6 +18,7 @@ import { NewsTab } from './NewsTab';
 import type { View } from './popout';
 import { InfraTab } from './InfraTab';
 import { TeamTab } from './TeamTab';
+import { TeamView } from './Agents';
 
 function MapStage() {
   return (
@@ -141,7 +142,7 @@ export function App({ view }: { view: View }) {
       {view === 'console' && (
         <>
           <main className="console">
-            {mainView === 'dashboard' ? <Dashboard /> : <MapStage />}
+            {mainView === 'dashboard' ? <Dashboard /> : mainView === 'team' ? <TeamView map={<MapStage />} /> : <MapStage />}
             <Rail />
           </main>
           <EventLog strip />

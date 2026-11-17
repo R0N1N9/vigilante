@@ -140,7 +140,7 @@ export interface SharedUi {
   packId: string;
   selectedHex: string | null;
   /** Where the map should fly to; label/url drive the locator marker. */
-  focus: { at: number; center: LonLat; zoom?: number; label?: string } | null;
+  focus: { at: number; center: LonLat; zoom?: number; label?: string; bounds?: [LonLat, LonLat] } | null;
   ceilingAglFt: number | null;
   hideGround: boolean;
   layers: Layers;
@@ -171,7 +171,7 @@ export interface LocalUi {
   drawing: LonLat[] | null;
   /** Monitor id waiting for a map click to set its center. */
   pickPoint: string | null;
-  modal: 'settings' | 'brief' | 'invite' | 'poster' | null;
+  modal: 'settings' | 'brief' | 'invite' | 'poster' | 'agent' | null;
   /** FBI poster open in the poster view. */
   posterId: string | null;
   /** Channel whose invite is open. */
@@ -183,7 +183,11 @@ export interface LocalUi {
   /** Invite opened from a #join= link, waiting for the user to confirm. */
   joinCode: string | null;
   tvChannel: string | null;
-  mainView: 'map' | 'dashboard';
+  mainView: 'map' | 'dashboard' | 'team';
+  /** When the team was last highlighted on the map (markers pulse for a few seconds). */
+  teamHighlight: number;
+  /** Agent whose profile is open. */
+  agentId: string | null;
 }
 
 export interface State extends DataState, SharedUi, LocalUi {}
@@ -277,6 +281,8 @@ let state: State = {
   joinCode: typeof location !== 'undefined' && /#join=VG1\./.test(location.hash) ? decodeURIComponent(location.hash.slice(6)) : null,
   tvChannel: null,
   mainView: prefs.mainView ?? 'map',
+  teamHighlight: 0,
+  agentId: null,
 };
 
 const listeners = new Set<() => void>();

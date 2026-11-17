@@ -137,6 +137,7 @@ function connectPositions(ch: NtfyChannel) {
         env: r.env,
         app: r.app,
         perm: r.perm ?? ['loc'],
+        profile: r.prof,
       });
     });
   };

@@ -85,6 +85,8 @@ export interface TeamMember {
   activity?: string;
   heartRate?: number;
   env?: { lux?: number; hpa?: number; db?: number };
+  /** Role and contact details the person chose to share. */
+  profile?: { role?: string; unit?: string; phone?: string; email?: string };
   /** Stealth: the person hid themselves; no location is kept. */
   dark?: boolean;
 }

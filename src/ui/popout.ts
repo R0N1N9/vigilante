@@ -80,9 +80,9 @@ export async function openRadio(feed: { name: string; url: string }) {
 }
 
 /** Open an article or page outside the console. */
-/** Hand a mailto: or sms: link to the system's mail or messaging app. */
+/** Hand a mailto:, sms: or tel: link to the system's mail, messaging or phone app. */
 export async function openSystem(url: string) {
-  if (!/^(mailto|sms):/.test(url)) return;
+  if (!/^(mailto|sms|tel):/.test(url)) return;
   if (isTauri()) {
     const { openUrl } = await import('@tauri-apps/plugin-opener');
     await openUrl(url);
