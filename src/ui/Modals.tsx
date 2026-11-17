@@ -41,7 +41,7 @@ function SettingsModal() {
     <Modal title="Settings">
       <section>
         <h3>Optional keys</h3>
-        <p className="muted small-text">Everything else works without keys. These three have no keyless equivalent, so they're optional.</p>
+        <p className="muted small-text">Everything else works without keys. These have no keyless equivalent, so they're optional.</p>
         <label className="field">
           <span>Georgia 511 key (Atlanta road incidents + traffic cameras)</span>
           <input type="password" value={s.keys.ga511} onChange={(e) => set('keys', { ga511: e.target.value.trim() })} placeholder="from 511ga.org → Developers" />
@@ -54,7 +54,11 @@ function SettingsModal() {
           <span>AISstream.io key (live ships, coastal areas only)</span>
           <input type="password" value={s.keys.ais} onChange={(e) => set('keys', { ais: e.target.value.trim() })} placeholder="from aisstream.io (sign in with GitHub)" />
         </label>
-        <p className="muted small-text">Keys are stored in a settings file on this computer.</p>
+        <label className="field">
+          <span>Claude API key (optional AI briefings on the Dashboard)</span>
+          <input type="password" value={s.keys.claude} onChange={(e) => set('keys', { claude: e.target.value.trim() })} placeholder="from console.anthropic.com → API keys (pay per use)" />
+        </label>
+        <p className="muted small-text">Keys are stored in a settings file on this computer. AI briefings send a summary of the dashboard data (no personal data) to Anthropic only when you press the button.</p>
       </section>
 
       <section>

@@ -5,7 +5,7 @@ import { getPack } from '../lib/packs';
 import { fmtAgo } from './format';
 import { openExternal, openTvWindow, tvUrl, type TvMode } from './popout';
 
-function LiveTv() {
+export function LiveTv() {
   const pack = useStore((s) => getPack(s.packId));
   const chosen = useStore((s) => s.tvChannel);
   const [mode, setMode] = useState<TvMode | null>(null);

@@ -20,6 +20,12 @@ A neighborhood situational-awareness console for your laptop. It watches the are
 | FAA NAS status | Ground stops and delays at local airports |
 | FBI Wanted | Notices for the local field office |
 
+**Dashboard** (Map | Dashboard switch in the top bar, or Pop out → Dashboard for a second monitor)
+- **SITREP strip:** location, overall condition, violent reports in the last 48 h, open situations, helicopters airborne, air quality and live feeds.
+- **Neighborhood Stability Index (0–100, higher is calmer):** a ring gauge plus a risk meter per factor (crime 30%, incidents 25%, weather and hazards 20%, fire 10%, infrastructure 10%, air 5%). One severe factor caps the score, so a tornado warning can't be averaged away. Crime and gunfire are compared with the city's own week, not a fixed bar. Levels: Stable ≥80, Guarded ≥60, Elevated ≥40, High ≥20, Severe below. A 24-hour trend line builds as the app runs.
+- **Analyst insights:** plain-language findings from the data (crime vs this week's normal, busiest hours, unexplained satellite heat, circling aircraft, outages, quakes, air quality). **✦ AI briefing** (optional Claude key) turns a compact summary into a short analyst note. It sends counts and headlines only, never your location history, watch areas or keys, and only when you press the button.
+- **Broadcast** (local TV), **camera grid**, **local news feed**, **active situations**, **sector ratings** (neighborhoods ranked by severity-weighted crime reports this week), **7-day crime activity** and a **status board**.
+
 **On the map** (every layer can be switched off in the Layers panel)
 - **Tactical topographic basemap:** dark vector map with terrain relief, contour lines in feet, an optional **3D terrain** view, and a satellite option. Uses free AWS terrain tiles. A coordinate and zoom readout follows the cursor.
 - **Aircraft** within 25 nm (adsb.lol), with trails. Helicopters (amber), military (blue), low aircraft (white) and **emergency squawks** (red) are highlighted, aircraft **circling** a spot are flagged, and an altitude filter hides airliners at cruise.
@@ -94,7 +100,7 @@ Then open http://localhost:5173. Pop-outs open as browser popups.
 ## Using it
 
 ### First-time setup (Settings ⚙)
-1. **Optional keys.** Everything works without keys. Three extras have no keyless equivalent: Georgia 511 (Atlanta road incidents and traffic cameras, [511ga.org](https://511ga.org) → Developers), COtrip (Denver road incidents, [manage-api.cotrip.org](https://manage-api.cotrip.org)) and AISstream.io (live ships near coasts, [aisstream.io](https://aisstream.io)). Paste them into Settings → Optional keys.
+1. **Optional keys.** Everything works without keys. Three extras have no keyless equivalent: Georgia 511 (Atlanta road incidents and traffic cameras, [511ga.org](https://511ga.org) → Developers), COtrip (Denver road incidents, [manage-api.cotrip.org](https://manage-api.cotrip.org)) AISstream.io (live ships near coasts, [aisstream.io](https://aisstream.io)) and a Claude API key for AI briefings on the dashboard ([console.anthropic.com](https://console.anthropic.com), billed per use, about a cent per briefing). Paste them into Settings → Optional keys.
 2. **Phone alerts.** Install **ntfy** ([iOS](https://apps.apple.com/app/ntfy/id1625396347) / [Android](https://play.google.com/store/apps/details?id=io.heckel.ntfy)), tick *Send alerts to my phone*, subscribe to the topic shown in Settings from the ntfy app, then press *Send a test notification*. The topic works like a password, so keep it random.
 3. **Morning brief.** Choose a time and how many hours it covers. Leave the app running overnight so it has something to report.
 
@@ -165,6 +171,7 @@ cd src-tauri && cargo test
 - Crime and 311: [Denver Open Data](https://opendata-geospatialdenver.hub.arcgis.com/), [Atlanta Police open data](https://opendata.atlantapd.org/)
 - Satellite fire: [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) · Radar: [Iowa Environmental Mesonet](https://mesonet.agron.iastate.edu/) · Earthquakes and river cameras: [USGS](https://www.usgs.gov/) · River gauges: [NOAA NWPS](https://water.noaa.gov/) · Air quality: [Open-Meteo](https://open-meteo.com/) · Airports: [FAA NAS Status](https://nasstatus.faa.gov/) · Wanted: [FBI](https://www.fbi.gov/wanted)
 - Ships (optional key): [AISstream.io](https://aisstream.io)
+- AI briefings (optional key): [Claude API](https://www.anthropic.com/api)
 - Scanner radio: [Broadcastify](https://www.broadcastify.com) (played through their own web player)
 - News: station RSS feeds (Denver7, 9NEWS, FOX31, Denverite, CPR News, 11Alive, FOX 5 Atlanta, WSB-TV, Atlanta News First) and Google News search RSS. Headlines link to the original story.
 - Phone alerts: [ntfy](https://ntfy.sh)

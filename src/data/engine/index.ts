@@ -17,6 +17,7 @@ import { startPower } from './power';
 import { startFires } from './fires';
 import { startIntel } from './intel';
 import { startShips } from './ships';
+import { refreshDashboard, requestAiBrief, resetDashboard } from './dashboard';
 
 function startForPack(id: string) {
   clearTimers();
@@ -37,6 +38,7 @@ function startForPack(id: string) {
   startIntel(gen);
   startShips(gen);
   startNews(gen);
+  resetDashboard();
   recomputeClusters(false);
   publishData();
 }
@@ -51,6 +53,8 @@ export async function startEngine() {
   startDrones();
   startBriefScheduler();
   window.setInterval(() => recomputeClusters(false), 60_000);
+  window.setTimeout(refreshDashboard, 20_000);
+  window.setInterval(refreshDashboard, 60_000);
 
   let prev = getState();
   subscribe(() => {
@@ -64,6 +68,7 @@ export async function startEngine() {
     if (r.brief && r.brief !== p.requests.brief) makeBrief();
     if (r.pushTest && r.pushTest !== p.requests.pushTest) void sendTestPush();
     if (r.droneSim && r.droneSim !== p.requests.droneSim) simulateDrone();
+    if (r.ai && r.ai !== p.requests.ai) void requestAiBrief();
     if (s.packId !== ctx.packId) startForPack(s.packId);
     else if (s.settings.keys !== p.settings.keys) startForPack(s.packId); // new API key: restart sources
   });

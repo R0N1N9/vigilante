@@ -1,7 +1,7 @@
 import { DEFAULT_PUSH, type PushSettings } from './rules';
 
 export interface Settings {
-  keys: { ga511: string; cotrip: string; ais: string };
+  keys: { ga511: string; cotrip: string; ais: string; claude: string };
   push: PushSettings;
   brief: { enabled: boolean; time: string; hours: number; push: boolean };
   /** scan: Bluetooth. wifiIface: Linux monitor-mode interface for Wi-Fi Remote ID (e.g. wlan0mon), empty = off. */
@@ -11,7 +11,7 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  keys: { ga511: '', cotrip: '', ais: '' },
+  keys: { ga511: '', cotrip: '', ais: '', claude: '' },
   push: DEFAULT_PUSH,
   brief: { enabled: true, time: '07:00', hours: 12, push: true },
   drones: { scan: false, wifiIface: '' },

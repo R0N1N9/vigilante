@@ -105,6 +105,20 @@ function PopoutMenu() {
   );
 }
 
+function MainViewSwitch() {
+  const mainView = useStore((s) => s.mainView);
+  return (
+    <div className="seg" aria-label="Main view">
+      <button className={mainView === 'map' ? 'on' : ''} onClick={() => setState({ mainView: 'map' })}>
+        Map
+      </button>
+      <button className={mainView === 'dashboard' ? 'on' : ''} onClick={() => setState({ mainView: 'dashboard' })}>
+        Dashboard
+      </button>
+    </div>
+  );
+}
+
 export function CommandBar({ view }: { view: View }) {
   const packId = useStore((s) => s.packId);
   const muted = useStore((s) => s.muted);
@@ -137,6 +151,7 @@ export function CommandBar({ view }: { view: View }) {
         {count} ALERT{count === 1 ? '' : 'S'}
       </button>
       <FeedStatus />
+      {view === 'console' && <MainViewSwitch />}
       <div className="spacer" />
       <div className="actions">
         <button className="btn" onClick={() => setState({ modal: 'brief' })} title="Situation brief">

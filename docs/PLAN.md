@@ -208,6 +208,7 @@ This is the part that makes Vigilante more than a set of tabs.
 - **Severity scoring:** combines source reliability, category, distance from home, and how many sources corroborate the event.
 - **Alerts:** desktop notifications, dispatch-style tones, and optional phone push via **ntfy** (self-hostable) or Pushover. Quiet hours and per-category rules.
 - **Daily brief:** an AI-written summary each morning or evening ("Overnight: 2 vehicle break-ins on Elm, a power outage on the north side, a weather advisory tomorrow").
+- **Stability dashboard (built):** a World Monitor-style board with a Neighborhood Stability Index (0–100) from weighted risk factors, rule-based insights, per-neighborhood ratings, and an on-demand Claude briefing that receives only aggregate counts and headlines.
 - **Incident log / notebook:** add your own notes to incidents and export the shift log (Markdown/PDF), useful for watch-group meetings.
 - **Replay:** scrub back through time across all layers.
 - **Heatmaps:** crime and call density by hour and weekday over the last 30/90 days.

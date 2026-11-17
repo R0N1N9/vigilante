@@ -2,9 +2,10 @@ import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import type { BackgroundThrottlingPolicy } from '@tauri-apps/api/window';
 import { isTauri } from '../lib/http';
 
-export type View = 'console' | 'map' | 'alerts' | 'sky' | 'news' | 'radio' | 'traffic' | 'cameras' | 'areas';
+export type View = 'console' | 'dashboard' | 'map' | 'alerts' | 'sky' | 'news' | 'radio' | 'traffic' | 'cameras' | 'areas';
 
 export const POPOUT_VIEWS: { view: Exclude<View, 'console'>; label: string; w: number; h: number }[] = [
+  { view: 'dashboard', label: 'Dashboard', w: 1500, h: 950 },
   { view: 'map', label: 'Map', w: 1280, h: 800 },
   { view: 'alerts', label: 'Alerts & log', w: 520, h: 860 },
   { view: 'cameras', label: 'Camera wall', w: 960, h: 720 },

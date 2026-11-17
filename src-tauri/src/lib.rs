@@ -9,6 +9,7 @@
 mod drones;
 mod wifi_rid;
 mod ais;
+mod ai;
 
 use std::sync::OnceLock;
 use std::time::Duration;
@@ -191,7 +192,8 @@ pub fn run() {
             wifi_rid::wifi_rid_start,
             wifi_rid::wifi_rid_stop,
             ais::ais_start,
-            ais::ais_stop
+            ais::ais_stop,
+            ai::ai_brief
         ])
         .on_window_event(|window, event| {
             // Closing the main console closes the whole app, pop-outs included.

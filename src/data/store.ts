@@ -15,6 +15,8 @@ import type { Camera, TrafficEvent } from '../lib/traffic';
 import type { TransitDisruption } from '../lib/transit';
 import type { CountyOutage } from '../lib/outages';
 import type { FireIncident } from '../lib/fires';
+import type { Stability } from '../lib/stability';
+import type { Insight } from '../lib/insights';
 import type { AirportDelay, AirQuality, Crime, Gauge, Hotspot, Quake, ServiceRequest, Ship, StormReport, Wanted } from '../lib/intel';
 
 export type Basemap = 'dark' | 'satellite';
@@ -94,6 +96,10 @@ export interface DataState {
   airportDelays: AirportDelay[];
   storms: StormReport[];
   ships: Ship[];
+  stability: Stability | null;
+  stabilityHistory: { t: number; score: number }[];
+  insights: Insight[];
+  ai: { text: string; at: number; error?: string; loading?: boolean } | null;
   news: NewsItem[];
   drones: DroneTrack[];
   brief: Brief | null;
@@ -140,7 +146,7 @@ export interface SharedUi {
   /** Saved locations the user searched for (custom city packs). */
   locations: CityPack[];
   /** One-shot requests any window can make of the leader (value = request time). */
-  requests: { brief?: number; pushTest?: number; droneSim?: number };
+  requests: { brief?: number; pushTest?: number; droneSim?: number; ai?: number };
 }
 
 export type RailTab = 'alerts' | 'sky' | 'news' | 'radio' | 'traffic' | 'hazards' | 'cameras' | 'areas';
@@ -153,6 +159,7 @@ export interface LocalUi {
   drawing: LonLat[] | null;
   modal: 'settings' | 'brief' | null;
   tvChannel: string | null;
+  mainView: 'map' | 'dashboard';
 }
 
 export interface State extends DataState, SharedUi, LocalUi {}
@@ -169,8 +176,8 @@ function loadPrefs(): Partial<SharedUi & LocalUi> {
 
 function savePrefs(s: State) {
   try {
-    const { packId, ceilingAglFt, hideGround, layers, muted, basemap, tab } = s;
-    localStorage.setItem(PREFS_KEY, JSON.stringify({ packId, ceilingAglFt, hideGround, layers, muted, basemap, tab }));
+    const { packId, ceilingAglFt, hideGround, layers, muted, basemap, tab, mainView } = s;
+    localStorage.setItem(PREFS_KEY, JSON.stringify({ packId, ceilingAglFt, hideGround, layers, muted, basemap, tab, mainView }));
   } catch {
     /* storage unavailable: prefs just won't persist */
   }
@@ -203,6 +210,10 @@ export const EMPTY_DATA: Omit<DataState, 'log'> = {
   airportDelays: [],
   storms: [],
   ships: [],
+  stability: null,
+  stabilityHistory: [],
+  insights: [],
+  ai: null,
   news: [],
   drones: [],
   brief: null,
@@ -229,6 +240,7 @@ let state: State = {
   drawing: null,
   modal: null,
   tvChannel: null,
+  mainView: prefs.mainView ?? 'map',
 };
 
 const listeners = new Set<() => void>();

@@ -9,6 +9,7 @@ import { CommandBar } from './CommandBar';
 import { RadioTab } from './RadioTab';
 import { SkyTab } from './SkyTab';
 import { HazardsTab } from './IntelPanels';
+import { Dashboard } from './Dashboard';
 import { EventLog } from './EventLog';
 import { LayerPanel } from './LayerPanel';
 import { Modals } from './Modals';
@@ -126,13 +127,14 @@ function Solo({ title, children }: { title: string; children: React.ReactNode })
 }
 
 export function App({ view }: { view: View }) {
+  const mainView = useStore((s) => s.mainView);
   return (
     <div className={`app view-${view}`}>
       <CommandBar view={view} />
       {view === 'console' && (
         <>
           <main className="console">
-            <MapStage />
+            {mainView === 'dashboard' ? <Dashboard /> : <MapStage />}
             <Rail />
           </main>
           <EventLog strip />
@@ -151,6 +153,11 @@ export function App({ view }: { view: View }) {
             </div>
             <EventLog />
           </div>
+        </main>
+      )}
+      {view === 'dashboard' && (
+        <main className="solo">
+          <Dashboard />
         </main>
       )}
       {view === 'sky' && <Solo title="AIRCRAFT & DRONES"><SkyTab /></Solo>}
