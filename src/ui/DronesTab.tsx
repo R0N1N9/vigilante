@@ -1,8 +1,35 @@
+import { useState } from 'react';
 import { setShared } from '../data/bus';
 import { useStore } from '../data/store';
 import { isTauri } from '../lib/http';
 import { UA_TYPES } from '../lib/odid';
 import { fmtAgo } from './format';
+
+function WifiReceiver() {
+  const settings = useStore((s) => s.settings);
+  const [iface, setIface] = useState(settings.drones.wifiIface || 'wlan0mon');
+  const on = !!settings.drones.wifiIface;
+  if (!isTauri()) return null;
+  return (
+    <details className="wifi-rid" open={on}>
+      <summary>Wi-Fi Remote ID (DJI Mavic 3 and other Wi-Fi drones) · Linux</summary>
+      <p className="muted small-text">
+        DJI drones such as the Mavic 3 send Remote ID as Wi-Fi beacons, not Bluetooth. Put a Wi-Fi adapter in monitor mode on channel 6, give the app raw-capture permission, then start
+        the receiver:
+      </p>
+      <pre className="cmd">{`sudo airmon-ng start wlan0
+sudo iw dev wlan0mon set channel 6
+sudo setcap cap_net_raw+ep src-tauri/target/debug/vigilante`}</pre>
+      <div className="btn-row">
+        <input value={iface} onChange={(e) => setIface(e.target.value.replace(/[^\w.-]/g, ''))} aria-label="Monitor interface" style={{ width: 120 }} />
+        <button className="btn small" onClick={() => setShared({ settings: { ...settings, drones: { ...settings.drones, wifiIface: on ? '' : iface } } })}>
+          {on ? 'Stop Wi-Fi receiver' : 'Start Wi-Fi receiver'}
+        </button>
+      </div>
+      <p className="muted small-text">The drone must have Remote ID active (current firmware) and usually a GPS lock before it broadcasts. Monitor mode disconnects that adapter from your Wi-Fi network.</p>
+    </details>
+  );
+}
 
 export function DronesTab() {
   const drones = useStore((s) => s.drones);
@@ -20,8 +47,8 @@ export function DronesTab() {
           an internet feed, so you only see drones within a few hundred meters of this laptop.
         </p>
         <p className="muted">
-          Many DJI drones broadcast over Wi-Fi only, which laptops can't receive. A ~$15 ESP32 receiver adds those. If a drone worries you, report it to local police (non-emergency)
-          or the FAA. Don't approach the pilot.
+          DJI drones (Mavic 3, Mini, Air) broadcast over Wi-Fi, which Bluetooth can't see. Use the Wi-Fi receiver below (Linux, monitor mode). If a drone worries you, report it to
+          local police (non-emergency) or the FAA. Don't approach the pilot.
         </p>
         <div className="btn-row">
           <label className="check">
@@ -29,7 +56,7 @@ export function DronesTab() {
               type="checkbox"
               disabled={!desktop}
               checked={settings.drones.scan}
-              onChange={() => setShared({ settings: { ...settings, drones: { scan: !settings.drones.scan } } })}
+              onChange={() => setShared({ settings: { ...settings, drones: { ...settings.drones, scan: !settings.drones.scan } } })}
             />
             Scan with this laptop's Bluetooth {desktop ? '' : '(desktop app only)'}
           </label>
@@ -37,6 +64,7 @@ export function DronesTab() {
             Simulate a drone
           </button>
         </div>
+        <WifiReceiver />
         <div className={`mono small-text feed-${feed.status}`}>
           Status: {feed.status}
           {feed.error ? ` · ${feed.error}` : ''}

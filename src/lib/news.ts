@@ -1,5 +1,5 @@
 import type { LonLat } from './geo';
-import type { Place } from './packs';
+import type { Place, TermTuple } from './packs';
 import { matchPlaces } from './places';
 import type { Severity } from './signals';
 
@@ -14,15 +14,21 @@ export interface NewsItem {
   place: string | null;
   location: LonLat | null;
   severity: Severity;
-  category: 'crime' | 'fire' | 'traffic' | 'weather' | 'missing' | 'general';
+  category: 'crime' | 'fire' | 'rescue' | 'traffic' | 'weather' | 'missing' | 'general';
   /** Mentions a local place or city/county name. Station feeds also carry national stories. */
   local: boolean;
+  /** Where to pin it: the neighborhood if named, otherwise the city/county center (approximate). */
+  pin: LonLat | null;
+  precision: 'place' | 'area' | null;
+  areaName: string | null;
 }
 
+const RESCUE = /\b(search and rescue|rescued|rescue crews?|water rescue|swift[- ]water|missing hiker|stranded|trapped|extricat\w*|avalanche|recovery effort)\b/i;
 const HIGH = /\b(shooting|shot|shots fired|stabbing|stabbed|homicide|murder|killed|carjack\w*|kidnap\w*|hostage|swat|standoff|explosion|active shooter|manhunt|barricaded)\b/i;
 const MEDIUM = /\b(robbery|robbed|burglar\w*|break-ins?|arrest\w*|police chase|pursuit|fire|blaze|crash|wreck|missing|amber alert|evacuat\w*|hazmat|lockdown|assault\w*|theft|stolen|vandal\w*|gunfire|police)\b/i;
 
 const CATEGORY: [NewsItem['category'], RegExp][] = [
+  ['rescue', RESCUE],
   ['missing', /\b(missing|amber alert|endangered)\b/i],
   ['fire', /\b(fire|blaze|smoke|burn\w*|firefighters?)\b/i],
   ['traffic', /\b(crash|wreck|closure|closed|lanes?|interstate|i-\d+|highway|traffic)\b/i],
@@ -31,7 +37,7 @@ const CATEGORY: [NewsItem['category'], RegExp][] = [
 ];
 
 export function classify(text: string): { severity: Severity; category: NewsItem['category'] } {
-  const severity: Severity = HIGH.test(text) ? 2 : MEDIUM.test(text) ? 1 : 0;
+  const severity: Severity = HIGH.test(text) ? 2 : MEDIUM.test(text) || RESCUE.test(text) ? 1 : 0;
   const category = CATEGORY.find(([, re]) => re.test(text))?.[0] ?? 'general';
   return { severity, category };
 }
@@ -77,12 +83,18 @@ function imageOf(it: Element): string | null {
 }
 
 /** Parse an RSS 2.0 feed (also tolerates Atom). `parser` is injectable for tests. */
-export function isLocal(text: string, places: Place[], localTerms: string[]): boolean {
-  if (matchPlaces(text, places).length) return true;
-  return localTerms.some((t) => new RegExp(`(^|[^A-Za-z])${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z])`).test(text));
+const termRe = (t: string) => new RegExp(`(^|[^A-Za-z])${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z])`);
+
+/** First city/county term named in the text. */
+export function matchTerm(text: string, terms: TermTuple[]): TermTuple | null {
+  return terms.find(([t]) => termRe(t).test(text)) ?? null;
 }
 
-export function parseFeed(xml: string, sourceName: string, places: Place[], localTerms: string[] = [], parser = new DOMParser()): NewsItem[] {
+export function isLocal(text: string, places: Place[], localTerms: TermTuple[]): boolean {
+  return matchPlaces(text, places).length > 0 || matchTerm(text, localTerms) != null;
+}
+
+export function parseFeed(xml: string, sourceName: string, places: Place[], localTerms: TermTuple[] = [], parser = new DOMParser()): NewsItem[] {
   const doc = parser.parseFromString(xml, 'text/xml');
   const items = [...doc.querySelectorAll('item, entry')];
   return items.map((it) => {
@@ -110,8 +122,15 @@ export function parseFeed(xml: string, sourceName: string, places: Place[], loca
       severity,
       category,
       local: isLocal(full, places, localTerms),
+      ...pinFor(match?.place ?? null, matchTerm(full, localTerms)),
     };
   });
+}
+
+function pinFor(place: Place | null, term: TermTuple | null): Pick<NewsItem, 'pin' | 'precision' | 'areaName'> {
+  if (place) return { pin: place.at, precision: 'place', areaName: place.name };
+  if (term) return { pin: [term[1], term[2]], precision: 'area', areaName: term[0] };
+  return { pin: null, precision: null, areaName: null };
 }
 
 const words = (s: string) =>
@@ -139,7 +158,8 @@ export function dedupeNews(items: NewsItem[], threshold = 0.55): NewsItem[] {
   for (const it of [...items].sort((a, b) => b.published - a.published)) {
     const dup = out.find((o) => o.id === it.id || titleSimilarity(o.title, it.title) >= threshold);
     if (!dup) out.push(it);
-    else if (!dup.location && it.location) Object.assign(dup, { place: it.place, location: it.location });
+    else if (!dup.location && it.location) Object.assign(dup, { place: it.place, location: it.location, pin: it.pin, precision: it.precision, areaName: it.areaName });
+    else if (!dup.pin && it.pin) Object.assign(dup, { pin: it.pin, precision: it.precision, areaName: it.areaName, local: dup.local || it.local });
   }
   return out;
 }

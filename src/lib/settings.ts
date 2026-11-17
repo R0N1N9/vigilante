@@ -1,17 +1,21 @@
 import { DEFAULT_PUSH, type PushSettings } from './rules';
 
 export interface Settings {
-  keys: { ga511: string; cotrip: string };
+  keys: { ga511: string; cotrip: string; windy: string };
   push: PushSettings;
   brief: { enabled: boolean; time: string; hours: number; push: boolean };
-  drones: { scan: boolean };
+  /** scan: Bluetooth. wifiIface: Linux monitor-mode interface for Wi-Fi Remote ID (e.g. wlan0mon), empty = off. */
+  drones: { scan: boolean; wifiIface: string };
+  /** Map look: 3D terrain and contour lines. */
+  map: { terrain3d: boolean; contours: boolean; hillshade: boolean };
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  keys: { ga511: '', cotrip: '' },
+  keys: { ga511: '', cotrip: '', windy: '' },
   push: DEFAULT_PUSH,
   brief: { enabled: true, time: '07:00', hours: 12, push: true },
-  drones: { scan: false },
+  drones: { scan: false, wifiIface: '' },
+  map: { terrain3d: false, contours: true, hillshade: true },
 };
 
 /** Fill in fields added in newer versions. */
@@ -21,6 +25,7 @@ export function withDefaults(s: Partial<Settings> | null): Settings {
     push: { ...DEFAULT_SETTINGS.push, ...(s?.push ?? {}) },
     brief: { ...DEFAULT_SETTINGS.brief, ...(s?.brief ?? {}) },
     drones: { ...DEFAULT_SETTINGS.drones, ...(s?.drones ?? {}) },
+    map: { ...DEFAULT_SETTINGS.map, ...(s?.map ?? {}) },
   };
 }
 

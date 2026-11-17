@@ -47,8 +47,19 @@ describe('news', () => {
   });
 
   it('marks stories local only when they name a local place or term', () => {
-    const items = parseFeed(fx('station.xml'), 'Example', atl, ['Atlanta']);
+    const items = parseFeed(fx('station.xml'), 'Example', atl, [['Atlanta', -84.388, 33.749]]);
     expect(items.map((i) => i.local)).toEqual([true, false, false]);
+  });
+
+  it('pins stories at the neighborhood, or approximately at the city/county', () => {
+    const items = parseFeed(fx('gnews.xml'), 'Google News', atl, [['Atlanta', -84.388, 33.749], ['DeKalb', -84.23, 33.77]]);
+    expect(items[0]).toMatchObject({ precision: 'place', areaName: 'Little Five Points' });
+    const area = parseFeed('<rss><channel><item><title>DeKalb deputies search for suspect</title><link>https://e.x/1</link></item></channel></rss>', 'X', atl, [['DeKalb', -84.23, 33.77]]);
+    expect(area[0]).toMatchObject({ precision: 'area', areaName: 'DeKalb', pin: [-84.23, 33.77], location: null });
+  });
+
+  it('recognizes search and rescue', () => {
+    expect(classify('Crews rescue stranded hikers near Golden')).toMatchObject({ category: 'rescue', severity: 1 });
   });
 
   it('classifies severity', () => {

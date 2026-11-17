@@ -2,12 +2,12 @@ import { Component, type ReactNode } from 'react';
 import { setState, useStore, type RailTab } from '../data/store';
 import { MapView } from '../map/MapView';
 import { AircraftCard } from './AircraftCard';
-import { AircraftList } from './AircraftList';
 import { AlertsTab } from './AlertsTab';
 import { AreasTab, DrawBar } from './AreasTab';
 import { CamerasTab, CameraViewer } from './Cameras';
 import { CommandBar } from './CommandBar';
-import { DronesTab } from './DronesTab';
+import { RadioTab } from './RadioTab';
+import { SkyTab } from './SkyTab';
 import { EventLog } from './EventLog';
 import { LayerPanel } from './LayerPanel';
 import { Modals } from './Modals';
@@ -30,16 +30,16 @@ function MapStage() {
 const TABS: { id: RailTab; label: string }[] = [
   { id: 'alerts', label: 'Alerts' },
   { id: 'news', label: 'News' },
+  { id: 'radio', label: 'Radio' },
   { id: 'traffic', label: 'City' },
   { id: 'cameras', label: 'Cams' },
-  { id: 'air', label: 'Air' },
-  { id: 'drones', label: 'Drones' },
+  { id: 'sky', label: 'Sky' },
   { id: 'areas', label: 'Areas' },
 ];
 
 function Badge({ tab }: { tab: RailTab }) {
   const n = useStore((s) =>
-    tab === 'alerts' ? s.incidents.length + s.clusters.length : tab === 'traffic' ? s.traffic.filter((t) => t.severity >= 2).length + s.transit.filter((t) => t.severity >= 2).length + s.outages.filter((o) => o.severity >= 1).length : tab === 'drones' ? s.drones.length : tab === 'news' ? s.news.filter((x) => x.severity >= 2 && x.local).length : 0,
+    tab === 'alerts' ? s.incidents.length + s.clusters.length : tab === 'traffic' ? s.traffic.filter((t) => t.severity >= 2).length + s.transit.filter((t) => t.severity >= 2).length + s.outages.filter((o) => o.severity >= 1).length + s.fires.filter((f) => f.severity >= 1).length : tab === 'sky' ? s.drones.length : tab === 'news' ? s.news.filter((x) => x.severity >= 2 && x.local).length : 0,
   );
   return n ? <span className="badge">{n}</span> : null;
 }
@@ -80,10 +80,10 @@ function TabBody({ tab }: { tab: RailTab }) {
       return <InfraTab />;
     case 'cameras':
       return <CamerasTab />;
-    case 'air':
-      return <AircraftList />;
-    case 'drones':
-      return <DronesTab />;
+    case 'sky':
+      return <SkyTab />;
+    case 'radio':
+      return <RadioTab />;
     case 'areas':
       return <AreasTab />;
   }
@@ -149,11 +149,11 @@ export function App({ view }: { view: View }) {
           </div>
         </main>
       )}
-      {view === 'air' && <Solo title="AIRCRAFT"><AircraftList /></Solo>}
+      {view === 'sky' && <Solo title="AIRCRAFT & DRONES"><SkyTab /></Solo>}
+      {view === 'radio' && <Solo title="RADIO"><RadioTab /></Solo>}
       {view === 'news' && <Solo title="NEWS & LIVE TV"><NewsTab /></Solo>}
-      {view === 'traffic' && <Solo title="ROADS · TRANSIT · POWER"><InfraTab /></Solo>}
+      {view === 'traffic' && <Solo title="ROADS · TRANSIT · POWER · FIRE"><InfraTab /></Solo>}
       {view === 'cameras' && <Solo title="CAMERA WALL"><CamerasTab wall={6} /></Solo>}
-      {view === 'drones' && <Solo title="DRONES"><DronesTab /></Solo>}
       {view === 'areas' && <Solo title="WATCH AREAS"><AreasTab /></Solo>}
       <Modals />
     </div>

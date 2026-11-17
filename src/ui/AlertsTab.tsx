@@ -6,7 +6,7 @@ import { SOURCE_LABEL } from '../lib/signals';
 import { fmtAgo, fmtTime } from './format';
 import { openExternal } from './popout';
 
-const KIND_ICON: Record<Incident['kind'], string> = { orbit: '⟳', squawk: '⚠', weather: '☁', tfr: '⛔', drone: '✣' };
+const KIND_ICON: Record<Incident['kind'], string> = { orbit: '⟳', squawk: '⚠', weather: '☁', tfr: '⛔', drone: '✣', fire: '🔥' };
 
 export function ClusterCards() {
   const clusters = useStore((s) => s.clusters);

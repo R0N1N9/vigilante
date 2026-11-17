@@ -106,6 +106,7 @@ const TAGS: Record<Signal['source'], string> = {
   drone: 'flying_saucer',
   transit: 'bus',
   power: 'electric_plug',
+  fire: 'fire',
 };
 
 /**

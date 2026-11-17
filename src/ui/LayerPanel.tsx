@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { setShared } from '../data/bus';
-import { useStore, type Layers } from '../data/store';
+import { setState, useStore, type Layers } from '../data/store';
 
 const CEILINGS: { label: string; value: number | null }[] = [
   { label: 'All', value: null },
@@ -16,6 +16,8 @@ const ROWS: [keyof Layers, string, string][] = [
   ['drones', 'Drones', '#C084FC'],
   ['tfr', 'FAA no-fly zones', '#FF4D4F'],
   ['weather', 'NWS alerts', '#FFB020'],
+  ['fires', 'Wildfires (NIFC)', '#FF7A45'],
+  ['radio', 'Radio coverage', '#2DD4BF'],
   ['traffic', 'Road incidents', '#FF7A45'],
   ['transit', 'Transit disruptions', '#34D399'],
   ['outages', 'Power outages (county)', '#FDE68A'],
@@ -30,6 +32,9 @@ export function LayerPanel() {
   const ceiling = useStore((s) => s.ceilingAglFt);
   const hideGround = useStore((s) => s.hideGround);
   const [open, setOpen] = useState(true);
+  const basemap = useStore((s) => s.basemap);
+  const settings = useStore((s) => s.settings);
+  const mapOpt = (k: keyof typeof settings.map) => setShared({ settings: { ...settings, map: { ...settings.map, [k]: !settings.map[k] } } });
   const toggle = (k: keyof Layers) => setShared({ layers: { ...layers, [k]: !layers[k] } });
 
   return (
@@ -39,6 +44,17 @@ export function LayerPanel() {
       </button>
       {open && (
         <div className="overlay-body">
+          <div className="sub">Map</div>
+          <div className="seg small">
+            <button className={basemap === 'dark' ? 'on' : ''} onClick={() => setState({ basemap: 'dark' })}>Tactical</button>
+            <button className={basemap === 'satellite' ? 'on' : ''} onClick={() => setState({ basemap: 'satellite' })}>Satellite</button>
+          </div>
+          <div className="chips">
+            <button className={settings.map.hillshade ? 'on' : ''} onClick={() => mapOpt('hillshade')}>Relief</button>
+            <button className={settings.map.contours ? 'on' : ''} onClick={() => mapOpt('contours')}>Contours</button>
+            <button className={settings.map.terrain3d ? 'on' : ''} onClick={() => mapOpt('terrain3d')}>3D</button>
+          </div>
+          <div className="sub">Layers</div>
           {ROWS.map(([k, label, swatch]) => (
             <label key={k} className="check">
               <input type="checkbox" checked={layers[k]} onChange={() => toggle(k)} />

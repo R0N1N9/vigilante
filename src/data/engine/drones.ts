@@ -104,6 +104,17 @@ export function simulateDrone(seconds = 180) {
 }
 
 let scanning = false;
+let wifiIface = '';
+
+async function setWifi(iface: string) {
+  if (!isTauri() || iface === wifiIface) return;
+  wifiIface = iface;
+  try {
+    await invoke(iface ? 'wifi_rid_start' : 'wifi_rid_stop', iface ? { iface } : {});
+  } catch (e) {
+    log(`DRONE  Wi-Fi receiver: ${String(e)}`, 1);
+  }
+}
 
 async function setScanning(on: boolean) {
   if (!isTauri() || on === scanning) return;
@@ -135,8 +146,21 @@ export function startDrones() {
   } else {
     setFeed('drones', { status: 'off', at: 0, error: 'Bluetooth scanning needs the desktop app' });
   }
-  void setScanning(getState().settings.drones.scan);
-  subscribe(() => void setScanning(getState().settings.drones.scan));
+  if (isTauri())
+    void listen<string>('drones:wifi-status', (e) => {
+      const s = e.payload;
+      log(`DRONE  Wi-Fi ${s}`, s.startsWith('error') ? 1 : 0);
+      if (s.startsWith('error')) wifiIface = '';
+      if (s.startsWith('listening')) setFeed('drones', { status: 'live', at: Date.now() });
+      publishData();
+    });
+  const apply = () => {
+    const d = getState().settings.drones;
+    void setScanning(d.scan);
+    void setWifi(d.wifiIface.trim());
+  };
+  apply();
+  subscribe(apply);
   window.setInterval(publishTracks, 5000);
 }
 

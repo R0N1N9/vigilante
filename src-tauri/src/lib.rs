@@ -7,6 +7,7 @@
 //! closes every pop-out window when the main console closes.
 
 mod drones;
+mod wifi_rid;
 
 use std::sync::OnceLock;
 use std::time::Duration;
@@ -45,13 +46,28 @@ fn check_url(url: &str) -> Result<reqwest::Url, String> {
     Ok(parsed)
 }
 
+/// Request headers the UI may set (API keys for services that require them in a header).
+const ALLOWED_HEADERS: &[&str] = &["x-windy-api-key"];
+
 /// GET an allow-listed HTTPS URL and return the body as text.
 #[tauri::command]
-async fn http_get(url: String, client: tauri::State<'_, reqwest::Client>) -> Result<String, String> {
+async fn http_get(
+    url: String,
+    headers: Option<std::collections::HashMap<String, String>>,
+    client: tauri::State<'_, reqwest::Client>,
+) -> Result<String, String> {
     let parsed = check_url(&url)?;
-    let resp = client
+    let mut req = client
         .get(parsed)
-        .header("Accept", "application/geo+json, application/json, application/rss+xml, application/xml, text/xml, */*")
+        .header("Accept", "application/geo+json, application/json, application/rss+xml, application/xml, text/xml, */*");
+    for (k, v) in headers.unwrap_or_default() {
+        let k = k.to_ascii_lowercase();
+        if !ALLOWED_HEADERS.contains(&k.as_str()) {
+            return Err(format!("header not allowed: {k}"));
+        }
+        req = req.header(k, v);
+    }
+    let resp = req
         .send()
         .await
         .map_err(|e| format!("request failed: {e}"))?;
@@ -161,6 +177,7 @@ pub fn run() {
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .manage(client)
         .manage(drones::DroneScanner::default())
+        .manage(wifi_rid::WifiScanner::default())
         .invoke_handler(tauri::generate_handler![
             http_get,
             http_get_bytes,
@@ -168,7 +185,9 @@ pub fn run() {
             store_read,
             store_write,
             drones::drones_start,
-            drones::drones_stop
+            drones::drones_stop,
+            wifi_rid::wifi_rid_start,
+            wifi_rid::wifi_rid_stop
         ])
         .on_window_event(|window, event| {
             // Closing the main console closes the whole app, pop-outs included.

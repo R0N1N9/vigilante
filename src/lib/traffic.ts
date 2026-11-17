@@ -23,7 +23,9 @@ export interface Camera {
   imageUrl: string;
   roadway: string;
   direction: string;
-  provider: 'ga511' | 'cotrip';
+  provider: 'ga511' | 'cotrip' | 'windy';
+  /** For webcams: the provider's page (attribution / full player). */
+  pageUrl?: string;
 }
 
 const within = (p: LonLat, center: LonLat, radiusNm: number) => distanceM(p, center) <= radiusNm * NM_TO_M;

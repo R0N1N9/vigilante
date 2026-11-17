@@ -12,6 +12,8 @@ export const CLASS_COLORS = {
 export const DRONE_COLOR = '#C084FC';
 export const CAMERA_COLOR = '#7DD3FC';
 export const TRANSIT_COLOR = '#34D399';
+export const RADIO_COLOR = '#2DD4BF';
+export const WEBCAM_COLOR = '#F0ABFC';
 export const SEVERITY_COLORS = ['#8FA3B8', '#4C8DFF', '#FFB020', '#FF7A45', '#FF4D4F'];
 
 const SIZE = 64; // drawn at 2x, displayed at 32px
@@ -129,6 +131,45 @@ function traffic(color: string) {
   });
 }
 
+function flame(color: string) {
+  return canvas((g) => {
+    g.fillStyle = color;
+    g.strokeStyle = 'rgba(11,15,20,0.95)';
+    g.lineWidth = 3;
+    g.beginPath();
+    g.moveTo(0, -22);
+    g.bezierCurveTo(14, -8, 16, 4, 12, 12);
+    g.bezierCurveTo(8, 20, -8, 20, -12, 12);
+    g.bezierCurveTo(-16, 4, -10, -4, -6, -8);
+    g.bezierCurveTo(-4, -2, -2, 0, 0, 2);
+    g.bezierCurveTo(2, -6, -2, -14, 0, -22);
+    g.closePath();
+    g.stroke();
+    g.fill();
+    g.fillStyle = '#FFF3C4';
+    g.beginPath();
+    g.ellipse(0, 10, 5, 7, 0, 0, Math.PI * 2);
+    g.fill();
+  });
+}
+
+function webcam() {
+  return canvas((g) => {
+    g.fillStyle = 'rgba(11,15,20,0.9)';
+    g.strokeStyle = WEBCAM_COLOR;
+    g.lineWidth = 3;
+    g.beginPath();
+    g.arc(0, -3, 12, 0, Math.PI * 2);
+    g.fill();
+    g.stroke();
+    g.beginPath();
+    g.fillStyle = WEBCAM_COLOR;
+    g.arc(0, -3, 5, 0, Math.PI * 2);
+    g.fill();
+    g.fillRect(-9, 12, 18, 4);
+  });
+}
+
 function transit(color: string) {
   return canvas((g) => {
     g.fillStyle = 'rgba(11,15,20,0.92)';
@@ -173,9 +214,12 @@ export function addIcons(map: MlMap) {
   add('drone', drone);
   add('pilot', pilot);
   add('camera', camera);
+  add('webcam', webcam);
+  add('fire-rx', () => flame('#8FA3B8'));
   SEVERITY_COLORS.forEach((c, i) => {
     add(`traffic-${i}`, () => traffic(c));
     add(`news-${i}`, () => news(c));
     add(`transit-${i}`, () => transit(i < 1 ? TRANSIT_COLOR : c));
+    add(`fire-${i}`, () => flame(i < 2 ? '#FFB020' : c));
   });
 }

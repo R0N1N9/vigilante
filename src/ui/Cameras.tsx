@@ -19,6 +19,7 @@ export function CameraTile({ cam, big = false }: { cam: Camera; big?: boolean })
       {err ? <div className="cam-err">Camera offline</div> : <img key={tick} src={src} alt={cam.name} referrerPolicy="no-referrer" onError={() => setErr(true)} onLoad={() => setErr(false)} />}
       <figcaption>
         <span className="cam-live">● LIVE</span> {cam.name}
+        {cam.provider === 'windy' && <span className="cam-credit"> · Windy.com</span>}
       </figcaption>
     </figure>
   );
@@ -26,7 +27,7 @@ export function CameraTile({ cam, big = false }: { cam: Camera; big?: boolean })
 
 export function CameraViewer() {
   const id = useStore((s) => s.cameraId);
-  const cam = useStore((s) => s.cameras.find((c) => c.id === s.cameraId));
+  const cam = useStore((s) => s.cameras.find((c) => c.id === s.cameraId) ?? s.webcams.find((c) => c.id === s.cameraId));
   if (!id || !cam) return null;
   return (
     <div className="overlay cam-viewer">
@@ -43,7 +44,9 @@ export function CameraViewer() {
 
 /** The four cameras nearest whatever you're looking at (focused incident, else city center). */
 export function CamerasTab({ wall = 4 }: { wall?: number }) {
-  const cameras = useStore((s) => s.cameras);
+  const traffic = useStore((s) => s.cameras);
+  const webcams = useStore((s) => s.webcams);
+  const cameras = useMemo(() => [...traffic, ...webcams], [traffic, webcams]);
   const focus = useStore((s) => s.focus);
   const pack = useStore((s) => getPack(s.packId));
   const feed = useStore((s) => s.feeds.traffic);
@@ -56,12 +59,12 @@ export function CamerasTab({ wall = 4 }: { wall?: number }) {
         <div className="callout">
           {pack.traffic.provider === 'cotrip' ? (
             <>
-              <b>Denver cameras: coming once a COtrip key is added.</b>
-              <p>COtrip doesn't publish its camera feed without a key. Add one in Settings and the camera list can be wired up.</p>
+              <b>Add camera sources in Settings.</b>
+              <p>Public webcams (skylines, streets, weather) come from Windy with a free key. CDOT traffic cameras need a COtrip key.</p>
             </>
           ) : feed.status === 'off' ? (
             <>
-              <b>Add a free Georgia 511 key to see traffic cameras.</b>
+              <b>Add a free Georgia 511 key (traffic cameras) or Windy key (public webcams).</b>
               <p>Snapshots refresh every few seconds and the wall follows whatever incident you select.</p>
             </>
           ) : (

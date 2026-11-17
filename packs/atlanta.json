@@ -13,9 +13,36 @@
   "nwsOffice": "FFC",
   "radioFeeds": [
     {
-      "name": "Fulton County feeds (Atlanta Fire Rescue, Atlanta Metro)",
+      "name": "Fulton County feeds (Atlanta Fire Rescue)",
+      "agency": "Atlanta Fire Rescue and Fulton agencies",
       "url": "https://www.broadcastify.com/listen/ctid/442",
-      "agency": "Fulton County"
+      "coverage": [
+        -84.42,
+        33.77,
+        14
+      ]
+    },
+    {
+      "name": "DeKalb County feeds",
+      "agency": "DeKalb County Fire Rescue, Decatur Police & Fire",
+      "url": "https://www.broadcastify.com/listen/ctid/426",
+      "coverage": [
+        -84.24,
+        33.77,
+        12
+      ]
+    },
+    {
+      "name": "All Atlanta Metro feeds",
+      "agency": "Browse every Atlanta-area feed (incl. Cobb County Public Safety)",
+      "url": "https://www.broadcastify.com/listen/mid/23",
+      "coverage": null
+    },
+    {
+      "name": "Georgia feeds (statewide)",
+      "agency": "Find Cobb, Gwinnett and other counties",
+      "url": "https://www.broadcastify.com/listen/stid/13",
+      "coverage": null
     }
   ],
   "notes": "ATL is the world's busiest airport: use the altitude filter.",
@@ -43,14 +70,46 @@
     ],
     "googleQuery": "Atlanta (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT) when:1d",
     "localTerms": [
-      "Atlanta",
-      "Fulton",
-      "DeKalb",
-      "Cobb",
-      "Gwinnett",
-      "Clayton County",
-      "MARTA",
-      "APD"
+      [
+        "Atlanta",
+        -84.388,
+        33.749
+      ],
+      [
+        "Fulton County",
+        -84.42,
+        33.78
+      ],
+      [
+        "DeKalb",
+        -84.23,
+        33.77
+      ],
+      [
+        "Cobb",
+        -84.55,
+        33.94
+      ],
+      [
+        "Gwinnett",
+        -84.02,
+        33.96
+      ],
+      [
+        "Clayton County",
+        -84.36,
+        33.54
+      ],
+      [
+        "MARTA",
+        -84.388,
+        33.749
+      ],
+      [
+        "APD",
+        -84.388,
+        33.749
+      ]
     ]
   },
   "liveTv": [

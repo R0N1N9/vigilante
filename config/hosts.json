@@ -21,6 +21,8 @@
     "nodejs-prod.rtd-denver.com",
     "gtfs-rt.itsmarta.com",
     "itsmarta.com",
-    "ornl.opendatasoft.com"
+    "ornl.opendatasoft.com",
+    "services3.arcgis.com",
+    "api.windy.com"
   ]
 }

@@ -13,12 +13,63 @@
   "nwsOffice": "BOU",
   "radioFeeds": [
     {
-      "name": "Denver Fire Alerting and EMS",
-      "url": "https://www.broadcastify.com/listen/feed/7435",
-      "agency": "Denver Fire / Denver Health EMS"
+      "name": "Denver Fire Alerting & EMS",
+      "agency": "Denver Fire / Denver Health EMS",
+      "url": "https://www.broadcastify.com/webPlayer/7435",
+      "coverage": [
+        -104.99,
+        39.74,
+        11
+      ]
+    },
+    {
+      "name": "South Metro Fire Rescue",
+      "agency": "South Metro Fire (Arapahoe, Douglas, Jefferson)",
+      "url": "https://www.broadcastify.com/webPlayer/23085",
+      "coverage": [
+        -104.84,
+        39.56,
+        17
+      ]
+    },
+    {
+      "name": "Adams County Fire & EMS",
+      "agency": "Brighton, Thornton, Westminster, North Metro fire",
+      "url": "https://www.broadcastify.com/webPlayer/28370",
+      "coverage": [
+        -104.94,
+        39.88,
+        15
+      ]
+    },
+    {
+      "name": "All Denver Metro feeds",
+      "agency": "Browse every Denver-area feed",
+      "url": "https://www.broadcastify.com/listen/mid/26",
+      "coverage": null
+    },
+    {
+      "name": "Jefferson County feeds",
+      "agency": "West Metro, Golden, Jeffco mountain fire",
+      "url": "https://www.broadcastify.com/listen/ctid/270",
+      "coverage": [
+        -105.17,
+        39.66,
+        16
+      ]
+    },
+    {
+      "name": "Arapahoe County feeds",
+      "agency": "Aurora, Arapahoe County",
+      "url": "https://www.broadcastify.com/listen/ctid/243",
+      "coverage": [
+        -104.8,
+        39.68,
+        14
+      ]
     }
   ],
-  "notes": "Denver PD radio encrypted since July 2019.",
+  "notes": "Denver PD radio is encrypted (since 2019); fire/EMS alerting is public.",
   "traffic": {
     "provider": "cotrip"
   },
@@ -47,13 +98,46 @@
     ],
     "googleQuery": "Denver (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT) when:1d",
     "localTerms": [
-      "Denver",
-      "Arapahoe",
-      "Adams County",
-      "Jefferson County",
-      "Douglas County",
-      "Broomfield",
-      "RTD"
+      [
+        "Denver",
+        -104.9903,
+        39.7392
+      ],
+      [
+        "Arapahoe County",
+        -104.87,
+        39.6
+      ],
+      [
+        "Adams County",
+        -104.92,
+        39.87
+      ],
+      [
+        "Jefferson County",
+        -105.13,
+        39.68
+      ],
+      [
+        "Jeffco",
+        -105.13,
+        39.68
+      ],
+      [
+        "Douglas County",
+        -104.86,
+        39.37
+      ],
+      [
+        "Broomfield",
+        -105.0867,
+        39.9205
+      ],
+      [
+        "RTD",
+        -104.9903,
+        39.7392
+      ]
     ]
   },
   "liveTv": [

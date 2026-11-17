@@ -2,16 +2,16 @@ import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import type { BackgroundThrottlingPolicy } from '@tauri-apps/api/window';
 import { isTauri } from '../lib/http';
 
-export type View = 'console' | 'map' | 'alerts' | 'air' | 'news' | 'traffic' | 'cameras' | 'drones' | 'areas';
+export type View = 'console' | 'map' | 'alerts' | 'sky' | 'news' | 'radio' | 'traffic' | 'cameras' | 'areas';
 
 export const POPOUT_VIEWS: { view: Exclude<View, 'console'>; label: string; w: number; h: number }[] = [
   { view: 'map', label: 'Map', w: 1280, h: 800 },
   { view: 'alerts', label: 'Alerts & log', w: 520, h: 860 },
   { view: 'cameras', label: 'Camera wall', w: 960, h: 720 },
   { view: 'news', label: 'News & live TV', w: 560, h: 860 },
-  { view: 'traffic', label: 'Roads, transit & power', w: 520, h: 820 },
-  { view: 'air', label: 'Aircraft', w: 520, h: 820 },
-  { view: 'drones', label: 'Drones', w: 520, h: 720 },
+  { view: 'traffic', label: 'Roads, transit, power & fire', w: 520, h: 820 },
+  { view: 'radio', label: 'Radio', w: 480, h: 760 },
+  { view: 'sky', label: 'Aircraft & drones', w: 520, h: 820 },
 ];
 
 const noThrottle = 'disabled' as BackgroundThrottlingPolicy;
@@ -58,6 +58,23 @@ export async function openTvWindow(channelId: string, name: string, mode: TvMode
     if (existing) await existing.close();
     new WebviewWindow(label, { url, title: `${mode === 'live' ? 'Live' : 'Latest'}: ${name}`, width: 480, height: 270, alwaysOnTop: true, backgroundColor: '#000000', backgroundThrottling: noThrottle });
   } else window.open(url, 'tv-mini', 'popup,width=480,height=270');
+}
+
+/**
+ * Play a scanner feed inside the app. Uses Broadcastify's own web player
+ * (their audio, ads and terms) in a small window you can keep on any monitor.
+ */
+export async function openRadio(feed: { name: string; url: string }) {
+  if (!/^https:\/\/www\.broadcastify\.com\//.test(feed.url)) return;
+  const label = `radio-${feed.url.replace(/[^a-z0-9]/gi, '').slice(-24)}`;
+  if (isTauri()) {
+    const existing = await WebviewWindow.getByLabel(label);
+    if (existing) {
+      await existing.setFocus();
+      return;
+    }
+    new WebviewWindow(label, { url: feed.url, title: `Radio: ${feed.name}`, width: 460, height: 680, backgroundColor: '#0B0F14', backgroundThrottling: noThrottle });
+  } else window.open(feed.url, label, 'popup,width=460,height=680');
 }
 
 /** Open an article or page outside the console. */

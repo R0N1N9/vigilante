@@ -7,9 +7,9 @@ export const isTauri = (): boolean => typeof window !== 'undefined' && '__TAURI_
  * Desktop: through the Rust core (no CORS limits, proper User-Agent).
  * Browser dev mode: through the Vite dev server's /proxy route.
  */
-export async function getText(url: string): Promise<string> {
-  if (isTauri()) return invoke<string>('http_get', { url });
-  const res = await fetch(`/proxy?url=${encodeURIComponent(url)}`);
+export async function getText(url: string, headers?: Record<string, string>): Promise<string> {
+  if (isTauri()) return invoke<string>('http_get', { url, headers: headers ?? null });
+  const res = await fetch(`/proxy?url=${encodeURIComponent(url)}`, { headers });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.text();
 }
@@ -22,8 +22,8 @@ export async function getBytes(url: string): Promise<Uint8Array> {
   return new Uint8Array(await res.arrayBuffer());
 }
 
-export async function getJson<T>(url: string): Promise<T> {
-  return JSON.parse(await getText(url)) as T;
+export async function getJson<T>(url: string, headers?: Record<string, string>): Promise<T> {
+  return JSON.parse(await getText(url, headers)) as T;
 }
 
 async function retry<T>(fn: () => Promise<T>, attempts: number, delayMs: number): Promise<T> {

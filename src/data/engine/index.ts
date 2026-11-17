@@ -14,6 +14,8 @@ import { startTfr } from './tfr';
 import { startTraffic } from './traffic';
 import { startTransit } from './transit';
 import { startPower } from './power';
+import { startFires } from './fires';
+import { startWebcams } from './webcams';
 
 function startForPack(id: string) {
   clearTimers();
@@ -30,6 +32,8 @@ function startForPack(id: string) {
   startTraffic(gen);
   startTransit(gen);
   startPower(gen);
+  startFires(gen);
+  startWebcams(gen);
   startNews(gen);
   recomputeClusters(false);
   publishData();

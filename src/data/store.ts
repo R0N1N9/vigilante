@@ -13,13 +13,15 @@ import type { Tfr } from '../lib/tfr';
 import type { Camera, TrafficEvent } from '../lib/traffic';
 import type { TransitDisruption } from '../lib/transit';
 import type { CountyOutage } from '../lib/outages';
+import type { FireIncident } from '../lib/fires';
 
 export type Basemap = 'dark' | 'satellite';
+
 export type FeedStatus = 'idle' | 'live' | 'stale' | 'error' | 'off';
 
 export interface Incident {
   id: string;
-  kind: 'orbit' | 'squawk' | 'weather' | 'tfr' | 'drone';
+  kind: 'orbit' | 'squawk' | 'weather' | 'tfr' | 'drone' | 'fire';
   severity: Severity;
   title: string;
   detail: string;
@@ -61,7 +63,7 @@ export interface Feed {
   error?: string;
 }
 
-export type FeedName = 'adsb' | 'nws' | 'tfr' | 'traffic' | 'transit' | 'power' | 'news' | 'drones';
+export type FeedName = 'adsb' | 'nws' | 'tfr' | 'traffic' | 'transit' | 'power' | 'fire' | 'webcams' | 'news' | 'drones';
 
 /** Data produced by the leader window and mirrored to every pop-out. */
 export interface DataState {
@@ -76,6 +78,8 @@ export interface DataState {
   cameras: Camera[];
   transit: TransitDisruption[];
   outages: CountyOutage[];
+  fires: FireIncident[];
+  webcams: Camera[];
   news: NewsItem[];
   drones: DroneTrack[];
   brief: Brief | null;
@@ -92,6 +96,8 @@ export interface Layers {
   traffic: boolean;
   transit: boolean;
   outages: boolean;
+  fires: boolean;
+  radio: boolean;
   cameras: boolean;
   news: boolean;
   drones: boolean;
@@ -113,7 +119,7 @@ export interface SharedUi {
   requests: { brief?: number; pushTest?: number; droneSim?: number };
 }
 
-export type RailTab = 'alerts' | 'air' | 'news' | 'traffic' | 'cameras' | 'drones' | 'areas';
+export type RailTab = 'alerts' | 'sky' | 'news' | 'radio' | 'traffic' | 'cameras' | 'areas';
 
 /** Per-window choices. */
 export interface LocalUi {
@@ -161,10 +167,12 @@ export const EMPTY_DATA: Omit<DataState, 'log'> = {
   cameras: [],
   transit: [],
   outages: [],
+  fires: [],
+  webcams: [],
   news: [],
   drones: [],
   brief: null,
-  feeds: { adsb: idleFeed, nws: idleFeed, tfr: idleFeed, traffic: idleFeed, transit: idleFeed, power: idleFeed, news: idleFeed, drones: { status: 'off', at: 0 } },
+  feeds: { adsb: idleFeed, nws: idleFeed, tfr: idleFeed, traffic: idleFeed, transit: idleFeed, power: idleFeed, fire: idleFeed, webcams: { status: 'off', at: 0 }, news: idleFeed, drones: { status: 'off', at: 0 } },
 };
 
 let state: State = {
@@ -175,7 +183,7 @@ let state: State = {
   focus: null,
   ceilingAglFt: prefs.ceilingAglFt === undefined ? 10_000 : prefs.ceilingAglFt,
   hideGround: prefs.hideGround ?? true,
-  layers: { aircraft: true, trails: true, weather: true, aoi: true, tfr: true, traffic: true, transit: true, outages: true, cameras: true, news: true, drones: true, areas: true, ...(prefs.layers ?? {}) },
+  layers: { aircraft: true, trails: true, weather: true, aoi: true, tfr: true, traffic: true, transit: true, outages: true, fires: true, radio: true, cameras: true, news: true, drones: true, areas: true, ...(prefs.layers ?? {}) },
   muted: prefs.muted ?? false,
   settings: DEFAULT_SETTINGS,
   areas: [],

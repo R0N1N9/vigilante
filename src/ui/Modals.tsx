@@ -49,6 +49,10 @@ function SettingsModal() {
           <span>COtrip key (Denver incidents)</span>
           <input type="password" value={s.keys.cotrip} onChange={(e) => set('keys', { cotrip: e.target.value.trim() })} placeholder="from manage-api.cotrip.org" />
         </label>
+        <label className="field">
+          <span>Windy webcams key (public skyline/street webcams)</span>
+          <input type="password" value={s.keys.windy} onChange={(e) => set('keys', { windy: e.target.value.trim() })} placeholder="from api.windy.com → Webcams API" />
+        </label>
         <p className="muted small-text">Keys are stored in a settings file on this computer.</p>
       </section>
 

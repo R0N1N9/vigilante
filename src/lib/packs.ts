@@ -4,9 +4,14 @@ import type { LonLat } from './geo';
 
 export interface RadioFeed {
   name: string;
-  url: string;
+  url: string; // Broadcastify web player or listing page (played in-app via Broadcastify's own player)
   agency: string;
+  /** Approximate coverage as [lon, lat, radius km]; null for browse-only listings. */
+  coverage: [number, number, number] | null;
 }
+
+/** [name, lon, lat]: a city or county name and its approximate center. */
+export type TermTuple = [string, number, number];
 
 export interface NewsFeed {
   name: string;
@@ -42,7 +47,7 @@ export interface CityPack {
   notes: string;
   traffic: { provider: 'ga511' | 'cotrip' };
   /** localTerms: city/county names that mark a story as local even without a neighborhood. */
-  news: { feeds: NewsFeed[]; googleQuery: string; localTerms: string[] };
+  news: { feeds: NewsFeed[]; googleQuery: string; localTerms: TermTuple[] };
   liveTv: LiveTv[];
   places: PlaceTuple[];
   transit:
