@@ -42,7 +42,9 @@ Invite: VG1.eyJ2IjoxLCJrIjoibnRmeSIsIm4iOiJOb3J0aCBwYXRyb2wiLCJzIjoiaHR0cHM6Ly9u
  "click":"https://www.openstreetmap.org/?mlat=<lat>&mlon=<lon>#map=16/<lat>/<lon>",
  "actions":[{"action":"view","label":"Map","url":"<same as click>"}]}
 ```
-`click` and `actions` are only for messages that carry a location. The `vg-<deviceId>` tag is how a device recognises its own messages coming back.
+`click` and `actions` are only for messages that carry a location. The `vg-<deviceId>` tag is how a device recognises its own messages coming back. Messages from the Vigilance console also carry the tag **`vigilance-console`**, so phones can tell the control center from teammates without guessing.
+
+**SOS location follow-up.** If an SOS goes out before the phone has a GPS fix, send the location afterwards as `"📍 SOS LOCATION — <callsign>"` with the map link. The console attaches it to that person's open SOS alert instead of raising a second one.
 
 **Status codes.** A message whose text starts with one of these is a status. The console turns the first three into alerts that stay up until acknowledged:
 
