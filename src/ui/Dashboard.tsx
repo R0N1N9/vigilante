@@ -3,6 +3,7 @@ import { distanceM } from '../lib/geo';
 import { CHECKIN_REQUEST, CHECKIN_TAG, type TeamMember } from '../lib/comms';
 import { SHARE_LABEL, type ShareCategory } from '../lib/poscrypt';
 import { postToChannel } from '../data/engine/comms';
+import { PosterStrip } from './Posters';
 import { getState } from '../data/store';
 import { setShared } from '../data/bus';
 import { setState, useStore } from '../data/store';
@@ -435,6 +436,16 @@ function TeamTile() {
 
 const fmtDistNm = (m: number) => (m < 1609 ? `${Math.round(m * 3.281).toLocaleString('en-US')} ft` : `${(m / 1609).toFixed(1)} mi`);
 
+function PostersTile() {
+  const n = useStore((x) => x.wanted.length);
+  const missing = useStore((x) => x.wanted.filter((w) => w.kind === 'missing').length);
+  return (
+    <Tile code="11" title="WANTED & MISSING" led={missing ? 'warn' : n ? 'ok' : 'idle'} right={`${missing} MISSING · ${n} FBI POSTERS`} className="a-posters">
+      <PosterStrip />
+    </Tile>
+  );
+}
+
 function StatusTile() {
   const s = useStore((x) => x);
   const pack = getPack(s.packId);
@@ -543,6 +554,7 @@ export function Dashboard() {
       <HoodsTile />
       <CrimeTrendTile />
       <TeamTile />
+      <PostersTile />
       <StatusTile />
     </div>
   );

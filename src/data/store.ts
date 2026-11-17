@@ -171,7 +171,9 @@ export interface LocalUi {
   drawing: LonLat[] | null;
   /** Monitor id waiting for a map click to set its center. */
   pickPoint: string | null;
-  modal: 'settings' | 'brief' | 'invite' | 'about' | null;
+  modal: 'settings' | 'brief' | 'invite' | 'poster' | 'about' | null;
+  /** FBI poster open in the poster view. */
+  posterId: string | null;
   /** Channel whose invite is open. */
   inviteChannelId: string | null;
   /** When this window last looked at the Team tab (for the unread badge). */
@@ -269,6 +271,7 @@ let state: State = {
   pickPoint: null,
   modal: null,
   inviteChannelId: null,
+  posterId: null,
   teamSeenAt: Date.now(),
   teamDraft: null,
   joinCode: typeof location !== 'undefined' && /#join=VG1\./.test(location.hash) ? decodeURIComponent(location.hash.slice(6)) : null,

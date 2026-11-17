@@ -20,7 +20,7 @@ Built for people who keep watch over a place: physical security and asset protec
 | NWS local storm reports (IEM) | Spotter reports: hail, wind damage, flooding, tornadoes |
 | Open-Meteo | Current air quality (US AQI) |
 | FAA NAS status | Ground stops and delays at local airports |
-| FBI Wanted | Notices for the local field office |
+| FBI Wanted & missing persons | Full posters for the local field office: wanted fugitives, **missing people** and seeking-information cases, with photo, description, reward, the official PDF and a tip link |
 
 **Dashboard** (Map | Dashboard switch in the top bar, or Pop out → Dashboard for a second monitor)
 - **SITREP strip:** location, overall condition, violent reports in the last 48 h, open situations, helicopters airborne, air quality and live feeds.
@@ -49,6 +49,7 @@ Built for people who keep watch over a place: physical security and asset protec
 - **News:** local safety stories from local TV and newspaper feeds plus Google News, de-duplicated and filtered to stories that name your area. A small **TV player** shows a station's latest clips, or its **live stream** when it's on air, and pops out into an always-on-top **mini window**.
 - **Radio:** scanner feeds for the city. Click ▶ to play inside the app.
 - **City:** Roads, Transit, Power and Fire (wildfires plus structure fires and rescues from local news, grouped by place)
+- **Wanted & missing posters** (City → Wanted & missing, plus a dashboard panel): the FBI's posters for your field office as a poster wall, filtered by Wanted, Missing or Seeking info, with missing people listed first. Open one for the full poster: photo, physical description, case details, warnings ("armed and dangerous"), reward, the printable PDF, **Submit a tip** and **Share to team**. A newly posted poster for your area becomes an alert. There are also links to NCMEC (missing children) and NamUs (missing persons) for wider searches. The guidance is always to report, never to approach.
 - **Cams:** a **camera wall** of the four cameras nearest whatever you selected
 - **Sky:** aircraft list and drones (Bluetooth and Wi-Fi Remote ID, plus a simulator)
 - **Areas:** draw and manage watch areas
