@@ -2,6 +2,8 @@
 
 A neighborhood situational-awareness console for your laptop. It watches the area around a city and tells you what's in the sky and in the weather right now. It works on one screen and lets you pop panels out onto other monitors.
 
+Built for people who keep watch over a place: physical security and asset protection teams, executive protection details, security patrol, neighborhood watch, and anyone who wants their own operations desk.
+
 > **Status: Phase 1.** Live aircraft, drones, no-fly zones, weather, roads, cameras and local news for **Denver** and **Atlanta**, merged into developing-incident cards, a morning brief and phone alerts. The full roadmap is in [`docs/PLAN.md`](docs/PLAN.md).
 
 ## What it does
@@ -23,10 +25,11 @@ A neighborhood situational-awareness console for your laptop. It watches the are
 **Dashboard** (Map | Dashboard switch in the top bar, or Pop out → Dashboard for a second monitor)
 - **SITREP strip:** location, overall condition, violent reports in the last 48 h, open situations, helicopters airborne, air quality and live feeds.
 - **Neighborhood Stability Index (0–100, higher is calmer):** a ring gauge plus a risk meter per factor (crime 30%, incidents 25%, weather and hazards 20%, fire 10%, infrastructure 10%, air 5%). One severe factor caps the score, so a tornado warning can't be averaged away. Crime and gunfire are compared with the city's own week, not a fixed bar. Levels: Stable ≥80, Guarded ≥60, Elevated ≥40, High ≥20, Severe below. A 24-hour trend line builds as the app runs.
+- **Tactical locator:** a live map inside the dashboard. Click almost anything on the dashboard (an insight, a news story, a neighborhood, a camera, a situation, a status cell) and the locator flies there and drops a labeled reticle. If there's a related page (the story, the police crime map, the USGS quake page, NASA FIRMS, the utility outage map, the aircraft on ADS-B), it opens too. A Map window on another monitor follows along.
 - **Analyst insights:** plain-language findings from the data (crime vs this week's normal, busiest hours, unexplained satellite heat, circling aircraft, outages, quakes, air quality). **✦ AI briefing** (optional Claude key) turns a compact summary into a short analyst note. It sends counts and headlines only, never your location history, watch areas or keys, and only when you press the button.
 - **Broadcast** (local TV), **camera grid**, **local news feed**, **active situations**, **sector ratings** (neighborhoods ranked by severity-weighted crime reports this week), **7-day crime activity** and a **status board**.
 
-**On the map** (every layer can be switched off in the Layers panel)
+**On the map** (every layer can be switched off in the Layers panel). Hover over anything for a short tooltip saying what it is and what a click does.
 - **Tactical topographic basemap:** dark vector map with terrain relief, contour lines in feet, an optional **3D terrain** view, and a satellite option. Uses free AWS terrain tiles. A coordinate and zoom readout follows the cursor.
 - **Aircraft** within 25 nm (adsb.lol), with trails. Helicopters (amber), military (blue), low aircraft (white) and **emergency squawks** (red) are highlighted, aircraft **circling** a spot are flagged, and an altitude filter hides airliners at cruise.
 - **Drones** via FAA **Remote ID**: drone position and height, plus the pilot's position, using this laptop's Bluetooth. See [Drones](#drones).
@@ -128,7 +131,8 @@ Radio → ▶ plays a feed in a small in-app player window (Broadcastify's free 
 - **Data feed chip** (e.g. `8/10 LIVE`) shows how many of the 10 data sources are currently delivering. Click it to see each one. *off* means it needs a key, hardware or a supported city.
 - **Brief (☀)** shows the latest situation brief, and **Refresh** rebuilds it.
 - **Pop out ▾** opens any panel in its own window. Closing the main window closes them all.
-- **Bell icon** mutes or unmutes alert tones.
+- **Speaker icon** mutes or unmutes alert tones (it turns amber with a slash when muted).
+- **Appearance** (Settings → Appearance): theme presets (Tactical cyan, Night vision, Amber CRT, Red low-light, Steel) or your own RGB accent, panel and background colors, plus panel opacity and the grid texture. Changes apply instantly in every window.
 
 ## Project layout
 

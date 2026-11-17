@@ -1,4 +1,5 @@
 import { DEFAULT_PUSH, type PushSettings } from './rules';
+import { DEFAULT_APPEARANCE, type Appearance } from './theme';
 
 export interface Settings {
   keys: { ga511: string; cotrip: string; ais: string; claude: string };
@@ -8,6 +9,8 @@ export interface Settings {
   drones: { scan: boolean; wifiIface: string };
   /** Map look: 3D terrain and contour lines. */
   map: { terrain3d: boolean; contours: boolean; hillshade: boolean };
+  /** Colors, theme and panel opacity. */
+  appearance: Appearance;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -16,6 +19,7 @@ export const DEFAULT_SETTINGS: Settings = {
   brief: { enabled: true, time: '07:00', hours: 12, push: true },
   drones: { scan: false, wifiIface: '' },
   map: { terrain3d: false, contours: true, hillshade: true },
+  appearance: DEFAULT_APPEARANCE,
 };
 
 /** Fill in fields added in newer versions. */
@@ -26,6 +30,7 @@ export function withDefaults(s: Partial<Settings> | null): Settings {
     brief: { ...DEFAULT_SETTINGS.brief, ...(s?.brief ?? {}) },
     drones: { ...DEFAULT_SETTINGS.drones, ...(s?.drones ?? {}) },
     map: { ...DEFAULT_SETTINGS.map, ...(s?.map ?? {}) },
+    appearance: { ...DEFAULT_SETTINGS.appearance, ...(s?.appearance ?? {}) },
   };
 }
 

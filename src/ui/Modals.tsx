@@ -3,6 +3,7 @@ import { setShared } from '../data/bus';
 import { getState, setState, useStore } from '../data/store';
 import { getPack } from '../lib/packs';
 import { randomTopic, type Settings } from '../lib/settings';
+import { DEFAULT_APPEARANCE, hexToRgb, rgbToHex, THEMES, withTheme, type Appearance } from '../lib/theme';
 import type { Severity } from '../lib/signals';
 import { fmtTime } from './format';
 
@@ -29,6 +30,65 @@ function Modal({ title, children, wide = false }: { title: string; children: Rea
 
 const SEV_LABEL: Record<number, string> = { 1: 'Everything (info and up)', 2: 'Warnings and up', 3: 'Serious and up', 4: 'Critical only' };
 
+function RgbField({ label, value, onChange }: { label: string; value: string; onChange: (hex: string) => void }) {
+  const rgb = hexToRgb(value);
+  const setPart = (i: number, v: string) => {
+    const next = [...rgb] as [number, number, number];
+    next[i] = Number(v) || 0;
+    onChange(rgbToHex(...next));
+  };
+  return (
+    <div className="rgb-field">
+      <span>{label}</span>
+      <input type="color" value={rgbToHex(...rgb)} onChange={(e) => onChange(e.target.value)} aria-label={`${label} color`} />
+      {(['R', 'G', 'B'] as const).map((c, i) => (
+        <label key={c} className="rgb-num">
+          <em>{c}</em>
+          <input type="number" min={0} max={255} value={rgb[i]} onChange={(e) => setPart(i, e.target.value)} />
+        </label>
+      ))}
+      <code>{rgbToHex(...rgb).toUpperCase()}</code>
+    </div>
+  );
+}
+
+function AppearanceSection({ value: a, onChange }: { value: Appearance; onChange: (a: Appearance) => void }) {
+  const custom = (patch: Partial<Appearance>) => onChange({ ...a, ...patch, theme: 'custom' });
+  return (
+    <section>
+      <h3>Appearance</h3>
+      <p className="muted small-text">Changes apply right away, in every window.</p>
+      <div className="theme-grid">
+        {(Object.keys(THEMES) as (keyof typeof THEMES)[]).map((id) => (
+          <button key={id} className={`theme-swatch ${a.theme === id ? 'on' : ''}`} onClick={() => onChange(withTheme(a, id))} style={{ ['--sw' as string]: THEMES[id].accent, ['--swbg' as string]: THEMES[id].panel }}>
+            <i />
+            <b>{THEMES[id].label}</b>
+            <small>{THEMES[id].note}</small>
+          </button>
+        ))}
+        <button className={`theme-swatch ${a.theme === 'custom' ? 'on' : ''}`} onClick={() => onChange(withTheme(a, 'custom'))} style={{ ['--sw' as string]: a.accent, ['--swbg' as string]: a.panel }}>
+          <i />
+          <b>Custom</b>
+          <small>Your RGB colors</small>
+        </button>
+      </div>
+      <RgbField label="Accent" value={a.accent} onChange={(accent) => custom({ accent })} />
+      <RgbField label="Panels" value={a.panel} onChange={(panel) => custom({ panel })} />
+      <RgbField label="Background" value={a.bg} onChange={(bg) => custom({ bg })} />
+      <label className="field range">
+        <span>Panel opacity · {Math.round(a.panelOpacity * 100)}%</span>
+        <input type="range" min={40} max={100} value={Math.round(a.panelOpacity * 100)} onChange={(e) => onChange({ ...a, panelOpacity: Number(e.target.value) / 100 })} />
+      </label>
+      <label className="check">
+        <input type="checkbox" checked={a.texture} onChange={(e) => onChange({ ...a, texture: e.target.checked })} /> Grid and scanline texture
+      </label>
+      <button className="btn small" style={{ alignSelf: 'flex-start' }} onClick={() => onChange(DEFAULT_APPEARANCE)}>
+        Reset to default
+      </button>
+    </section>
+  );
+}
+
 function SettingsModal() {
   const saved = useStore((s) => s.settings);
   const requests = useStore((s) => s.requests);
@@ -39,6 +99,13 @@ function SettingsModal() {
 
   return (
     <Modal title="Settings">
+      <AppearanceSection
+        value={s.appearance}
+        onChange={(appearance) => {
+          setS({ ...s, appearance });
+          setShared({ settings: { ...saved, appearance } });
+        }}
+      />
       <section>
         <h3>Optional keys</h3>
         <p className="muted small-text">Everything else works without keys. These have no keyless equivalent, so they're optional.</p>

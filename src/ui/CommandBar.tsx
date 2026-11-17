@@ -157,11 +157,25 @@ export function CommandBar({ view }: { view: View }) {
         <button className="btn" onClick={() => setState({ modal: 'brief' })} title="Situation brief">
           ☀ <span className="hide-sm">Brief</span>
         </button>
-        <button className="icon-btn" onClick={() => setShared({ muted: !muted })} title={muted ? 'Unmute alert tones' : 'Mute alert tones'}>
-          {muted ? '🔇' : '🔔'}
+        <button className={`icon-btn ${muted ? 'muted' : ''}`} onClick={() => setShared({ muted: !muted })} title={muted ? 'Alert tones off. Click to turn on' : 'Alert tones on. Click to mute'} aria-pressed={muted} aria-label="Alert tones">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z" />
+            {muted ? (
+              <path d="M16 9.5l5 5M21 9.5l-5 5" />
+            ) : (
+              <>
+                <path d="M15.5 9a4.2 4.2 0 0 1 0 6" />
+                <path d="M18.3 6.5a8 8 0 0 1 0 11" />
+              </>
+            )}
+          </svg>
         </button>
-        <button className="icon-btn" onClick={() => setState({ modal: 'settings' })} title="Settings">
-          ⚙
+        <button className="icon-btn" onClick={() => setState({ modal: 'settings' })} title="Settings" aria-label="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
+            <path d="M4 7h10M18 7h2M4 17h4M12 17h8" />
+            <circle cx="16" cy="7" r="2" />
+            <circle cx="10" cy="17" r="2" />
+          </svg>
         </button>
         {view === 'console' && <PopoutMenu />}
       </div>

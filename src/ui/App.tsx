@@ -1,4 +1,5 @@
-import { Component, type ReactNode } from 'react';
+import { Component, useEffect, type ReactNode } from 'react';
+import { applyAppearance } from '../lib/theme';
 import { setState, useStore, type RailTab } from '../data/store';
 import { MapView } from '../map/MapView';
 import { AircraftCard } from './AircraftCard';
@@ -128,6 +129,8 @@ function Solo({ title, children }: { title: string; children: React.ReactNode })
 
 export function App({ view }: { view: View }) {
   const mainView = useStore((s) => s.mainView);
+  const appearance = useStore((s) => s.settings.appearance);
+  useEffect(() => applyAppearance(appearance), [appearance]);
   return (
     <div className={`app view-${view}`}>
       <CommandBar view={view} />

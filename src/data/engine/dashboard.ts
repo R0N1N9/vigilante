@@ -1,7 +1,15 @@
 import { invoke } from '@tauri-apps/api/core';
 import { isTauri } from '../../lib/http';
 import { distanceM, NM_TO_M } from '../../lib/geo';
-import { ruleInsights } from '../../lib/insights';
+import { CRIME_MAP_URL, ruleInsights } from '../../lib/insights';
+
+/** Center of a polygon's bounding box. */
+function bboxCenter(g: GeoJSON.Polygon | GeoJSON.MultiPolygon): [number, number] {
+  const pts = (g.type === 'Polygon' ? g.coordinates.flat() : g.coordinates.flat(2)) as number[][];
+  const xs = pts.map((p) => p[0]);
+  const ys = pts.map((p) => p[1]);
+  return [(Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...ys) + Math.max(...ys)) / 2];
+}
 import { getPack } from '../../lib/packs';
 import { computeStability } from '../../lib/stability';
 import type { Severity } from '../../lib/signals';
@@ -18,7 +26,9 @@ export function refreshDashboard() {
   const now = Date.now();
   const packNow = getPack(ctx.packId);
   // Only detections inside the watch radius count toward the index.
-  const hotspotsUnexplained = s.hotspots.filter((h) => distanceM(h.location, packNow.center) <= packNow.radiusNm * NM_TO_M && !s.fires.some((f) => distanceM(f.location, h.location) < 5000)).length;
+  const unexplained = s.hotspots.filter((h) => distanceM(h.location, packNow.center) <= packNow.radiusNm * NM_TO_M && !s.fires.some((f) => distanceM(f.location, h.location) < 5000));
+  const hotspotsUnexplained = unexplained.length;
+  const biggestOutage = [...s.outages].filter((o) => o.geometry).sort((x, y) => y.customers - x.customers)[0];
   const transitSerious = s.transit.filter((t) => t.severity >= 2);
   const outageCustomers = s.outages.reduce((n, o) => n + o.customers, 0);
   const nwsMax = Math.max(0, ...s.incidents.filter((i) => i.kind === 'weather').map((i) => i.severity)) as Severity;
@@ -49,16 +59,24 @@ export function refreshDashboard() {
     tz: pack.timezone,
     orbits: Object.keys(s.orbiting).map((hex) => {
       const a = s.aircraft.find((x) => x.hex === hex);
-      return { label: a ? `${a.callsign}${a.type ? ` (${a.type})` : ''}` : hex };
+      return { label: a ? `${a.callsign}${a.type ? ` (${a.type})` : ''}` : hex, hex, center: s.orbiting[hex].center };
     }),
     alerts: s.alerts,
     hotspots: s.hotspots.length,
     hotspotsUnexplained,
+    hotspotAt: unexplained[0]?.location ?? null,
     quakes: s.quakes,
     air: s.air,
     transitSerious,
     outageCustomers,
+    outageAt: biggestOutage ? bboxCenter(biggestOutage.geometry!) : null,
     news: s.news.filter((n) => n.local),
+    center: pack.center,
+    zoom: pack.zoom,
+    crimeUrl: pack.intel.crime ? CRIME_MAP_URL[pack.intel.crime] : undefined,
+    weatherUrl: `https://forecast.weather.gov/MapClick.php?lat=${pack.center[1].toFixed(4)}&lon=${pack.center[0].toFixed(4)}`,
+    airUrl: 'https://www.airnow.gov/',
+    powerUrl: biggestOutage ? (pack.power.utilities[0]?.url ?? undefined) : undefined,
   });
   let history = s.stabilityHistory;
   if (now - lastSample >= 5 * 60_000) {

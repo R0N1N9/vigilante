@@ -10,7 +10,7 @@ import { openExternal, openRadio } from '../ui/popout';
 import { addIcons, CLASS_COLORS, DRONE_COLOR, RADIO_COLOR } from './icons';
 import { addTerrain, setTerrainOptions } from './terrain';
 import { shipTypeName, stormSeverity } from '../lib/intel';
-import { describeFeature, radarTiles } from './popups';
+import { describeFeature, hoverHtml, HOVERABLE, radarTiles } from './popups';
 import { LABEL_FONT, styleFor, tuneDarkStyle } from './styles';
 
 const EMPTY: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
@@ -211,7 +211,7 @@ function render(map: MlMap, s: State) {
   setData(map, 'draw', fc(drawF));
 }
 
-const CLICKABLE = ['aircraft', 'crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'cameras', 'fires', 'traffic', 'transit', 'news', 'news-clusters', 'clusters', 'drones', 'outages-fill', 'radio-fill'];
+const CLICKABLE = ['aircraft', 'weather-fill', 'tfr-fill', 'crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'cameras', 'fires', 'traffic', 'transit', 'news', 'news-clusters', 'clusters', 'drones', 'outages-fill', 'radio-line', 'radio-label'];
 
 export function MapView() {
   const el = useRef<HTMLDivElement>(null);
@@ -287,12 +287,21 @@ export function MapView() {
       } else if (['crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships'].includes(f.layer.id)) {
         const html = describeFeature(f.layer.id, String(p.id), s, esc);
         if (html) popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
-      } else if (f.layer.id === 'radio-fill') {
+      } else if (f.layer.id.startsWith('radio-')) {
         const feed = getPack(s.packId).radioFeeds[Number(p.idx)];
         if (feed) void openRadio(feed);
       } else if (f.layer.id === 'clusters') {
         const c = s.clusters.find((x) => x.id === p.id);
         if (c) popup.setLngLat(c.center).setHTML(`<small>DEVELOPING · ${c.sources.join(', ')}</small>${c.signals.map((x) => `<p>${esc(x.title)}</p>`).join('')}`).addTo(map);
+      } else if (f.layer.id === 'weather-fill') {
+        const a = s.alerts.find((x) => x.id === p.id);
+        if (a) popup.setLngLat(e.lngLat).setHTML(`<small>NWS · ${esc(a.senderName)}</small><b>${esc(a.headline || a.event)}</b><p>${esc(a.areaDesc)}</p>${a.instruction ? `<p>${esc(a.instruction.slice(0, 300))}</p>` : ''}`).addTo(map);
+      } else if (f.layer.id === 'tfr-fill') {
+        const t = s.tfrs.find((x) => x.id === p.id);
+        if (t) {
+          popup.setLngLat(e.lngLat).setHTML(`<small>FAA TFR · ${esc(t.type)} · NOTAM ${esc(t.id)}</small><b>${esc(t.title)}</b><p>${esc(t.description.slice(0, 300))}</p>`).addTo(map);
+          if (t.url) void openExternal(t.url, `TFR ${t.id}`);
+        }
       } else if (f.layer.id === 'drones') setState({ tab: 'sky' });
     });
     map.on('dblclick', (e) => {
@@ -300,17 +309,42 @@ export function MapView() {
       if (d) e.preventDefault();
     });
     const hover = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 14, maxWidth: '300px', className: 'vg-popup vg-hover' });
-    map.on('mousemove', 'news', (e) => {
-      const id = e.features?.[0]?.properties?.id;
-      const n = getState().news.find((x) => x.id === id);
-      if (!n) return;
+    let hoverKey = '';
+    map.on('mousemove', (e) => {
+      const st = getState();
+      const box: [maplibregl.PointLike, maplibregl.PointLike] = [
+        [e.point.x - 4, e.point.y - 4],
+        [e.point.x + 4, e.point.y + 4],
+      ];
+      const found = st.drawing ? [] : map.queryRenderedFeatures(box, { layers: HOVERABLE.filter((l) => map.getLayer(l)) });
+      // Points first, then outlines and labels, then filled areas.
+      const rank = (id: string) => (id.endsWith('-fill') ? 2 : id.endsWith('-line') || id.endsWith('-label') ? 1 : 0);
+      const f = found.sort((a, b) => rank(a.layer.id) - rank(b.layer.id))[0];
+      if (!f) {
+        hoverKey = '';
+        hover.remove();
+        return;
+      }
+      const p = (f.properties ?? {}) as Record<string, unknown>;
       const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
-      hover
-        .setLngLat(n.pin!)
-        .setHTML(`<small>${esc(n.source)} · ${n.precision === 'place' ? esc(n.areaName ?? '') : `≈ ${esc(n.areaName ?? '')} (approx.)`}</small><b>${esc(n.title)}</b><p>Click to open the story</p>`)
-        .addTo(map);
+      const isPoint = f.geometry.type === 'Point';
+      const at: LonLat = isPoint ? ((f.geometry as GeoJSON.Point).coordinates as LonLat) : [e.lngLat.lng, e.lngLat.lat];
+      const key = `${f.layer.id}:${p.id ?? p.hex ?? p.cluster_id ?? p.name ?? p.idx}:${p.icon ?? ''}`;
+      if (key !== hoverKey) {
+        const html = hoverHtml(f.layer.id, p, st, esc, f.layer.id.startsWith('radio-') ? getPack(st.packId).radioFeeds[Number(p.idx)]?.name : undefined);
+        hoverKey = key;
+        if (!html) {
+          hover.remove();
+          return;
+        }
+        hover.setHTML(html);
+      }
+      hover.setLngLat(at).addTo(map);
     });
-    map.on('mouseleave', 'news', () => hover.remove());
+    map.on('mouseout', () => {
+      hoverKey = '';
+      hover.remove();
+    });
 
     // Coordinate / zoom readout (tactical HUD)
     const hud = el.current!.parentElement?.querySelector('.hud-coords') as HTMLElement | null;
@@ -340,6 +374,24 @@ export function MapView() {
     };
     raf = requestAnimationFrame(pulse);
 
+    // Reticle marking whatever was last selected from a list or the dashboard.
+    const markEl = document.createElement('div');
+    markEl.className = 'focus-mark';
+    const mark = new maplibregl.Marker({ element: markEl });
+    let markTimer = 0;
+    const showMark = (f: NonNullable<State['focus']>) => {
+      markEl.innerHTML = '<i></i><b></b>';
+      (markEl.querySelector('b') as HTMLElement).textContent = f.label ?? '';
+      markEl.classList.toggle('has-label', !!f.label);
+      mark.setLngLat(f.center).addTo(map);
+      window.clearTimeout(markTimer);
+      markTimer = window.setTimeout(() => mark.remove(), 45_000);
+    };
+    if (s0.focus && Date.now() - s0.focus.at < 45_000) {
+      map.jumpTo({ center: s0.focus.center, zoom: s0.focus.zoom ?? 12 });
+      showMark(s0.focus);
+    }
+
     let prev = s0;
     const unsub = subscribe(() => {
       const s = getState();
@@ -351,7 +403,10 @@ export function MapView() {
         const p = getPack(s.packId);
         map.jumpTo({ center: p.center, zoom: p.zoom });
       }
-      if (s.focus && s.focus !== prev.focus) map.flyTo({ center: s.focus.center, zoom: s.focus.zoom ?? Math.max(map.getZoom(), 12), speed: 1.6 });
+      if (s.focus && s.focus !== prev.focus) {
+        map.flyTo({ center: s.focus.center, zoom: s.focus.zoom ?? Math.max(map.getZoom(), 12), speed: 1.6 });
+        showMark(s.focus);
+      }
       if (s.drawing !== prev.drawing) map.getCanvas().style.cursor = s.drawing ? 'crosshair' : '';
       if (ready && s.settings.map !== prev.settings.map) setTerrainOptions(map, terrainOpts());
       if (ready && s.layers.radar && !prev.layers.radar) (map.getSource('radar') as maplibregl.RasterTileSource | undefined)?.setTiles([radarTiles()]);
@@ -367,6 +422,8 @@ export function MapView() {
       cancelAnimationFrame(raf);
       window.clearInterval(radarTimer);
       popup.remove();
+      window.clearTimeout(markTimer);
+      mark.remove();
       map.remove();
     };
   }, []);

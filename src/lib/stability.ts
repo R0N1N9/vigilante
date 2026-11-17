@@ -44,6 +44,8 @@ export interface NeighborhoodRating {
   score: number; // 0-100 stability for that neighborhood (relative to the city this week)
   crimes: number;
   violent: number;
+  /** Average position of this week's reports, for "show on map". */
+  center: [number, number] | null;
 }
 
 export interface Stability {
@@ -116,18 +118,20 @@ export function computeStability(i: StabilityInputs): Stability {
 
 /** Per-neighborhood stability from this week's reports, relative to the busiest neighborhood. */
 export function rateNeighborhoods(crimes: Crime[], top = 8): NeighborhoodRating[] {
-  const m = new Map<string, { crimes: number; violent: number; weight: number }>();
+  const m = new Map<string, { crimes: number; violent: number; weight: number; lon: number; lat: number }>();
   for (const c of crimes) {
     if (!c.neighborhood) continue;
-    const r = m.get(c.neighborhood) ?? { crimes: 0, violent: 0, weight: 0 };
+    const r = m.get(c.neighborhood) ?? { crimes: 0, violent: 0, weight: 0, lon: 0, lat: 0 };
     r.crimes++;
+    r.lon += c.location[0];
+    r.lat += c.location[1];
     if (c.severity >= 2) r.violent++;
     r.weight += [0.3, 1, 3, 6][c.severity] ?? 1;
     m.set(c.neighborhood, r);
   }
   const max = Math.max(1, ...[...m.values()].map((r) => r.weight));
   return [...m.entries()]
-    .map(([name, r]) => ({ name, crimes: r.crimes, violent: r.violent, score: clamp(100 - (r.weight / max) * 70) }))
+    .map(([name, r]) => ({ name, crimes: r.crimes, violent: r.violent, score: clamp(100 - (r.weight / max) * 70), center: [r.lon / r.crimes, r.lat / r.crimes] as [number, number] }))
     .sort((a, b) => a.score - b.score)
     .slice(0, top);
 }

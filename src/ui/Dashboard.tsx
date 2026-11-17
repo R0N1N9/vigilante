@@ -8,6 +8,30 @@ import { CameraTile } from './Cameras';
 import { fmtAgo, fmtTime } from './format';
 import { LiveTv } from './NewsTab';
 import { openExternal } from './popout';
+import { MapView } from '../map/MapView';
+import { AircraftCard } from './AircraftCard';
+import { CameraViewer } from './Cameras';
+import { CRIME_MAP_URL } from '../lib/insights';
+import type { LonLat } from '../lib/geo';
+
+/** Fly the locator (and any map window) to a spot, mark it, and open a related page if there is one. */
+function locate(center: LonLat | null | undefined, zoom: number | undefined, label: string, opt: { url?: string; title?: string; hex?: string } = {}) {
+  if (center) setShared({ focus: { at: Date.now(), center, zoom, label }, ...(opt.hex ? { selectedHex: opt.hex } : {}) });
+  if (opt.url) void openExternal(opt.url, opt.title ?? label);
+}
+
+function LocatorTile() {
+  const focus = useStore((x) => x.focus);
+  return (
+    <Tile code="00" title="TACTICAL LOCATOR" led={focus ? 'warn' : 'ok'} right={focus?.label ? `◎ ${focus.label.toUpperCase().slice(0, 40)}` : 'CLICK ANY ITEM TO LOCATE'} className="a-map">
+      <div className="stage locator">
+        <MapView />
+        <AircraftCard />
+        <CameraViewer />
+      </div>
+    </Tile>
+  );
+}
 
 const LEVEL_COLOR: Record<string, string> = { Stable: '#2BD47D', Guarded: '#9BE15D', Elevated: '#FFB020', High: '#FF7A45', Severe: '#FF4D4F' };
 
@@ -104,7 +128,7 @@ function StabilityTile() {
     );
   const color = LEVEL_COLOR[s.level];
   return (
-    <Tile code="01" title="NEIGHBORHOOD STABILITY INDEX" led={s.score < 40 ? 'crit' : s.score < 70 ? 'warn' : 'ok'} right={`${pack.name.toUpperCase()} · NSI`} className="a-nsi">
+    <Tile code="01" title="STABILITY INDEX" led={s.score < 40 ? 'crit' : s.score < 70 ? 'warn' : 'ok'} right={`${pack.name.toUpperCase()} · NSI`} className="a-nsi">
       <div className="nsi">
         <Gauge score={s.score} color={color} level={s.level} />
         <div className="nsi-comps">
@@ -151,9 +175,10 @@ function InsightsTile() {
       )}
       <ul className="insights">
         {insights.map((i, k) => (
-          <li key={k} className={`sev-${i.severity}`}>
+          <li key={k} className={`sev-${i.severity}${i.at || i.url ? ' act' : ''}`} onClick={() => locate(i.at, i.zoom, i.label ?? i.source, { url: i.url, hex: i.hex })} title={i.at || i.url ? `${i.at ? 'Show on map' : ''}${i.at && i.url ? ' and ' : ''}${i.url ? 'open the source' : ''}` : undefined}>
             <span className="isrc">{i.source}</span>
             <span>{i.text}</span>
+            {(i.at || i.url) && <span className="go">{i.at ? '◎' : ''}{i.url ? '↗' : ''}</span>}
           </li>
         ))}
       </ul>
@@ -169,7 +194,7 @@ function NewsTile() {
     <Tile code="05" title="LOCAL NEWS FEED" led={rows.some((n) => n.severity >= 2) ? 'warn' : 'ok'} right={`${rows.length} STORIES`} className="a-news">
       <div className="news-ticker">
         {rows.map((n) => (
-          <button key={n.id} className={`nt sev-${n.severity}`} onClick={() => void openExternal(n.url, n.source)}>
+          <button key={n.id} className={`nt sev-${n.severity}`} onClick={() => locate(n.pin, n.precision === 'place' ? 14 : 11, n.areaName ?? n.source, { url: n.url, title: n.source })} title="Show on map and open the story">
             <span className="nt-t">{fmtAgo(n.published).toUpperCase()}</span>
             <span className="nt-b">
               <b>{n.title}</b>
@@ -194,7 +219,11 @@ function CamsTile() {
   const cams = useMemo(() => nearestCameras([...traffic, ...webcams], focus?.center ?? pack.center, 4), [traffic, webcams, focus, pack]);
   return (
     <Tile code="04" title="CAMERA GRID" led={cams.length ? 'ok' : 'idle'} right={`${traffic.length + webcams.length} FEEDS`} className="a-cams">
-      {cams.length ? <div className="cam-wall">{cams.map((c) => <CameraTile key={c.id} cam={c} />)}</div> : <div className="empty">Loading cameras…</div>}
+      {cams.length ? <div className="cam-wall">{cams.map((c) => (
+            <div key={c.id} onClickCapture={() => locate(c.location, 15, c.name)}>
+              <CameraTile cam={c} />
+            </div>
+          ))}</div> : <div className="empty">Loading cameras…</div>}
     </Tile>
   );
 }
@@ -215,13 +244,13 @@ function AlertsTile() {
     <Tile code="06" title="ACTIVE SITUATIONS" led={clusters.length ? 'crit' : incidents.some((i) => i.severity >= 2) ? 'warn' : 'ok'} right={`${clusters.length + incidents.length} OPEN`} className="a-sit">
       <div className="sit-list">
         {clusters.map((c) => (
-          <button key={c.id} className={`sit sev-${c.severity}`} onClick={() => setShared({ focus: { at: Date.now(), center: c.center, zoom: 14 } })}>
+          <button key={c.id} className={`sit sev-${c.severity}`} onClick={() => locate(c.center, 14, c.title, { url: c.signals.find((x) => x.url)?.url })}>
             <span className="tag crit">DEVELOPING</span> <b>{c.title}</b>
             <small>{c.sources.map((x) => SOURCE_LABEL[x]).join(' · ')} · {fmtTime(c.lastAt, tz)}</small>
           </button>
         ))}
         {incidents.slice(0, 20).map((i) => (
-          <button key={i.id} className={`sit sev-${i.severity}`} onClick={() => i.location && setShared({ focus: { at: Date.now(), center: i.location } })}>
+          <button key={i.id} className={`sit sev-${i.severity}`} onClick={() => locate(i.location, 13, i.title, { url: i.url, hex: i.hex })}>
             <b>{i.title}</b>
             <small>{i.detail}</small>
           </button>
@@ -234,6 +263,7 @@ function AlertsTile() {
 
 function HoodsTile() {
   const s = useStore((x) => x.stability);
+  const crimeSrc = useStore((x) => getPack(x.packId).intel.crime);
   const hoods = s?.neighborhoods ?? [];
   return (
     <Tile code="07" title="SECTOR RATINGS" right="7-DAY CRIME" className="a-hoods">
@@ -241,7 +271,7 @@ function HoodsTile() {
         <table className="hoods">
           <tbody>
             {hoods.map((h) => (
-              <tr key={h.name}>
+              <tr key={h.name} className="act" title="Show on map and open the police crime map" onClick={() => locate(h.center, 14, h.name, { url: crimeSrc ? CRIME_MAP_URL[crimeSrc] : undefined, title: 'Crime map' })}>
                 <td className="hn">{h.name}</td>
                 <td>
                   <i className="bar">
@@ -298,29 +328,39 @@ function CrimeTrendTile() {
 
 function StatusTile() {
   const s = useStore((x) => x);
-  const stat = (label: string, value: React.ReactNode, tone = '') => (
-    <div className={`stat ${tone}`}>
+  const pack = getPack(s.packId);
+  const stat = (label: string, value: React.ReactNode, tone = '', go?: () => void) => (
+    <button className={`stat ${tone}${go ? ' act' : ''}`} onClick={go} disabled={!go}>
       <span>{label}</span>
       <b>{value}</b>
-    </div>
+    </button>
   );
-  const helis = s.aircraft.filter((a) => a.kind === 'heli').length;
+  const heliList = s.aircraft.filter((a) => a.kind === 'heli');
+  const helis = heliList.length;
   const out = s.outages.reduce((n, o) => n + o.customers, 0);
+  const orbitHex = Object.keys(s.orbiting)[0];
+  const nearFire = [...s.fires].filter((f) => f.severity >= 1).sort((a, b) => a.distNm - b.distNm)[0];
+  const bigQuake = [...s.quakes].sort((a, b) => b.mag - a.mag)[0];
+  const flood = s.gauges.find((g) => g.category !== 'no_flooding' && g.category !== 'unknown');
+  const transit = s.transit.find((t) => t.severity >= 1 && t.location);
+  const plane = heliList[0] ?? s.aircraft[0];
+  const C = pack.center;
+  const wx = `https://forecast.weather.gov/MapClick.php?lat=${C[1].toFixed(4)}&lon=${C[0].toFixed(4)}`;
   return (
     <Tile code="09" title="STATUS BOARD" className="a-status">
       <div className="stats-grid">
-        {stat('Weather alerts', s.alerts.length, s.alerts.length ? 'warn' : '')}
-        {stat('Air quality', s.air ? `${s.air.aqi}` : '—', (s.air?.aqi ?? 0) > 100 ? 'warn' : '')}
-        {stat('Aircraft / helos', `${s.aircraft.length} / ${helis}`, Object.keys(s.orbiting).length ? 'warn' : '')}
-        {stat('Circling now', Object.keys(s.orbiting).length, Object.keys(s.orbiting).length ? 'warn' : '')}
-        {stat('Drones', s.drones.length)}
-        {stat('Wildfires near', s.fires.filter((f) => f.severity >= 1).length)}
-        {stat('Sat. heat (24h)', s.hotspots.length)}
-        {stat('Quakes (7d)', s.quakes.length)}
-        {stat('Rivers ≥ action', s.gauges.filter((g) => g.category !== 'no_flooding' && g.category !== 'unknown').length)}
-        {stat('Power out', out.toLocaleString('en-US'), out >= 1000 ? 'warn' : '')}
-        {stat('Transit issues', s.transit.filter((t) => t.severity >= 1).length)}
-        {stat('Airport delays', s.airportDelays.length, s.airportDelays.length ? 'warn' : '')}
+        {stat('Weather alerts', s.alerts.length, s.alerts.length ? 'warn' : '', () => locate(C, 9, 'NWS forecast area', { url: wx, title: 'NWS forecast' }))}
+        {stat('Air quality', s.air ? `${s.air.aqi}` : '—', (s.air?.aqi ?? 0) > 100 ? 'warn' : '', () => locate(C, pack.zoom, 'Air quality', { url: 'https://www.airnow.gov/', title: 'AirNow' }))}
+        {stat('Aircraft / helos', `${s.aircraft.length} / ${helis}`, Object.keys(s.orbiting).length ? 'warn' : '', plane ? () => locate([plane.lon, plane.lat], 12, plane.callsign || plane.hex, { hex: plane.hex, url: `https://globe.adsb.lol/?icao=${plane.hex}`, title: 'ADS-B' }) : undefined)}
+        {stat('Circling now', Object.keys(s.orbiting).length, orbitHex ? 'warn' : '', orbitHex ? () => locate(s.orbiting[orbitHex].center, 13, 'Circling aircraft', { hex: orbitHex, url: `https://globe.adsb.lol/?icao=${orbitHex}`, title: 'ADS-B' }) : undefined)}
+        {stat('Drones', s.drones.length, '', s.drones.find((d) => d.location) ? () => locate(s.drones.find((d) => d.location)!.location, 16, 'Drone') : undefined)}
+        {stat('Wildfires near', s.fires.filter((f) => f.severity >= 1).length, '', nearFire ? () => locate(nearFire.location, 10, nearFire.name, { url: 'https://www.nifc.gov/fire-information/nfn', title: 'NIFC' }) : undefined)}
+        {stat('Sat. heat (24h)', s.hotspots.length, '', () => locate(C, 8, 'Satellite heat', { url: `https://firms.modaps.eosdis.nasa.gov/map/#d:24hrs;@${C[0].toFixed(3)},${C[1].toFixed(3)},9z`, title: 'NASA FIRMS' }))}
+        {stat('Quakes (7d)', s.quakes.length, '', bigQuake ? () => locate(bigQuake.location, 8, `M${bigQuake.mag.toFixed(1)} earthquake`, { url: bigQuake.url, title: 'USGS' }) : undefined)}
+        {stat('Rivers ≥ action', s.gauges.filter((g) => g.category !== 'no_flooding' && g.category !== 'unknown').length, '', flood ? () => locate(flood.location, 13, flood.name, { url: `https://water.noaa.gov/gauges/${flood.id}`, title: 'NOAA gauge' }) : undefined)}
+        {stat('Power out', out.toLocaleString('en-US'), out >= 1000 ? 'warn' : '', pack.power.utilities[0] ? () => locate(C, 9, 'Power outages', { url: pack.power.utilities[0].url, title: pack.power.utilities[0].name }) : undefined)}
+        {stat('Transit issues', s.transit.filter((t) => t.severity >= 1).length, '', transit ? () => locate(transit.location, 15, transit.title, { url: transit.url }) : undefined)}
+        {stat('Airport delays', s.airportDelays.length, s.airportDelays.length ? 'warn' : '', () => locate(C, 9, 'Airports', { url: 'https://nasstatus.faa.gov/', title: 'FAA NAS status' }))}
       </div>
     </Tile>
   );
@@ -338,11 +378,18 @@ function SitrepBar() {
   const total = Object.values(feeds).length;
   const violent48 = useMemo(() => crimes.filter((c) => c.severity >= 2 && Date.now() - c.at < 2 * 86_400_000).length, [crimes]);
   const color = s ? LEVEL_COLOR[s.level] : 'var(--dim)';
-  const kpi = (label: string, value: React.ReactNode, tone = '') => (
-    <div className={`kpi ${tone}`}>
+  const lastViolent = useMemo(() => crimes.filter((c) => c.severity >= 2).sort((a, b) => b.at - a.at)[0], [crimes]);
+  const firstSit = useStore((x) => x.clusters[0]?.center ?? x.incidents.find((i) => i.location)?.location ?? null);
+  const heli = useStore((x) => x.aircraft.find((a) => a.kind === 'heli')?.hex);
+  const heliAt = useStore((x) => {
+    const a = x.aircraft.find((y) => y.kind === 'heli');
+    return a ? `${a.lon},${a.lat}` : '';
+  });
+  const kpi = (label: string, value: React.ReactNode, tone = '', go?: () => void) => (
+    <button className={`kpi ${tone}${go ? ' act' : ''}`} onClick={go} disabled={!go}>
       <b>{value}</b>
       <span>{label}</span>
-    </div>
+    </button>
   );
   return (
     <div className="sitrep">
@@ -359,10 +406,10 @@ function SitrepBar() {
         <em>{s ? `${s.score}/100` : ''}</em>
       </div>
       <div className="sr-kpis">
-        {kpi('VIOLENT · 48H', violent48, violent48 > (s?.violentDailyAvg ?? 0) * 2.5 ? 'warn' : '')}
-        {kpi('OPEN SITUATIONS', incidents, incidents ? 'warn' : '')}
-        {kpi('HELOS AIRBORNE', helis, helis ? 'warn' : '')}
-        {kpi('AIR QUALITY', aqi ?? '—', (aqi ?? 0) > 100 ? 'warn' : '')}
+        {kpi('VIOLENT · 48H', violent48, violent48 > (s?.violentDailyAvg ?? 0) * 2.5 ? 'warn' : '', lastViolent ? () => locate(lastViolent.location, 15, `Latest: ${lastViolent.offense}`, { url: pack.intel.crime ? CRIME_MAP_URL[pack.intel.crime] : undefined, title: 'Crime map' }) : undefined)}
+        {kpi('OPEN SITUATIONS', incidents, incidents ? 'warn' : '', firstSit ? () => locate(firstSit, 13, 'Open situation') : undefined)}
+        {kpi('HELOS AIRBORNE', helis, helis ? 'warn' : '', heli ? () => locate(heliAt.split(',').map(Number) as LonLat, 12, 'Helicopter', { hex: heli }) : undefined)}
+        {kpi('AIR QUALITY', aqi ?? '—', (aqi ?? 0) > 100 ? 'warn' : '', () => locate(pack.center, pack.zoom, 'Air quality', { url: 'https://www.airnow.gov/', title: 'AirNow' }))}
         {kpi('FEEDS LIVE', `${live}/${total}`)}
       </div>
     </div>
@@ -374,6 +421,7 @@ export function Dashboard() {
   return (
     <div className="dashboard">
       <SitrepBar />
+      <LocatorTile />
       <StabilityTile />
       <InsightsTile />
       <TvTile />

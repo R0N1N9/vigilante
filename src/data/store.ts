@@ -136,7 +136,8 @@ export interface Layers {
 export interface SharedUi {
   packId: string;
   selectedHex: string | null;
-  focus: { at: number; center: LonLat; zoom?: number } | null;
+  /** Where the map should fly to; label/url drive the locator marker. */
+  focus: { at: number; center: LonLat; zoom?: number; label?: string } | null;
   ceilingAglFt: number | null;
   hideGround: boolean;
   layers: Layers;
