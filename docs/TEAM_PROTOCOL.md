@@ -101,7 +101,31 @@ Plaintext:        {"v":1,"id":"vigil-3f9a2c","n":"Unit 7","app":"vigil","ver":"1
 Sealed message:   VGP1.oKGio6SlpqeoqaqrnToKD3_6Lp0LAaXpJQypuRnAdCP0jiNe_ywKpBGJTyOHGC6LjxVxEX39dLgrQKGPLnwvJED8OAgkLClkhkGrgpqMp0MS1YGSmcDFQ62io9nvJ4nGpLW7VswYUe7Y9SO20qgJx2LaraGt4ihntrHfBAY8DsD8D7YNH_vwnY1lwWHncNMc8Xi4OxUqju8wcKD4vPWPA9q32LbE_5HXzaZACfwvKZ2UCShxoDBNQwOh081VR57sIFyMSePuHVAy5T17FkJu81Hmjd7HbXD_eRQChWLFxpsdWfrXg-MlOIQF2dum6Ojq4dYkz52Pmg
 ```
 
-## 4. Kotlin reference (Android API 26+)
+## 4. Waypoints (topic `t` + `-ops`)
+
+The console sends **waypoints** (rally points, posts, places to check) to agents, and agents answer. Messages go on a third sibling topic, `<t>-ops`, sealed exactly like position reports (same key `p`, AES-256-GCM) but with the prefix **`VGO1.`** instead of `VGP1.`. Publish with `{"topic":"<t>-ops","message":"VGO1.…","tags":["vigilance-ops"]}`.
+
+**Waypoint** (console → agents; a newer `t` replaces an older one with the same `id`):
+```json
+{"v":1,"type":"wp","id":"k3x9p2","name":"North gate","note":"Meet Bravo here","lat":39.748,"lon":-104.995,
+ "to":["vigil-3f9a2c"],"pri":"urgent","state":"active","by":"Ops","t":1763400000000}
+```
+- `to`: device ids (the report `id` field) the waypoint is for. An **empty list means everyone** on the channel.
+- `pri`: `routine` or `urgent`. `state`: `active`, `done` or `cancelled`. Stop showing a waypoint once it's no longer `active`.
+
+**Reply** (agent → console):
+```json
+{"v":1,"type":"wp-ack","wp":"k3x9p2","id":"vigil-3f9a2c","n":"Unit 7","state":"enroute","t":1763400030000}
+```
+`state` is one of `ack`, `enroute`, `arrived`, `declined`. The console also marks an agent `arrived` on its own when their shared position is within 40 m of the waypoint.
+
+**What Vigil should do:** show a notification for a new active waypoint addressed to this device ("Waypoint from Ops: North gate. Open directions"), and make `urgent` ones louder or vibrate. Tapping **Directions** should open turn-by-turn navigation:
+- Android: `Intent(ACTION_VIEW, Uri.parse("google.navigation:q=<lat>,<lon>"))`.
+- If no app handles that, fall back to `geo:<lat>,<lon>?q=<lat>,<lon>(<name>)`, which lets the user pick a maps app.
+
+Send `enroute` when the user opens directions, and offer Acknowledged, Arrived and Can't make it buttons. A user in stealth (dark) mode still receives waypoints but sends no automatic replies.
+
+## 5. Kotlin reference (Android API 26+)
 
 ```kotlin
 import java.security.SecureRandom
@@ -136,7 +160,7 @@ fun parseInvite(text: String): String? =
 
 To check an implementation, `openPosition` with the test key must return the plaintext above exactly. `sealPosition` uses a random IV, so its output won't match byte for byte, but Vigilance must be able to open it.
 
-## 5. What Vigil should give the user
+## 6. What Vigil should give the user
 
 These are suggestions for the Vigil side:
 

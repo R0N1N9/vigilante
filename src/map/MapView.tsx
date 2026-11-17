@@ -8,6 +8,7 @@ import { passesCeiling } from '../lib/adsb';
 import { circleRing, NM_TO_M, type LonLat } from '../lib/geo';
 import { getPack } from '../lib/packs';
 import { openExternal, openRadio } from '../ui/popout';
+import { openWaypoint, placeWaypoint } from '../ui/Waypoints';
 import { addIcons, CLASS_COLORS, DRONE_COLOR, RADIO_COLOR } from './icons';
 import { addTerrain, setTerrainOptions } from './terrain';
 import { shipTypeName, stormSeverity } from '../lib/intel';
@@ -20,7 +21,7 @@ const fc = (features: GeoJSON.Feature[]): GeoJSON.FeatureCollection => ({ type: 
 const SEVERITY_FILL = ['match', ['get', 'severity'], 'Extreme', '#FF4D4F', 'Severe', '#FF7A45', 'Moderate', '#FFB020', 'Minor', '#4C8DFF', '#8FA3B8'] as unknown as maplibregl.ExpressionSpecification;
 const SEV_NUM = ['match', ['get', 'sev'], 4, '#FF4D4F', 3, '#FF7A45', 2, '#FFB020', 1, '#4C8DFF', '#8FA3B8'] as unknown as maplibregl.ExpressionSpecification;
 
-const SOURCES = ['aoi', 'monitors', 'team-trails', 'team', 'crime', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'outages', 'radio', 'transit', 'areas', 'draw', 'weather', 'tfr', 'traffic-lines', 'traffic', 'cameras', 'fires', 'clusters', 'trails', 'orbits', 'drone-links', 'drones', 'aircraft'];
+const SOURCES = ['aoi', 'monitors', 'wp-links', 'waypoints', 'team-trails', 'team', 'crime', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'outages', 'radio', 'transit', 'areas', 'draw', 'weather', 'tfr', 'traffic-lines', 'traffic', 'cameras', 'fires', 'clusters', 'trails', 'orbits', 'drone-links', 'drones', 'aircraft'];
 
 function addDataLayers(map: MlMap) {
   addIcons(map);
@@ -56,6 +57,9 @@ function addDataLayers(map: MlMap) {
   L({ id: 'areas-label', type: 'symbol', source: 'areas', layout: { 'text-field': ['get', 'name'], 'text-font': LABEL_FONT, 'text-size': 12, 'symbol-placement': 'point' }, paint: { 'text-color': ['get', 'color'], 'text-halo-color': '#0B0F14', 'text-halo-width': 1.6 } });
   L({ id: 'monitors-line', type: 'line', source: 'monitors', paint: { 'line-color': '#C084FC', 'line-width': 1.6, 'line-dasharray': [1, 1.5], 'line-opacity': ['case', ['get', 'on'], 0.9, 0.35] } });
   L({ id: 'monitors-label', type: 'symbol', source: 'monitors', layout: { 'text-field': ['concat', '◉ ', ['get', 'name']], 'text-font': LABEL_FONT, 'text-size': 11, 'symbol-placement': 'line', 'text-max-angle': 30 }, paint: { 'text-color': '#D8B4FE', 'text-halo-color': '#0B0F14', 'text-halo-width': 1.4 } });
+  L({ id: 'wp-links', type: 'line', source: 'wp-links', paint: { 'line-color': ['get', 'color'], 'line-width': 1.6, 'line-opacity': 0.75, 'line-dasharray': [2, 2] } });
+  L({ id: 'waypoints', type: 'circle', source: 'waypoints', paint: { 'circle-radius': 9, 'circle-color': 'rgba(11,15,20,0.85)', 'circle-stroke-color': ['get', 'color'], 'circle-stroke-width': 2.5, 'circle-opacity': ['case', ['get', 'active'], 1, 0.4], 'circle-stroke-opacity': ['case', ['get', 'active'], 1, 0.4] } });
+  L({ id: 'waypoints-label', type: 'symbol', source: 'waypoints', layout: { 'text-field': ['get', 'label'], 'text-font': LABEL_FONT, 'text-size': 11, 'text-offset': [0, 1.5], 'text-anchor': 'top', 'text-letter-spacing': 0.06 }, paint: { 'text-color': ['get', 'color'], 'text-halo-color': '#0B0F14', 'text-halo-width': 1.6 } });
   L({ id: 'team-halo', type: 'circle', source: 'team', paint: { 'circle-radius': 10, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': ['get', 'color'], 'circle-stroke-width': 2, 'circle-stroke-opacity': 0 } });
   L({ id: 'team-trails', type: 'line', source: 'team-trails', paint: { 'line-color': ['get', 'color'], 'line-width': 2, 'line-opacity': 0.55, 'line-dasharray': [2, 1] } });
   L({ id: 'team', type: 'circle', source: 'team', paint: { 'circle-radius': 6, 'circle-color': ['get', 'color'], 'circle-stroke-color': '#0B0F14', 'circle-stroke-width': 2, 'circle-opacity': ['case', ['get', 'stale'], 0.45, 1] } });
@@ -139,13 +143,29 @@ function render(map: MlMap, s: State) {
   vis(['outages-fill', 'outages-line', 'outages-label'], s.layers.outages);
   vis(['drones', 'drone-links'], s.layers.drones);
   vis(['areas-fill', 'areas-line', 'areas-label', 'monitors-line', 'monitors-label'], s.layers.areas);
-  vis(['team', 'team-label', 'team-trails', 'team-halo'], s.layers.team);
+  vis(['team', 'team-label', 'team-trails', 'team-halo', 'waypoints', 'waypoints-label', 'wp-links'], s.layers.team);
 
   setData(map, 'aoi', { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: circleRing(pack.center, pack.radiusNm * NM_TO_M) } });
   setData(map, 'weather', fc(s.alerts.filter((a) => a.geometry).map((a) => ({ type: 'Feature', properties: { id: a.id, severity: a.severity }, geometry: a.geometry! }))));
   setData(map, 'tfr', fc(s.tfrs.map((t) => ({ type: 'Feature', properties: { id: t.id }, geometry: t.geometry }))));
   const TEAM_COLOR = { phone: '#2BD47D', mesh: '#FBBF24', ntfy: '#3DD6F5' } as const;
   setData(map, 'team', fc(s.team.filter((m): m is typeof m & { location: LonLat } => !!m.location && !m.dark).map((m) => ({ type: 'Feature', properties: { id: m.id, name: m.name, color: TEAM_COLOR[m.source], stale: Date.now() - m.at > 10 * 60_000 }, geometry: { type: 'Point', coordinates: m.location } }))));
+  const wpColor = (w: (typeof s.waypoints)[number]) => (w.priority === 'urgent' ? '#FF4D4F' : '#3DD6F5');
+  const shownWps = s.waypoints.filter((w) => w.state === 'active' || Date.now() - w.at < 30 * 60_000);
+  setData(map, 'waypoints', fc(shownWps.map((w) => ({ type: 'Feature', properties: { id: w.id, color: wpColor(w), active: w.state === 'active', label: `${w.name}${w.state !== 'active' ? ` (${w.state})` : ''}` }, geometry: { type: 'Point', coordinates: w.location } }))));
+  setData(
+    map,
+    'wp-links',
+    fc(
+      shownWps
+        .filter((w) => w.state === 'active')
+        .flatMap((w) =>
+          s.team
+            .filter((m) => m.location && !m.dark && m.channelId === w.channelId && m.id.startsWith('phone:') && (!w.to.length || w.to.includes(m.id.split(':').slice(2).join(':'))) && w.acks[m.id.split(':').slice(2).join(':')]?.state !== 'arrived')
+            .map((m) => ({ type: 'Feature' as const, properties: { color: wpColor(w) }, geometry: { type: 'LineString' as const, coordinates: [m.location!, w.location] } })),
+        ),
+    ),
+  );
   setData(map, 'team-trails', fc(s.team.filter((m) => !m.dark && (m.trail?.length ?? 0) > 1).map((m) => ({ type: 'Feature', properties: { color: TEAM_COLOR[m.source] }, geometry: { type: 'LineString', coordinates: m.trail! } }))));
   setData(map, 'monitors', fc(s.monitors.filter((m) => m.kind === 'proximity' && m.center).map((m) => ({ type: 'Feature', properties: { id: m.id, name: m.name, on: m.enabled }, geometry: { type: 'LineString', coordinates: circleRing(m.center!, m.radiusM, 96) } }))));
   setData(map, 'areas', fc(s.areas.filter((a) => a.packId === s.packId && a.polygon.length >= 3).map((a) => ({ type: 'Feature', properties: { name: a.name, color: a.color }, geometry: { type: 'Polygon', coordinates: [[...a.polygon, a.polygon[0]]] } }))));
@@ -223,7 +243,7 @@ function render(map: MlMap, s: State) {
   setData(map, 'draw', fc(drawF));
 }
 
-const CLICKABLE = ['team', 'aircraft', 'weather-fill', 'tfr-fill', 'crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'cameras', 'fires', 'traffic', 'transit', 'news', 'news-clusters', 'clusters', 'drones', 'outages-fill', 'radio-line', 'radio-label'];
+const CLICKABLE = ['waypoints', 'team', 'aircraft', 'weather-fill', 'tfr-fill', 'crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'cameras', 'fires', 'traffic', 'transit', 'news', 'news-clusters', 'clusters', 'drones', 'outages-fill', 'radio-line', 'radio-label'];
 
 export function MapView() {
   const el = useRef<HTMLDivElement>(null);
@@ -320,15 +340,29 @@ export function MapView() {
           popup.setLngLat(e.lngLat).setHTML(`<small>FAA TFR · ${esc(t.type)} · NOTAM ${esc(t.id)}</small><b>${esc(t.title)}</b><p>${esc(t.description.slice(0, 300))}</p>`).addTo(map);
           if (t.url) void openExternal(t.url, `TFR ${t.id}`);
         }
-      } else if (f.layer.id === 'team') setState({ modal: 'agent', agentId: String(p.id) });
+      } else if (f.layer.id === 'waypoints') openWaypoint(String(p.id));
+      else if (f.layer.id === 'team') setState({ modal: 'agent', agentId: String(p.id) });
       else if (f.layer.id === 'drones') setState({ tab: 'sky' });
     });
     // Right-click: share this spot with the team.
     map.on('contextmenu', (e) => {
-      if (getState().drawing || !getState().channels.some((c) => c.enabled)) return;
+      if (getState().drawing) return;
       const spot = { lat: e.lngLat.lat, lon: e.lngLat.lng };
       const el = document.createElement('div');
+      el.className = 'ctx-menu';
       el.innerHTML = `<small>${spot.lat.toFixed(5)}, ${spot.lon.toFixed(5)}</small>`;
+      const wpBtn = document.createElement('button');
+      wpBtn.className = 'btn small';
+      wpBtn.textContent = 'Place waypoint for agents';
+      wpBtn.onclick = () => {
+        popup.remove();
+        placeWaypoint([spot.lon, spot.lat]);
+      };
+      el.appendChild(wpBtn);
+      if (!getState().channels.some((c) => c.enabled)) {
+        popup.setLngLat(e.lngLat).setDOMContent(el).addTo(map);
+        return;
+      }
       const btn = document.createElement('button');
       btn.className = 'btn small';
       btn.textContent = 'Share this spot with the team';

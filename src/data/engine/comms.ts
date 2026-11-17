@@ -4,6 +4,7 @@ import { meshText, ntfyPublishBody, ntfyStreamUrl, ntfyToMessage, parseSpot, typ
 import { decodeFromRadio, decodePosition, decodeUser, encodeHeartbeat, encodeText, encodeWantConfig, nodeIdOf, PORT, type MeshUser } from '../../lib/meshproto';
 import { isTauri } from '../../lib/http';
 import { openPosition, posTopic } from '../../lib/poscrypt';
+import { deviceOf, openOps, opsTopic, reached, sealOps, toWire, type OpsMessage, type Waypoint } from '../../lib/waypoints';
 import { fieldCodeOf, FIELD_CODES } from '../../lib/comms';
 import type { MonitorHit } from '../../lib/monitors';
 import type { LonLat } from '../../lib/geo';
@@ -52,6 +53,22 @@ function upsertMember(m: TeamMember) {
   const trail = m.source === 'ntfy' || !m.location ? undefined : [...(prev?.dark ? [] : (prev?.trail ?? [])), m.location].slice(-TRAIL_MAX);
   const team = [{ ...m, trail }, ...getState().team.filter((x) => x.id !== m.id && now - x.at < TEAM_TTL_MS)];
   setShared({ team });
+  checkArrivals(m);
+}
+
+/** The console marks an agent arrived when their own position reaches an active waypoint meant for them. */
+function checkArrivals(m: TeamMember) {
+  const dev = deviceOf(m.id);
+  if (!dev || !m.location) return;
+  const wps = getState().waypoints;
+  let changed = false;
+  const next = wps.map((w) => {
+    if (w.state !== 'active' || w.channelId !== m.channelId || (w.to.length && !w.to.includes(dev)) || w.acks[dev]?.state === 'arrived' || !reached(w, m.location)) return w;
+    changed = true;
+    log(`TEAM   ${m.name} arrived at waypoint "${w.name}"`, 0);
+    return { ...w, acks: { ...w.acks, [dev]: { state: 'arrived' as const, at: Date.now(), name: m.name, auto: true } } };
+  });
+  if (changed) setShared({ waypoints: next });
 }
 
 function removeMember(id: string) {
@@ -87,6 +104,67 @@ function raiseFieldAlert(m: ChatMessage) {
 
 const streams = new Map<string, { es: EventSource; key: string }>();
 const posStreams = new Map<string, { es: EventSource; key: string }>();
+
+const opsStreams = new Map<string, { es: EventSource; key: string }>();
+
+function applyOps(ch: NtfyChannel, m: OpsMessage) {
+  const wps = getState().waypoints;
+  if (m.type === 'wp') {
+    const prev = wps.find((w) => w.id === m.id);
+    if (prev && prev.at > m.t && prev.state === m.state) return;
+    const w: Waypoint = { id: m.id, channelId: ch.id, name: m.name, note: m.note ?? '', location: [m.lon, m.lat], to: m.to, priority: m.pri, state: m.state, by: m.by, at: m.t, acks: prev?.acks ?? {} };
+    setShared({ waypoints: [w, ...wps.filter((x) => x.id !== m.id)] });
+  } else {
+    const w = wps.find((x) => x.id === m.wp);
+    if (!w || (w.acks[m.id] && w.acks[m.id].at >= m.t)) return;
+    setShared({ waypoints: wps.map((x) => (x.id === m.wp ? { ...x, acks: { ...x.acks, [m.id]: { state: m.state, at: m.t, name: m.n } } } : x)) });
+    if (m.state === 'declined') log(`TEAM   ${m.n} can't make it to "${w.name}"`, 1);
+  }
+}
+
+function connectOps(ch: NtfyChannel) {
+  const key = `${ch.server}|${ch.topic}|${ch.token}|${ch.posKey}`;
+  const cur = opsStreams.get(ch.id);
+  if (cur?.key === key) return;
+  cur?.es.close();
+  if (!ch.posKey) {
+    opsStreams.delete(ch.id);
+    return;
+  }
+  const es = new EventSource(ntfyStreamUrl({ ...ch, topic: opsTopic(ch.topic) }, '24h'));
+  es.onmessage = (e) => {
+    try {
+      const ev = JSON.parse(e.data) as NtfyEvent;
+      if (ev.event === 'message' && ev.message) void openOps(ch.posKey, ev.message).then((m) => m && applyOps(ch, m));
+    } catch {
+      /* keepalive */
+    }
+  };
+  opsStreams.set(ch.id, { es, key });
+}
+
+async function publishOps(ch: NtfyChannel, m: OpsMessage) {
+  const res = await fetch(`${ch.server.replace(/\/$/, '')}/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(ch.token ? { Authorization: `Bearer ${ch.token}` } : {}) },
+    body: JSON.stringify({ topic: opsTopic(ch.topic), message: await sealOps(ch.posKey, m), tags: ['vigilance-ops'] }),
+  });
+  if (!res.ok) throw new Error(`ntfy answered HTTP ${res.status}`);
+}
+
+/** Send (or update) a waypoint to agents, plus a short chat notice without the location. */
+export async function sendWaypoint(w: Waypoint, notify = true) {
+  const s = getState();
+  const ch = s.channels.find((c): c is NtfyChannel => c.id === w.channelId && c.kind === 'ntfy');
+  if (!ch?.posKey) throw new Error('This channel has no encryption key; create a new channel or re-join from a fresh invite.');
+  setShared({ waypoints: [w, ...s.waypoints.filter((x) => x.id !== w.id)] });
+  await publishOps(ch, toWire(w));
+  if (notify) {
+    const who = w.to.length ? s.team.filter((m) => w.to.includes(deviceOf(m.id) ?? '')).map((m) => m.name).join(', ') || `${w.to.length} agents` : 'everyone';
+    const verb = w.state === 'active' ? (w.priority === 'urgent' ? 'URGENT waypoint' : 'Waypoint') : w.state === 'done' ? 'Waypoint completed' : 'Waypoint cancelled';
+    postToChannel(ch.id, `📍 ${verb}: ${w.name} → ${who}. Open it in Vigil or the check-in page for directions.`);
+  }
+}
 
 /** Live phone positions: a sibling topic carrying encrypted reports. */
 function connectPositions(ch: NtfyChannel) {
@@ -321,10 +399,11 @@ function reconcile(s: State) {
     if (ch.kind === 'ntfy' && ch.enabled) {
       connectNtfy(ch);
       connectPositions(ch);
+      connectOps(ch);
       live.add(ch.id);
     }
   }
-  for (const map of [streams, posStreams])
+  for (const map of [streams, posStreams, opsStreams])
     for (const [id, st] of map) {
       if (!live.has(id)) {
         st.es.close();

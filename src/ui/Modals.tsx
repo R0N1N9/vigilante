@@ -11,6 +11,7 @@ import { fieldLink, inviteLink, MESHTASTIC_APP_URL, nativeLink, vigilLink } from
 import { openSystem } from './popout';
 import { PosterModal } from './Posters';
 import { AgentModal } from './Agents';
+import { WaypointModal } from './Waypoints';
 
 function Modal({ title, children, wide = false }: { title: string; children: React.ReactNode; wide?: boolean }) {
   useEffect(() => {
@@ -445,6 +446,7 @@ export function Modals() {
   if (modal === 'invite') return <InviteModal />;
   if (modal === 'poster') return <PosterModal />;
   if (modal === 'agent') return <AgentModal />;
+  if (modal === 'waypoint') return <WaypointModal />;
   if (modal === 'settings') return <SettingsModal />;
   if (modal === 'brief') return <BriefModal />;
   return null;

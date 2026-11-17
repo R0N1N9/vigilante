@@ -88,6 +88,30 @@ function importKey(k: string): Promise<CryptoKey> {
   return p;
 }
 
+/** Seal any JSON object the same way (AES-256-GCM, random IV) under a prefix such as VGP1 or VGO1. */
+export async function sealJson(key: string, obj: unknown, prefix = 'VGP1'): Promise<string> {
+  const iv = new Uint8Array(12);
+  crypto.getRandomValues(iv);
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await importKey(key), enc.encode(JSON.stringify(obj))));
+  const out = new Uint8Array(iv.length + ct.length);
+  out.set(iv);
+  out.set(ct, iv.length);
+  return `${prefix}.${b64url(out)}`;
+}
+
+export async function openJson<T>(key: string, text: string, prefix = 'VGP1'): Promise<T | null> {
+  const m = new RegExp(`^${prefix}\\.([A-Za-z0-9_-]+)$`).exec(text.trim());
+  if (!m) return null;
+  try {
+    const raw = unb64url(m[1]);
+    if (raw.length < 13) return null;
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: raw.slice(0, 12) }, await importKey(key), raw.slice(12));
+    return JSON.parse(dec.decode(pt)) as T;
+  } catch {
+    return null;
+  }
+}
+
 export async function sealPosition(key: string, r: PositionReport): Promise<string> {
   const iv = new Uint8Array(12);
   crypto.getRandomValues(iv);
