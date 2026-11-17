@@ -126,10 +126,16 @@ export function emitSignal(sig: Signal, opts: { quiet?: boolean; regional?: bool
   saveHistorySoon();
   if (!opts.quiet) {
     const where = describeLocation(sig.location, placesOf(getPack(sig.packId)));
-    void push(sig.id, sig.title, `${sig.detail}${where ? ` (${where})` : ''}`, sig.severity, sig.location, !!opts.regional, TAGS[sig.source]);
+    const message = `${sig.detail}${where ? ` (${where})` : ''}`;
+    void push(sig.id, sig.title, message, sig.severity, sig.location, !!opts.regional, TAGS[sig.source]);
+    for (const h of signalHooks) h(sig, message);
   }
   recomputeClusters(!opts.quiet);
 }
+
+/** Listeners for new (non-quiet) signals: general notifications and monitors. */
+const signalHooks: ((sig: Signal, message: string) => void)[] = [];
+export const onSignal = (fn: (sig: Signal, message: string) => void) => signalHooks.push(fn);
 
 let knownClusters = new Map<string, number>();
 

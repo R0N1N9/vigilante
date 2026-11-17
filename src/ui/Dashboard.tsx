@@ -237,12 +237,20 @@ function TvTile() {
 }
 
 function AlertsTile() {
+  const allHits = useStore((x) => x.hits);
+  const hits = useMemo(() => allHits.filter((h) => !h.acked), [allHits]);
   const clusters = useStore((x) => x.clusters);
   const incidents = useStore((x) => x.incidents);
   const tz = useStore((x) => getPack(x.packId).timezone);
   return (
-    <Tile code="06" title="ACTIVE SITUATIONS" led={clusters.length ? 'crit' : incidents.some((i) => i.severity >= 2) ? 'warn' : 'ok'} right={`${clusters.length + incidents.length} OPEN`} className="a-sit">
+    <Tile code="06" title="ACTIVE SITUATIONS" led={clusters.length || hits.some((h) => h.severity >= 3) ? 'crit' : hits.length ? 'warn' : incidents.some((i) => i.severity >= 2) ? 'warn' : 'ok'} right={`${clusters.length + incidents.length + hits.length} OPEN`} className="a-sit">
       <div className="sit-list">
+        {hits.map((h) => (
+          <button key={h.id} className={`sit hit sev-${h.severity}`} onClick={() => locate(h.location, 14, h.monitorName, { url: h.url, hex: h.hex })}>
+            <span className="tag">◉ {h.monitorName.toUpperCase()}</span> <b>{h.title}</b>
+            <small>{h.detail}</small>
+          </button>
+        ))}
         {clusters.map((c) => (
           <button key={c.id} className={`sit sev-${c.severity}`} onClick={() => locate(c.center, 14, c.title, { url: c.signals.find((x) => x.url)?.url })}>
             <span className="tag crit">DEVELOPING</span> <b>{c.title}</b>
@@ -255,7 +263,7 @@ function AlertsTile() {
             <small>{i.detail}</small>
           </button>
         ))}
-        {!clusters.length && !incidents.length && <div className="empty">All quiet.</div>}
+        {!clusters.length && !incidents.length && !hits.length && <div className="empty">All quiet.</div>}
       </div>
     </Tile>
   );

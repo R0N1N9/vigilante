@@ -87,3 +87,26 @@ export async function ntfySend(m: NtfyMessage): Promise<void> {
   });
   if (!res.ok) throw new Error(`ntfy answered HTTP ${res.status}`);
 }
+
+export interface WebhookMessage {
+  url: string;
+  format: 'slack' | 'discord' | 'teams' | 'json';
+  title: string;
+  message: string;
+  severity: number;
+  link?: string;
+}
+
+/** Post an alert to a Slack/Discord/Teams/JSON webhook. */
+export async function webhookSend(m: WebhookMessage): Promise<void> {
+  if (isTauri()) {
+    await invoke('webhook_send', { ...m, link: m.link ?? null });
+    return;
+  }
+  if (!/^https:\/\//.test(m.url)) throw new Error('webhook must use https');
+  const level = ['INFO', 'INFO', 'WARNING', 'SERIOUS', 'CRITICAL'][Math.min(4, m.severity)];
+  const text = `[${level}] ${m.title}\n${m.message}${m.link ? `\n${m.link}` : ''}`;
+  const body = m.format === 'slack' || m.format === 'teams' ? { text } : m.format === 'discord' ? { content: text.slice(0, 1900), username: 'Vigilante' } : { source: 'vigilante', title: m.title, message: m.message, severity: m.severity, level, url: m.link ?? null };
+  const res = await fetch(m.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!res.ok) throw new Error(`webhook answered HTTP ${res.status}`);
+}

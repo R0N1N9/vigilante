@@ -1,6 +1,7 @@
 import { setShared } from '../data/bus';
 import { getState, setState, useStore } from '../data/store';
 import { AREA_COLORS, centroid } from '../lib/areas';
+import { MonitorsPanel } from './MonitorsPanel';
 
 export function AreasTab() {
   const areas = useStore((s) => s.areas);
@@ -35,6 +36,7 @@ export function AreasTab() {
         </article>
       ))}
       {!mine.length && <div className="empty">No watch areas for this city yet.</div>}
+      <MonitorsPanel />
     </div>
   );
 }

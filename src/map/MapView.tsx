@@ -19,7 +19,7 @@ const fc = (features: GeoJSON.Feature[]): GeoJSON.FeatureCollection => ({ type: 
 const SEVERITY_FILL = ['match', ['get', 'severity'], 'Extreme', '#FF4D4F', 'Severe', '#FF7A45', 'Moderate', '#FFB020', 'Minor', '#4C8DFF', '#8FA3B8'] as unknown as maplibregl.ExpressionSpecification;
 const SEV_NUM = ['match', ['get', 'sev'], 4, '#FF4D4F', 3, '#FF7A45', 2, '#FFB020', 1, '#4C8DFF', '#8FA3B8'] as unknown as maplibregl.ExpressionSpecification;
 
-const SOURCES = ['aoi', 'crime', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'outages', 'radio', 'transit', 'areas', 'draw', 'weather', 'tfr', 'traffic-lines', 'traffic', 'cameras', 'fires', 'clusters', 'trails', 'orbits', 'drone-links', 'drones', 'aircraft'];
+const SOURCES = ['aoi', 'monitors', 'crime', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'outages', 'radio', 'transit', 'areas', 'draw', 'weather', 'tfr', 'traffic-lines', 'traffic', 'cameras', 'fires', 'clusters', 'trails', 'orbits', 'drone-links', 'drones', 'aircraft'];
 
 function addDataLayers(map: MlMap) {
   addIcons(map);
@@ -53,6 +53,8 @@ function addDataLayers(map: MlMap) {
   L({ id: 'areas-fill', type: 'fill', source: 'areas', paint: { 'fill-color': ['get', 'color'], 'fill-opacity': 0.07 } });
   L({ id: 'areas-line', type: 'line', source: 'areas', paint: { 'line-color': ['get', 'color'], 'line-width': 1.6, 'line-opacity': 0.8 } });
   L({ id: 'areas-label', type: 'symbol', source: 'areas', layout: { 'text-field': ['get', 'name'], 'text-font': LABEL_FONT, 'text-size': 12, 'symbol-placement': 'point' }, paint: { 'text-color': ['get', 'color'], 'text-halo-color': '#0B0F14', 'text-halo-width': 1.6 } });
+  L({ id: 'monitors-line', type: 'line', source: 'monitors', paint: { 'line-color': '#C084FC', 'line-width': 1.6, 'line-dasharray': [1, 1.5], 'line-opacity': ['case', ['get', 'on'], 0.9, 0.35] } });
+  L({ id: 'monitors-label', type: 'symbol', source: 'monitors', layout: { 'text-field': ['concat', '◉ ', ['get', 'name']], 'text-font': LABEL_FONT, 'text-size': 11, 'symbol-placement': 'line', 'text-max-angle': 30 }, paint: { 'text-color': '#D8B4FE', 'text-halo-color': '#0B0F14', 'text-halo-width': 1.4 } });
   L({ id: 'aoi-line', type: 'line', source: 'aoi', paint: { 'line-color': '#3DD6F5', 'line-width': 1, 'line-opacity': 0.45, 'line-dasharray': [3, 3] } });
   L({ id: 'traffic-lines', type: 'line', source: 'traffic-lines', layout: { 'line-cap': 'round' }, paint: { 'line-color': SEV_NUM, 'line-width': 4, 'line-opacity': 0.55 } });
   L({ id: 'cameras', type: 'symbol', source: 'cameras', minzoom: 9, layout: { 'icon-image': ['get', 'icon'], 'icon-size': 0.7, 'icon-allow-overlap': true } });
@@ -131,11 +133,12 @@ function render(map: MlMap, s: State) {
   vis(['transit'], s.layers.transit);
   vis(['outages-fill', 'outages-line', 'outages-label'], s.layers.outages);
   vis(['drones', 'drone-links'], s.layers.drones);
-  vis(['areas-fill', 'areas-line', 'areas-label'], s.layers.areas);
+  vis(['areas-fill', 'areas-line', 'areas-label', 'monitors-line', 'monitors-label'], s.layers.areas);
 
   setData(map, 'aoi', { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: circleRing(pack.center, pack.radiusNm * NM_TO_M) } });
   setData(map, 'weather', fc(s.alerts.filter((a) => a.geometry).map((a) => ({ type: 'Feature', properties: { id: a.id, severity: a.severity }, geometry: a.geometry! }))));
   setData(map, 'tfr', fc(s.tfrs.map((t) => ({ type: 'Feature', properties: { id: t.id }, geometry: t.geometry }))));
+  setData(map, 'monitors', fc(s.monitors.filter((m) => m.kind === 'proximity' && m.center).map((m) => ({ type: 'Feature', properties: { id: m.id, name: m.name, on: m.enabled }, geometry: { type: 'LineString', coordinates: circleRing(m.center!, m.radiusM, 96) } }))));
   setData(map, 'areas', fc(s.areas.filter((a) => a.packId === s.packId && a.polygon.length >= 3).map((a) => ({ type: 'Feature', properties: { name: a.name, color: a.color }, geometry: { type: 'Polygon', coordinates: [[...a.polygon, a.polygon[0]]] } }))));
   setData(map, 'traffic', fc(s.traffic.map((t) => ({ type: 'Feature', properties: { id: t.id, sev: t.severity }, geometry: { type: 'Point', coordinates: t.location } }))));
   setData(map, 'traffic-lines', fc(s.traffic.filter((t) => t.path).map((t) => ({ type: 'Feature', properties: { sev: t.severity }, geometry: { type: 'LineString', coordinates: t.path! } }))));
@@ -251,6 +254,12 @@ export function MapView() {
       const s = getState();
       if (s.drawing) {
         setState({ drawing: [...s.drawing, [e.lngLat.lng, e.lngLat.lat] as LonLat] });
+        return;
+      }
+      if (s.pickPoint) {
+        const center: LonLat = [e.lngLat.lng, e.lngLat.lat];
+        setShared({ monitors: s.monitors.map((m) => (m.id === s.pickPoint ? { ...m, center } : m)) });
+        setState({ pickPoint: null, tab: 'areas' });
         return;
       }
       const f = map.queryRenderedFeatures(e.point, { layers: CLICKABLE.filter((l) => map.getLayer(l)) })[0];
@@ -407,7 +416,7 @@ export function MapView() {
         map.flyTo({ center: s.focus.center, zoom: s.focus.zoom ?? Math.max(map.getZoom(), 12), speed: 1.6 });
         showMark(s.focus);
       }
-      if (s.drawing !== prev.drawing) map.getCanvas().style.cursor = s.drawing ? 'crosshair' : '';
+      if (s.drawing !== prev.drawing || s.pickPoint !== prev.pickPoint) map.getCanvas().style.cursor = s.drawing || s.pickPoint ? 'crosshair' : '';
       if (ready && s.settings.map !== prev.settings.map) setTerrainOptions(map, terrainOpts());
       if (ready && s.layers.radar && !prev.layers.radar) (map.getSource('radar') as maplibregl.RasterTileSource | undefined)?.setTiles([radarTiles()]);
       prev = s;
