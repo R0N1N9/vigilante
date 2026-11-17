@@ -176,7 +176,7 @@ Paste one tag where the console should appear. It inserts a responsive, sandboxe
 |---|---|---|
 | `data-view` | `dashboard`, `map` | `dashboard` |
 | `data-city` | `denver`, `atlanta`, or `lat,lon` (e.g. `39.7392,-104.9903`) | the visitor's last choice, else Denver |
-| `data-theme` | `tactical`, `nightvision`, `amber`, `redlight`, `steel` | `tactical` |
+| `data-theme` | `tactical`, `greenred`, `nightvision`, `amber`, `redlight`, `steel` | `tactical` |
 | `data-height` | a CSS height: `640`, `640px`, `70vh` | `620px` |
 | `data-target` | a CSS selector to fill instead of inserting after the tag | |
 

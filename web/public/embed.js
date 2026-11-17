@@ -4,7 +4,7 @@
  * Options (all optional):
  *   data-view    dashboard | map                         (default dashboard)
  *   data-city    denver | atlanta | lat,lon              (default: the visitor's last choice, else Denver)
- *   data-theme   tactical | nightvision | amber | redlight | steel
+ *   data-theme   tactical | greenred | nightvision | amber | redlight | steel
  *   data-height  CSS height, e.g. 640 or 70vh            (default 620px)
  *   data-target  CSS selector of an element to fill instead of inserting after the tag
  * The console runs in a sandboxed iframe from this site; it sets no cookies and tracks no one.
@@ -12,7 +12,7 @@
 (function () {
   'use strict';
   var VIEWS = { dashboard: 1, map: 1 };
-  var THEMES = { tactical: 1, nightvision: 1, amber: 1, redlight: 1, steel: 1 };
+  var THEMES = { tactical: 1, greenred: 1, nightvision: 1, amber: 1, redlight: 1, steel: 1 };
   var CITY = /^(denver|atlanta|-?\d{1,2}(\.\d+)?,-?\d{1,3}(\.\d+)?)$/;
 
   function clean(v) {
