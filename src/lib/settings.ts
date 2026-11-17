@@ -60,5 +60,5 @@ export function withDefaults(s: Partial<Settings> | null): Settings {
 export function randomTopic(): string {
   const a = new Uint8Array(9);
   crypto.getRandomValues(a);
-  return `vigilante-${[...a].map((b) => b.toString(36).padStart(2, '0')).join('').slice(0, 14)}`;
+  return `vigilance-${[...a].map((b) => b.toString(36).padStart(2, '0')).join('').slice(0, 14)}`;
 }

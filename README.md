@@ -1,4 +1,4 @@
-# Vigilante
+# Vigilance
 
 A neighborhood situational-awareness console for your laptop. It watches the area around a city and tells you what's in the sky and in the weather right now. It works on one screen and lets you pop panels out onto other monitors.
 
@@ -65,9 +65,19 @@ Built for people who keep watch over a place: physical security and asset protec
 - **Team webhooks:** Slack, Discord, Microsoft Teams, or plain JSON to any https endpoint, with their own threshold.
 
 **Team chat** (Team tab, or Pop out → Team chat)
-- **ntfy channels** (internet): a group chat on an ntfy topic. Free, no accounts. Teammates join from Vigilante or just read and reply in the free **ntfy** phone app. On the public ntfy.sh server the topic name is the only lock, so the app makes a long random one; for a private team, run your own ntfy server and add an access token.
+- **ntfy channels** (internet): a group chat on an ntfy topic. Free, no accounts. Teammates join from Vigilance or just read and reply in the free **ntfy** phone app. On the public ntfy.sh server the topic name is the only lock, so the app makes a long random one; for a private team, run your own ntfy server and add an access token.
 - **Meshtastic channels** (off-grid radio): connect a Meshtastic LoRa radio to the laptop by **Bluetooth, USB cable or local Wi-Fi** and chat with the team over the mesh, with no cell service or internet. Messages are encrypted with the channel key on the radio (about 200 characters each). Teammates' radios that share GPS show up on the map as **team positions**.
-- **Invites:** every channel has an **Invite** button with **QR codes** and a link. Copy it, email it, text it or use the system share sheet. For ntfy, the second QR opens the topic in the ntfy app (no Vigilante needed). For Meshtastic, paste the channel's share link from the Meshtastic app into the channel settings; the invite then includes it so teammates' radios join the encrypted channel. To join, paste any invite link, `VG1.` code, ntfy topic URL or Meshtastic channel link into **Join with an invite**. (Invite links open the hosted web app once it's deployed.)
+- **Invites:** every channel has an **Invite** button with **QR codes** and a link. Copy it, email it, text it or use the system share sheet. For ntfy, the second QR opens the topic in the ntfy app (no Vigilance needed). For Meshtastic, paste the channel's share link from the Meshtastic app into the channel settings; the invite then includes it so teammates' radios join the encrypted channel. To join, paste any invite link, `VG1.` code, ntfy topic URL or Meshtastic channel link into **Join with an invite**. (Invite links open the hosted web app once it's deployed.)
+- **Phone check-in (live team tracking):** the channel's **Invite** shows a **phone QR code**. A teammate scans it with their phone camera and it opens a page in their browser, with nothing to install. From there they can:
+  - chat with the team
+  - tap **SOS**, **Backup**, **On scene** or **All clear**
+  - turn on **Share my location** for 1 to 12 hours
+
+  Their position then shows live on the console's map, with a short trail, and in the dashboard's **Team** panel with accuracy, speed, battery and last-seen time. **SOS** and **Backup** become alerts that stay in the inbox until acknowledged.
+
+  Locations are **encrypted end to end** (AES-256-GCM) with a key that travels only inside the invite, so the ntfy server sees only scrambled data. Sharing is always opt-in, stops on a timer or with **Stop sharing**, and disappears from the console when stopped.
+
+  Phone browsers pause location when the page is in the background, so the page keeps the screen awake while sharing. For all-day background tracking, use a Meshtastic radio (or, later, the Android app).
 - **Share to team:** ⇪ buttons on alerts, developing incidents, monitor hits and the aircraft card, plus **right-click the map → Share this spot**. Messages with a spot get a "Show on map" button; spots from teammates also appear as team positions.
 - **Auto-post:** each channel can also post new reports at or above a chosen level, so the whole team sees serious alerts.
 
@@ -147,7 +157,7 @@ AI briefings from the browser use Anthropic's `anthropic-dangerous-direct-browse
 ### Deploy
 
 1. **Proxy:** deploy the Cloudflare Worker: `cd web/proxy && npx wrangler deploy`. Details, origin locking and rate limits: [`web/proxy/README.md`](web/proxy/README.md).
-2. **Site:** in GitHub, Settings → Pages → Source: *GitHub Actions*, and add an Actions variable `VITE_PROXY_URL` with the Worker URL. The [`Web app (GitHub Pages)`](.github/workflows/web.yml) workflow builds with the right base path (`/<repo>/`) and publishes on every push to `main`, or run it by hand.
+2. **Site:** in GitHub, Settings → Pages → Source: *GitHub Actions*, and add an Actions variable `VITE_PROXY_URL` with the Worker URL. The [`Vigilance web app (GitHub Pages)`](.github/workflows/web.yml) workflow builds with the right base path (`/<repo>/`) and publishes on every push to `main`, or run it by hand.
 3. Any static host works too: build with `VITE_BASE=/ VITE_PROXY_URL=https://... npm run build:web` and upload `dist-web/`. Cloudflare Pages and Netlify also apply `dist-web/_headers`.
 
 No API keys are built into the bundle or stored in the repo.
@@ -179,7 +189,7 @@ More examples:
 
 <!-- Plain iframe, no script -->
 <iframe src="https://r0n1n9.github.io/vigilante/embed.html?view=dashboard&city=denver&theme=nightvision"
-        title="Vigilante" style="width:100%;height:620px;border:0" loading="lazy"
+        title="Vigilance" style="width:100%;height:620px;border:0" loading="lazy"
         sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
 ```
 

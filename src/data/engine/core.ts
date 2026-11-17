@@ -171,7 +171,7 @@ export function resetForPack() {
 export async function sendTestPush() {
   const s = getState().settings.push;
   try {
-    await ntfySend({ server: s.server, topic: s.topic, title: 'Vigilante test alert', message: 'Phone alerts are working.', priority: 3, tags: 'white_check_mark' });
+    await ntfySend({ server: s.server, topic: s.topic, title: 'Vigilance test alert', message: 'Phone alerts are working.', priority: 3, tags: 'white_check_mark' });
     log('PUSH   Test notification sent', 0);
   } catch (e) {
     log(`PUSH   Test failed: ${String(e)}`, 2);

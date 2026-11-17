@@ -64,7 +64,7 @@ export function hoverHtml(layer: string, p: Record<string, unknown>, s: State, e
   switch (layer) {
     case 'team': {
       const m = s.team.find((x) => x.id === id);
-      return m ? tip(`TEAMMATE · ${m.source === 'mesh' ? 'MESHTASTIC' : 'NTFY'}`, esc(m.name), `Position ${ago(m.at)}`, 'Click to open team chat') : null;
+      return m ? tip(`TEAMMATE · ${m.source === 'mesh' ? 'MESHTASTIC RADIO' : m.source === 'phone' ? 'PHONE CHECK-IN' : 'SHARED SPOT'}`, esc(m.name), [`Position ${ago(m.at)}`, m.accuracyM != null ? `±${m.accuracyM} m` : '', m.speedMs != null && m.speedMs > 0.5 ? `${Math.round(m.speedMs * 2.237)} mph` : '', m.battery != null ? `battery ${m.battery}%` : ''].filter(Boolean).join(' · '), 'Click to open team chat') : null;
     }
     case 'aircraft':
     case 'orbit-ring': {

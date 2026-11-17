@@ -1,5 +1,5 @@
 /**
- * Web build of Vigilante (same src/, no Rust core).
+ * Web build of Vigilance (same src/, no Rust core).
  *   npm run dev:web      dev server with the local /proxy
  *   npm run build:web    -> dist-web/ (index.html, embed.html, embed.js, _headers)
  *   npm run preview:web  serve dist-web/ with the production headers

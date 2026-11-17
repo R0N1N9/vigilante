@@ -31,14 +31,14 @@ export function devProxy(): Plugin {
       let r = await ufetch(target, {
         redirect: 'manual',
         headers: {
-          'User-Agent': 'Vigilante/0.1 (dev)',
+          'User-Agent': 'Vigilance/0.1 (dev)',
           Accept: 'application/geo+json, application/json, application/rss+xml, application/xml, */*',
         },
       });
       for (let hop = 0; hop < 5 && r.status >= 300 && r.status < 400 && r.headers.get('location'); hop++) {
         const next = new URL(r.headers.get('location')!, target);
         if (!isAllowedTarget(next, allowed)) break;
-        r = await ufetch(next, { redirect: 'manual', headers: { 'User-Agent': 'Vigilante/0.1 (dev)' } });
+        r = await ufetch(next, { redirect: 'manual', headers: { 'User-Agent': 'Vigilance/0.1 (dev)' } });
       }
       res.statusCode = r.status;
       res.setHeader('Content-Type', r.headers.get('content-type') ?? 'application/json');

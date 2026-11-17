@@ -1,4 +1,4 @@
-# Vigilante web CORS proxy. Deploy from this folder:  npx wrangler deploy
+# Vigilance web CORS proxy. Deploy from this folder:  npx wrangler deploy
 # See web/proxy/README.md.
 name = "vigilante-proxy"
 main = "worker.ts"

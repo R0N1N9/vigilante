@@ -72,7 +72,7 @@ describe('embed.js loader', () => {
 
   it('drops invalid options', () => {
     run();
-    const src = (window as unknown as { VigilanteEmbed: { src: (b: string, o: object) => string } }).VigilanteEmbed.src;
+    const src = (window as unknown as { VigilanceEmbed: { src: (b: string, o: object) => string } }).VigilanceEmbed.src;
     expect(src('https://a.dev/v/', { city: '"><img onerror=x>', view: 'sky', theme: 'pink' })).toBe('https://a.dev/v/embed.html');
     expect(src('https://a.dev/v', { city: '39.7, -105.0' })).toBe('https://a.dev/v/embed.html?city=39.7%2C-105.0');
     // Loader and app agree on what's valid.

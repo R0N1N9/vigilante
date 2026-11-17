@@ -9,7 +9,7 @@ import type { Severity } from '../lib/signals';
 import { fmtTime } from './format';
 import { AboutModal } from './AboutModal';
 import QRCode from 'qrcode';
-import { inviteLink, MESHTASTIC_APP_URL, nativeLink } from '../lib/comms';
+import { fieldLink, inviteLink, MESHTASTIC_APP_URL, nativeLink } from '../lib/comms';
 import { openSystem } from './popout';
 
 export function Modal({ title, children, wide = false }: { title: string; children: React.ReactNode; wide?: boolean }) {
@@ -349,11 +349,12 @@ function InviteModal() {
   if (!ch) return null;
   const link = inviteLink(ch, withToken);
   const native = nativeLink(ch);
+  const field = ch.kind === 'ntfy' && ch.posKey ? fieldLink(ch, withToken) : null;
   const who = callsign ? `${callsign} invited you` : "You're invited";
   const body =
     ch.kind === 'ntfy'
-      ? `${who} to the "${ch.name}" team channel on Vigilante.\n\nJoin in Vigilante: ${link}\n\nNo Vigilante? Follow along in the free ntfy app: ${native}${ch.token && withToken ? '' : ''}\n\nThis link works like a key: please don't forward it.`
-      : `${who} to the "${ch.name}" Meshtastic channel.\n\n1. Open this link on your phone with the Meshtastic app installed so your radio joins the channel: ${native ?? '(ask for the channel link)'}\n2. Add it in Vigilante: ${link}\n\nGet the Meshtastic app: ${MESHTASTIC_APP_URL}\n\nThis link contains the channel key: please don't forward it.`;
+      ? `${who} to the "${ch.name}" team channel on Vigilance.\n\n${field ? `On your phone (check in and share your location): ${field}\n\n` : ''}On a laptop with Vigilance: ${link}\n\nNo Vigilance? Follow along in the free ntfy app: ${native}${ch.token && withToken ? '' : ''}\n\nThis link works like a key: please don't forward it.`
+      : `${who} to the "${ch.name}" Meshtastic channel.\n\n1. Open this link on your phone with the Meshtastic app installed so your radio joins the channel: ${native ?? '(ask for the channel link)'}\n2. Add it in Vigilance: ${link}\n\nGet the Meshtastic app: ${MESHTASTIC_APP_URL}\n\nThis link contains the channel key: please don't forward it.`;
   const copy = async (what: string, label: string) => {
     try {
       await navigator.clipboard.writeText(what);
@@ -363,19 +364,34 @@ function InviteModal() {
       prompt('Copy this:', what);
     }
   };
-  const subject = `Join "${ch.name}" on Vigilante`;
+  const subject = `Join "${ch.name}" on Vigilance`;
   const canShare = typeof navigator !== 'undefined' && 'share' in navigator;
   return (
     <Modal title={`Invite to ${ch.name}`} wide>
       <section>
         <p className="muted small-text">
           {ch.kind === 'ntfy'
-            ? 'Teammates scan or open the Vigilante link to join. People without Vigilante can scan the ntfy code to read and reply from the free ntfy phone app.'
-            : 'Teammates first scan the Meshtastic code with the Meshtastic app so their radio joins the encrypted channel, then add it in Vigilante with the other code.'}
+            ? 'Teammates scan or open the Vigilance link to join. People without Vigilance can scan the ntfy code to read and reply from the free ntfy phone app.'
+            : 'Teammates first scan the Meshtastic code with the Meshtastic app so their radio joins the encrypted channel, then add it in Vigilance with the other code.'}
         </p>
+        {field && (
+          <div className="field-invite">
+            <Qr text={field} caption="Phones: check in + share location" />
+            <div>
+              <b>Phone check-in</b>
+              <p className="small-text muted">Teammates scan this with their phone camera. It opens a page in their browser (nothing to install) where they can chat, send SOS or backup calls, and turn on live location sharing. Their position then shows on your map and dashboard. Locations are encrypted end to end with a key that only travels in this invite.</p>
+              <div className="copy-row">
+                <input readOnly value={field} onFocus={(e) => e.target.select()} />
+                <button className="btn small" onClick={() => void copy(field, 'field')}>
+                  {copied === 'field' ? 'Copied' : 'Copy'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="qr-row">
-          <Qr text={link} caption="Join in Vigilante" />
-          {native ? <Qr text={ch.kind === 'ntfy' ? native : native} caption={ch.kind === 'ntfy' ? 'ntfy app (no Vigilante needed)' : 'Meshtastic app: join the radio channel'} /> : <div className="qr-missing small-text muted">Paste the channel's share link from the Meshtastic app (Channels → Share) into this channel's settings to show its QR code here.</div>}
+          <Qr text={link} caption="Join in Vigilance (laptops)" />
+          {native ? <Qr text={ch.kind === 'ntfy' ? native : native} caption={ch.kind === 'ntfy' ? 'ntfy app (no Vigilance needed)' : 'Meshtastic app: join the radio channel'} /> : <div className="qr-missing small-text muted">Paste the channel's share link from the Meshtastic app (Channels → Share) into this channel's settings to show its QR code here.</div>}
         </div>
         <label className="field">
           <span>Invite link</span>
@@ -399,7 +415,7 @@ function InviteModal() {
         )}
         {ch.kind === 'ntfy' && ch.token && (
           <label className="check small-text">
-            <input type="checkbox" checked={withToken} onChange={() => setWithToken(!withToken)} /> Include the access token in the Vigilante link (otherwise send it separately)
+            <input type="checkbox" checked={withToken} onChange={() => setWithToken(!withToken)} /> Include the access token in the Vigilance link (otherwise send it separately)
           </label>
         )}
         <div className="field-row">

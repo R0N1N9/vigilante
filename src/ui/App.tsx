@@ -25,7 +25,7 @@ function EmbedFooter() {
   return (
     <footer className="embed-foot mono">
       <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" title={DESKTOP_APP.label}>
-        VIGILANTE
+        VIGILANCE
       </a>
       <span className="muted hide-xs">open-source situational awareness</span>
       <span className="spacer" />
@@ -154,7 +154,9 @@ function Solo({ title, children }: { title: string; children: React.ReactNode })
 export function App({ view, embed = false }: { view: View; embed?: boolean }) {
   const mainView = useStore((s) => s.mainView);
   const appearance = useStore((s) => s.settings.appearance);
-  useEffect(() => applyAppearance(appearance), [appearance]);
+  useEffect(() => {
+    applyAppearance(appearance);
+  }, [appearance]);
   return (
     <div className={`app view-${view}${embed ? ' is-embed' : ''}`}>
       <CommandBar view={view} embed={embed} />

@@ -84,7 +84,7 @@ describe('proxy worker', () => {
     expect(res.headers.get('set-cookie')).toBeNull();
     expect(seen!.get('cookie')).toBeNull();
     expect(seen!.get('authorization')).toBeNull();
-    expect(seen!.get('user-agent')).toMatch(/^Vigilante\//);
+    expect(seen!.get('user-agent')).toMatch(/^Vigilance\//);
   });
 
   it('refuses other hosts, other methods and other origins', async () => {

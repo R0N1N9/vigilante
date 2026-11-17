@@ -20,32 +20,49 @@ import { POPOUT_VIEWS, type View } from './ui/popout';
 
 const opts = parseEmbed(location.search, location.pathname);
 const param = new URLSearchParams(location.search).get('view');
-// Embeds are always a self-contained leader window; ?view= picks the main view instead of a pop-out.
-const view: View = !opts.embed && (POPOUT_VIEWS.some((v) => v.view === param) || param === 'areas') ? (param as View) : 'console';
-const isLeader = view === 'console';
 
-// Team invites (#join=...) open the Team tab, which embeds don't have: hand a top-level embed page to the full app, hash intact.
-if (opts.embed && /#join=VG1\./.test(location.hash) && window.top === window) location.replace(`${import.meta.env.BASE_URL}${location.hash}`);
+// Phone check-in page (?view=field#join=...): a light standalone view with no data engine.
+// Checked first, so embed handling never touches it.
+if (param === 'field') {
+  void import('./ui/FieldApp').then(({ FieldApp }) => createRoot(document.getElementById('root')!).render(<FieldApp />));
+} else boot();
 
-if (opts.embed) {
-  document.documentElement.classList.add('embed');
-  setState({ mainView: opts.view ?? 'dashboard' });
-}
-// Show the requested theme right away instead of flashing the default while settings load.
-if (opts.theme && isLeader) setState({ settings: { ...DEFAULT_SETTINGS, appearance: withTheme(DEFAULT_SETTINGS.appearance, opts.theme) } });
+function boot() {
+  // Embeds are always a self-contained leader window; ?view= picks the main view instead of a pop-out.
+  const view: View = !opts.embed && (POPOUT_VIEWS.some((v) => v.view === param) || param === 'areas') ? (param as View) : 'console';
+  const isLeader = view === 'console';
 
-// Keep the custom-location registry in sync in every window.
-let knownLocations = getState().locations;
-subscribe(() => {
-  const l = getState().locations;
-  if (l !== knownLocations) {
-    knownLocations = l;
-    registerPacks(l);
+  // Team invites (#join=...) open the Team tab, which embeds don't have: hand a top-level embed page to the full app, hash intact.
+  if (opts.embed && /#join=VG1\./.test(location.hash) && window.top === window) {
+    location.replace(`${import.meta.env.BASE_URL}${location.hash}`);
+    return;
   }
-});
+
+  if (opts.embed) {
+    document.documentElement.classList.add('embed');
+    setState({ mainView: opts.view ?? 'dashboard' });
+  }
+  // Show the requested theme right away instead of flashing the default while settings load.
+  if (opts.theme && isLeader) setState({ settings: { ...DEFAULT_SETTINGS, appearance: withTheme(DEFAULT_SETTINGS.appearance, opts.theme) } });
+
+  // Keep the custom-location registry in sync in every window.
+  let knownLocations = getState().locations;
+  subscribe(() => {
+    const l = getState().locations;
+    if (l !== knownLocations) {
+      knownLocations = l;
+      registerPacks(l);
+    }
+  });
+
+  startBus(isLeader);
+  if (isLeader) void start();
+
+  createRoot(document.getElementById('root')!).render(<App view={view} embed={opts.embed} />);
+}
 
 /** ?city= picks the watch location before the sources start, so nothing polls the wrong city first. */
-async function boot() {
+async function start() {
   const city = opts.city;
   if (city?.kind === 'pack') setState({ packId: city.id });
   else if (city?.kind === 'coords') {
@@ -56,8 +73,3 @@ async function boot() {
   }
   await startEngine({ theme: opts.theme });
 }
-
-startBus(isLeader);
-if (isLeader) void boot();
-
-createRoot(document.getElementById('root')!).render(<App view={view} embed={opts.embed} />);

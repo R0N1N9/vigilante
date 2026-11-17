@@ -142,7 +142,7 @@ export function CommandBar({ view, embed = false }: { view: View; embed?: boolea
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
           <path d="M5 6 L12 19 L19 6" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <span className="brand-text">VIGILANTE</span>
+        <span className="brand-text">VIGILANCE</span>
       </div>
       <LocationPicker />
       <div className="clock mono">
@@ -175,7 +175,7 @@ export function CommandBar({ view, embed = false }: { view: View; embed?: boolea
             )}
           </svg>
         </button>
-        <button className="icon-btn" onClick={() => setState({ modal: 'about' })} title="About Vigilante · get the desktop and mobile app" aria-label="Get the app">
+        <button className="icon-btn" onClick={() => setState({ modal: 'about' })} title="About Vigilance · get the desktop and mobile app" aria-label="Get the app">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <rect x="7" y="3" width="10" height="18" rx="2" />
             <path d="M11 17.5h2" />

@@ -1,5 +1,5 @@
 /*!
- * Vigilante embed loader. Paste one tag where the console should appear:
+ * Vigilance embed loader. Paste one tag where the console should appear:
  *   <script src="https://YOUR-SITE/embed.js" data-city="denver" data-view="dashboard" async></script>
  * Options (all optional):
  *   data-view    dashboard | map                         (default dashboard)
@@ -46,7 +46,7 @@
     var base = new URL('.', script.src).href;
     var frame = document.createElement('iframe');
     frame.src = src(base, d);
-    frame.title = 'Vigilante situational awareness console';
+    frame.title = 'Vigilance situational awareness console';
     frame.loading = 'lazy';
     frame.referrerPolicy = 'strict-origin-when-cross-origin';
     frame.setAttribute('allow', 'fullscreen');
@@ -60,7 +60,7 @@
     return frame;
   }
 
-  window.VigilanteEmbed = { src: src, mount: mount };
+  window.VigilanceEmbed = { src: src, mount: mount };
   var me = document.currentScript;
   if (me) mount(me);
   else {

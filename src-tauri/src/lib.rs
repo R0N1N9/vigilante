@@ -1,4 +1,4 @@
-//! Vigilante desktop core.
+//! Vigilance desktop core.
 //!
 //! The core stays thin: it fetches data for the webview (so the UI is not
 //! subject to browser CORS rules), sends phone alerts through ntfy, keeps small
@@ -18,7 +18,7 @@ use std::time::Duration;
 use tauri::{Manager, WindowEvent};
 
 const USER_AGENT: &str = concat!(
-    "Vigilante/",
+    "Vigilance/",
     env!("CARGO_PKG_VERSION"),
     " (neighborhood awareness console; github.com/r0n1n9/vigilante)"
 );
@@ -214,7 +214,7 @@ pub fn run() {
             }
         })
         .run(tauri::generate_context!())
-        .expect("error while running Vigilante");
+        .expect("error while running Vigilance");
 }
 
 #[cfg(test)]

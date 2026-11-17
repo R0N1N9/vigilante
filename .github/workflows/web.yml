@@ -2,7 +2,7 @@
 # One-time setup: Settings -> Pages -> Source: GitHub Actions.
 # Optional: Settings -> Secrets and variables -> Actions -> Variables -> VITE_PROXY_URL
 #   = your deployed web/proxy Worker URL (see web/proxy/README.md). It is a public URL, not a secret.
-name: Web app (GitHub Pages)
+name: Vigilance web app (GitHub Pages)
 
 on:
   push:

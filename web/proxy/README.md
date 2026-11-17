@@ -1,4 +1,4 @@
-# Vigilante web proxy (Cloudflare Worker)
+# Vigilance web proxy (Cloudflare Worker)
 
 The desktop app fetches data through its Rust core. Most of those sources don't send CORS
 headers, so the hosted web app needs a small proxy instead. This Worker is that proxy, with
@@ -8,7 +8,7 @@ the same rules as the Rust core:
 - **GET only.** `OPTIONS` answers CORS preflights; everything else gets 405.
 - **Redirects** are followed (up to 5) only to allow-listed hosts; anything else is a 502.
 - **Nothing from the visitor is forwarded**: no cookies, `Authorization`, referrer or IP headers. Upstream `Set-Cookie` is dropped. CORS never allows credentials.
-- **Honest User-Agent** (`Vigilante/0.1 (web proxy; ...)`). No header spoofing, no logins, nothing behind access controls.
+- **Honest User-Agent** (`Vigilance/0.1 (web proxy; ...)`). No header spoofing, no logins, nothing behind access controls.
 - **Short caching**: 30 s for successes, 10 s for 404s, nothing for errors (at the edge and in the browser).
 - **Per-IP rate limit** (default 300 requests/minute per Worker isolate), or a global one if you bind Cloudflare's rate-limiting API.
 - Proxied responses carry `Content-Security-Policy: default-src 'none'; sandbox`, so a proxied page can never run as the Worker's origin.

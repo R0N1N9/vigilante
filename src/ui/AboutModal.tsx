@@ -41,7 +41,7 @@ export function AboutModal() {
     <Modal title="Get the app">
       <section>
         <p className="small-text">
-          <b>Vigilante</b> is an open-source situational-awareness console for asset protection, executive protection, patrol and neighborhood watch. It uses public, keyless data
+          <b>Vigilance</b> is an open-source situational-awareness console for asset protection, executive protection, patrol and neighborhood watch. It uses public, keyless data
           sources and never tracks or identifies individuals.
         </p>
         <AppLink url={DESKTOP_APP.url} label={DESKTOP_APP.label} note="Source code, desktop installers and docs. The desktop app adds drone Remote ID scanning, multi-monitor pop-outs and keys kept off the web." />

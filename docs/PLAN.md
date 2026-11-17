@@ -1,4 +1,4 @@
-# Vigilante: Neighborhood Situational Awareness Console
+# Vigilance: Neighborhood Situational Awareness Console
 
 **Status:** Phase 1 built: aircraft, transit disruptions, power outages, drones (Remote ID), FAA TFRs, NWS, roads/cameras, local news + TV, watch areas, developing incidents, morning brief and phone alerts for Denver/Atlanta. See the README.
 **Target:** Desktop app for Windows, macOS and Linux laptops. Works on one screen and scales out to several monitors.
@@ -202,7 +202,7 @@ Features worth building:
 
 ## 6. The "fusion" layer
 
-This is the part that makes Vigilante more than a set of tabs.
+This is the part that makes Vigilance more than a set of tabs.
 
 - **Correlation engine:** groups events close in space and time from *different* sources. Example: a scanner transcript says "fire on Oak St", PulsePoint lists a structure fire 0.2 mi away, a news helicopter is orbiting overhead, and a Bluesky post mentions smoke. Together these become one **Developing Incident** card with a confidence score.
 - **Severity scoring:** combines source reliability, category, distance from home, and how many sources corroborate the event.
@@ -249,7 +249,7 @@ This is the part that makes Vigilante more than a set of tabs.
 2. **Unofficial APIs** (PulsePoint, utility outage JSON) can break and may violate terms of service. Keep them as opt-in connectors, disabled by default.
 3. **Scanner use:** Listening is legal in most of the US, but some states restrict scanners in vehicles or using scanner information while committing a crime. Never attempt to decrypt encrypted channels (illegal under federal law).
 4. **Recording and retention:** Keep audio and transcripts local, with automatic expiry.
-5. **Licensing:** World Monitor is **AGPL-3.0**. Copying its code makes Vigilante AGPL too. Taking inspiration from its ideas or UI patterns is fine. adsb.lol data is ODbL (attribution and share-alike).
+5. **Licensing:** World Monitor is **AGPL-3.0**. Copying its code makes Vigilance AGPL too. Taking inspiration from its ideas or UI patterns is fine. adsb.lol data is ODbL (attribution and share-alike).
 6. **Accuracy:** Scanner traffic and social posts are **unverified**. The UI should label confidence clearly, so the app doesn't spread rumors in a neighborhood group chat.
 7. **"Observe and report":** Frame the product as situational awareness for calling 911 and keeping neighbors informed, not as a tool for confronting people. (The repo name is fun, but the UI copy should steer users the other way.)
 
