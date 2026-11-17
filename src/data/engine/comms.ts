@@ -1,0 +1,265 @@
+import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
+import { meshText, ntfyPublishBody, ntfyStreamUrl, ntfyToMessage, parseSpot, type ChatMessage, type MeshChannel, type NtfyChannel, type NtfyEvent, type TeamChannel, type TeamMember } from '../../lib/comms';
+import { decodeFromRadio, decodePosition, decodeUser, encodeHeartbeat, encodeText, encodeWantConfig, nodeIdOf, PORT, type MeshUser } from '../../lib/meshproto';
+import { isTauri } from '../../lib/http';
+import type { Severity, Signal } from '../../lib/signals';
+import { setShared } from '../bus';
+import { alertTone } from '../sound';
+import { getState, subscribe, type State } from '../store';
+import { log, onSignal } from './core';
+import { desktopNotify } from './notify';
+
+const CHAT_MAX = 600;
+const TEAM_TTL_MS = 6 * 3600_000;
+
+// ---------- Shared helpers ----------
+
+function addMessages(msgs: ChatMessage[]) {
+  if (!msgs.length) return;
+  const s = getState();
+  const known = new Set(s.chat.map((m) => m.id));
+  const knownRemote = new Set(s.chat.map((m) => m.remoteId).filter(Boolean));
+  const fresh = msgs.filter((m) => !known.has(m.id) && !(m.remoteId && knownRemote.has(m.remoteId)));
+  if (!fresh.length) return;
+  const chat = [...s.chat, ...fresh].sort((a, b) => a.at - b.at).slice(-CHAT_MAX);
+  setShared({ chat });
+  const incoming = fresh.filter((m) => !m.mine && Date.now() - m.at < 5 * 60_000);
+  if (incoming.length) {
+    alertTone(1);
+    const last = incoming.at(-1)!;
+    const ch = s.channels.find((c) => c.id === last.channelId);
+    if (s.settings.notify.desktop && !document.hasFocus()) void desktopNotify(`${last.from} · ${ch?.name ?? 'Team'}`, last.text);
+  }
+}
+
+function patchMessage(id: string, patch: Partial<ChatMessage>) {
+  setShared({ chat: getState().chat.map((m) => (m.id === id ? { ...m, ...patch } : m)) });
+}
+
+function upsertMember(m: TeamMember) {
+  const now = Date.now();
+  const team = [m, ...getState().team.filter((x) => x.id !== m.id && now - x.at < TEAM_TTL_MS)];
+  setShared({ team });
+}
+
+// ---------- ntfy ----------
+
+const streams = new Map<string, { es: EventSource; key: string }>();
+
+function connectNtfy(ch: NtfyChannel) {
+  const key = `${ch.server}|${ch.topic}|${ch.token}`;
+  const cur = streams.get(ch.id);
+  if (cur?.key === key) return;
+  cur?.es.close();
+  const last = getState().chat.filter((m) => m.channelId === ch.id && m.remoteId).at(-1);
+  const es = new EventSource(ntfyStreamUrl(ch, last?.remoteId ?? '24h'));
+  const installId = getState().settings.team.installId;
+  es.onmessage = (e) => {
+    try {
+      const msg = ntfyToMessage(JSON.parse(e.data) as NtfyEvent, ch.id, installId);
+      if (!msg) return;
+      // Our own echo: mark the local copy as delivered instead of adding a duplicate.
+      if (msg.mine) {
+        const local = getState().chat.find((m) => m.channelId === ch.id && m.mine && !m.remoteId && m.text === msg.text);
+        if (local) {
+          patchMessage(local.id, { remoteId: msg.remoteId, status: 'sent' });
+          return;
+        }
+      }
+      addMessages([msg]);
+      if (msg.spot && !msg.mine) upsertMember({ id: `ntfy:${ch.id}:${msg.from}`, name: msg.from, channelId: ch.id, at: msg.at, location: [msg.spot.lon, msg.spot.lat], source: 'ntfy' });
+    } catch {
+      /* not a message event */
+    }
+  };
+  es.onerror = () => {
+    if (es.readyState === EventSource.CLOSED) log(`TEAM   ${ch.name}: connection closed (check the server and topic)`, 1);
+  };
+  streams.set(ch.id, { es, key });
+}
+
+async function sendNtfy(ch: NtfyChannel, m: ChatMessage) {
+  const s = getState();
+  const body = ntfyPublishBody(ch, s.settings.team.callsign || 'Vigilante', m.text, s.settings.team.installId, m.spot, m.url);
+  const res = await fetch(`${ch.server.replace(/\/$/, '')}/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(ch.token ? { Authorization: `Bearer ${ch.token}` } : {}) },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`ntfy answered HTTP ${res.status}`);
+  const j = (await res.json().catch(() => ({}))) as { id?: string };
+  // The echo may already have arrived and been merged.
+  const cur = getState().chat.find((x) => x.id === m.id);
+  if (cur && !cur.remoteId) patchMessage(m.id, { remoteId: j.id, status: 'sent' });
+}
+
+// ---------- Meshtastic ----------
+
+const nodes = new Map<number, MeshUser>();
+let myNode = 0;
+let heartbeat: number | undefined;
+const nameOf = (num: number) => nodes.get(num)?.longName || nodes.get(num)?.shortName || nodeIdOf(num);
+
+async function meshSendBytes(bytes: Uint8Array) {
+  await invoke('mesh_send', { data: Array.from(bytes) });
+}
+
+export async function meshConnect() {
+  if (!isTauri()) {
+    setShared({ meshStatus: { state: 'error', detail: 'Meshtastic radios need the desktop app' } });
+    return;
+  }
+  const r = getState().settings.mesh;
+  setShared({ meshStatus: { state: 'connecting', detail: r.transport } });
+  try {
+    await invoke('mesh_connect', { transport: r.transport, address: r.address });
+  } catch (e) {
+    setShared({ meshStatus: { state: 'error', detail: String(e) } });
+  }
+}
+
+export async function meshDisconnect() {
+  if (isTauri()) await invoke('mesh_disconnect').catch(() => {});
+  setShared({ meshStatus: { state: 'off', detail: '' } });
+}
+
+function onMeshFrame(bytes: Uint8Array) {
+  let fr;
+  try {
+    fr = decodeFromRadio(bytes);
+  } catch {
+    return;
+  }
+  const s = getState();
+  if (fr.kind === 'myInfo') myNode = fr.myNodeNum;
+  else if (fr.kind === 'nodeInfo') {
+    if (fr.user) nodes.set(fr.num, fr.user);
+    if (fr.num === myNode && fr.user) setShared({ meshStatus: { ...getState().meshStatus, node: fr.user.longName || fr.user.shortName } });
+    if (fr.position && fr.num !== myNode) {
+      const at = (fr.lastHeard ?? fr.position.time ?? 0) * 1000;
+      if (Date.now() - at < TEAM_TTL_MS) upsertMember({ id: `mesh:${fr.num}`, name: nameOf(fr.num), channelId: 'mesh', at, location: [fr.position.lon, fr.position.lat], source: 'mesh' });
+    }
+  } else if (fr.kind === 'channel') {
+    if (fr.role > 0) {
+      const list = (s.meshStatus.radioChannels ?? []).filter((c) => c.index !== fr.index);
+      setShared({ meshStatus: { ...getState().meshStatus, radioChannels: [...list, { index: fr.index, name: fr.name || (fr.index === 0 ? 'Primary' : `Channel ${fr.index}`) }].sort((a, b) => a.index - b.index) } });
+    }
+  } else if (fr.kind === 'configComplete') {
+    log(`TEAM   Meshtastic radio ready (${nodes.size} nodes known)`, 0);
+  } else if (fr.kind === 'packet') {
+    const p = fr.packet;
+    if (!p.payload || p.portnum == null) return;
+    if (p.portnum === PORT.TEXT) {
+      if (p.from === myNode) return;
+      const text = new TextDecoder().decode(p.payload);
+      const channels = s.channels.filter((c): c is MeshChannel => c.kind === 'mesh' && c.enabled && c.channelIndex === p.channel);
+      const spot = parseSpot(text) ?? undefined;
+      const at = (p.rxTime ?? Math.floor(Date.now() / 1000)) * 1000;
+      addMessages(channels.map((c) => ({ id: `mesh:${p.from}:${p.id}:${c.id}`, remoteId: `mesh:${p.from}:${p.id}`, channelId: c.id, at, from: nameOf(p.from), text, mine: false, spot, status: 'sent' as const })));
+      if (spot) upsertMember({ id: `mesh:${p.from}`, name: nameOf(p.from), channelId: 'mesh', at, location: [spot.lon, spot.lat], source: 'mesh' });
+    } else if (p.portnum === PORT.POSITION) {
+      const pos = decodePosition(p.payload);
+      if (pos && p.from !== myNode) upsertMember({ id: `mesh:${p.from}`, name: nameOf(p.from), channelId: 'mesh', at: Date.now(), location: [pos.lon, pos.lat], source: 'mesh' });
+    } else if (p.portnum === PORT.NODEINFO) {
+      nodes.set(p.from, decodeUser(p.payload));
+    }
+  }
+}
+
+async function sendMesh(ch: MeshChannel, m: ChatMessage) {
+  if (getState().meshStatus.state !== 'connected') throw new Error('radio not connected');
+  const { bytes, id } = encodeText(meshText(m.text, m.spot), ch.channelIndex);
+  await meshSendBytes(bytes);
+  patchMessage(m.id, { status: 'sent', remoteId: `mesh:${myNode}:${id}` });
+}
+
+// ---------- Outgoing queue ----------
+
+const inFlight = new Set<string>();
+
+function drainOutgoing() {
+  const s = getState();
+  for (const m of s.chat) {
+    if (!m.mine || m.status !== 'sending' || inFlight.has(m.id)) continue;
+    const ch = s.channels.find((c) => c.id === m.channelId);
+    if (!ch) {
+      patchMessage(m.id, { status: 'failed', error: 'channel removed' });
+      continue;
+    }
+    inFlight.add(m.id);
+    (ch.kind === 'ntfy' ? sendNtfy(ch, m) : sendMesh(ch, m))
+      .catch((e) => {
+        patchMessage(m.id, { status: 'failed', error: String(e instanceof Error ? e.message : e) });
+        log(`TEAM   Send failed on ${ch.name}: ${String(e)}`, 1);
+      })
+      .finally(() => inFlight.delete(m.id));
+  }
+}
+
+/** Queue a message from any window; the leader sends it. */
+export function postToChannel(channelId: string, text: string, extra: Partial<ChatMessage> = {}) {
+  const s = getState();
+  const m: ChatMessage = { id: `local:${Math.random().toString(36).slice(2, 10)}`, channelId, at: Date.now(), from: s.settings.team.callsign || 'Me', text, mine: true, status: 'sending', ...extra };
+  setShared({ chat: [...s.chat, m].slice(-CHAT_MAX) });
+}
+
+// ---------- Auto-share serious reports ----------
+
+function shareSignal(sig: Signal, message: string) {
+  for (const ch of getState().channels) {
+    if (!ch.enabled || !ch.shareAlerts || sig.severity < ch.shareAlerts) continue;
+    const spot = sig.location ? { lat: sig.location[1], lon: sig.location[0] } : undefined;
+    postToChannel(ch.id, `⚠ ${sig.title} — ${message}`, { spot, url: sig.url });
+  }
+}
+
+// ---------- Lifecycle (leader only) ----------
+
+function reconcile(s: State) {
+  const live = new Set<string>();
+  for (const ch of s.channels as TeamChannel[]) {
+    if (ch.kind === 'ntfy' && ch.enabled) {
+      connectNtfy(ch);
+      live.add(ch.id);
+    }
+  }
+  for (const [id, st] of streams) {
+    if (!live.has(id)) {
+      st.es.close();
+      streams.delete(id);
+    }
+  }
+}
+
+export async function startComms() {
+  if (isTauri()) {
+    await listen<number[]>('mesh:rx', (e) => onMeshFrame(Uint8Array.from(e.payload)));
+    await listen<{ state: State['meshStatus']['state']; detail: string }>('mesh:status', (e) => {
+      const { state, detail } = e.payload;
+      setShared({ meshStatus: { ...getState().meshStatus, state, detail } });
+      if (state === 'connected') {
+        void meshSendBytes(encodeWantConfig(Math.floor(Math.random() * 1e9))).catch(() => {});
+        window.clearInterval(heartbeat);
+        heartbeat = window.setInterval(() => void meshSendBytes(encodeHeartbeat()).catch(() => {}), 5 * 60_000);
+        log(`TEAM   Meshtastic connected: ${detail}`, 0);
+      } else if (state === 'error' || state === 'disconnected') {
+        window.clearInterval(heartbeat);
+        if (state === 'error') log(`TEAM   Meshtastic: ${detail}`, 1);
+      }
+    });
+    if (getState().settings.mesh.autoConnect && getState().channels.some((c) => c.kind === 'mesh' && c.enabled)) void meshConnect();
+  }
+  onSignal(shareSignal);
+  reconcile(getState());
+  drainOutgoing();
+  let prev = getState();
+  subscribe(() => {
+    const s = getState();
+    if (s.channels !== prev.channels) reconcile(s);
+    if (s.chat !== prev.chat) drainOutgoing();
+    prev = s;
+  });
+}
+
+export const severityForShare: Severity[] = [0, 2, 3, 4];

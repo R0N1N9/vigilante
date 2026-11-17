@@ -1,6 +1,7 @@
 import { setShared } from '../data/bus';
 import { useStore } from '../data/store';
 import { fmtNum } from './format';
+import { ShareButton } from './TeamTab';
 
 export function AircraftCard() {
   const hex = useStore((s) => s.selectedHex);
@@ -33,6 +34,7 @@ export function AircraftCard() {
             {a.reg || '—'} · {a.type || 'type ?'} · {a.hex.toUpperCase()}
           </div>
         </div>
+        <ShareButton text={`Aircraft ${a.callsign || a.hex.toUpperCase()}${a.type ? ` (${a.type})` : ''}${a.altFt != null ? ` at ${a.altFt.toLocaleString('en-US')} ft` : ''}${orbit ? ', circling' : ''}`} at={[a.lon, a.lat]} url={`https://globe.adsb.lol/?icao=${a.hex}`} label={a.callsign || a.hex} />
         <button className="x" onClick={() => setShared({ selectedHex: null })} aria-label="Close">
           ×
         </button>

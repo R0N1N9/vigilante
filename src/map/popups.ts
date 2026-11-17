@@ -46,7 +46,7 @@ export function describeFeature(layer: string, id: string, s: State, esc: (t: st
 
 /** Layers that show a hover tooltip, topmost first. Polygons come last so points win. */
 export const HOVERABLE = [
-  'aircraft', 'drones', 'clusters', 'news', 'news-clusters', 'fires', 'traffic', 'transit', 'cameras',
+  'team', 'aircraft', 'drones', 'clusters', 'news', 'news-clusters', 'fires', 'traffic', 'transit', 'cameras',
   'crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'orbit-ring',
   'monitors-label', 'monitors-line', 'areas-label', 'radio-label', 'areas-line', 'radio-line', 'outages-fill', 'tfr-fill', 'weather-fill',
 ];
@@ -62,6 +62,10 @@ export function hoverHtml(layer: string, p: Record<string, unknown>, s: State, e
     return m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} d ago`;
   };
   switch (layer) {
+    case 'team': {
+      const m = s.team.find((x) => x.id === id);
+      return m ? tip(`TEAMMATE · ${m.source === 'mesh' ? 'MESHTASTIC' : 'NTFY'}`, esc(m.name), `Position ${ago(m.at)}`, 'Click to open team chat') : null;
+    }
     case 'aircraft':
     case 'orbit-ring': {
       const a = s.aircraft.find((x) => x.hex === p.hex);

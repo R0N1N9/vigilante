@@ -32,6 +32,7 @@ const ROWS: [keyof Layers, string, string][] = [
   ['cameras', 'Cameras', '#7DD3FC'],
   ['news', 'News (placed)', '#4C8DFF'],
   ['areas', 'Watch areas', '#3DD6F5'],
+  ['team', 'Team positions', '#2BD47D'],
   ['aoi', 'Area ring', '#3DD6F5'],
 ];
 

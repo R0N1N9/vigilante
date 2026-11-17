@@ -1,5 +1,6 @@
 import { DEFAULT_PUSH, type PushSettings } from './rules';
 import type { Severity } from './signals';
+import { DEFAULT_MESH_RADIO, type MeshRadioSettings } from './comms';
 import { DEFAULT_APPEARANCE, type Appearance } from './theme';
 
 export interface NotifySettings {
@@ -24,6 +25,9 @@ export interface Settings {
   notify: NotifySettings;
   /** Colors, theme and panel opacity. */
   appearance: Appearance;
+  /** Team chat identity and the Meshtastic radio connection. */
+  team: { callsign: string; installId: string };
+  mesh: MeshRadioSettings;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -34,6 +38,8 @@ export const DEFAULT_SETTINGS: Settings = {
   map: { terrain3d: false, contours: true, hillshade: true },
   notify: DEFAULT_NOTIFY,
   appearance: DEFAULT_APPEARANCE,
+  team: { callsign: '', installId: '' },
+  mesh: DEFAULT_MESH_RADIO,
 };
 
 /** Fill in fields added in newer versions. */
@@ -46,6 +52,8 @@ export function withDefaults(s: Partial<Settings> | null): Settings {
     map: { ...DEFAULT_SETTINGS.map, ...(s?.map ?? {}) },
     notify: { ...DEFAULT_SETTINGS.notify, ...(s?.notify ?? {}) },
     appearance: { ...DEFAULT_SETTINGS.appearance, ...(s?.appearance ?? {}) },
+    team: { callsign: s?.team?.callsign ?? '', installId: s?.team?.installId || Math.random().toString(36).slice(2, 10) },
+    mesh: { ...DEFAULT_SETTINGS.mesh, ...(s?.mesh ?? {}) },
   };
 }
 

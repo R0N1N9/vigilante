@@ -19,7 +19,7 @@ const fc = (features: GeoJSON.Feature[]): GeoJSON.FeatureCollection => ({ type: 
 const SEVERITY_FILL = ['match', ['get', 'severity'], 'Extreme', '#FF4D4F', 'Severe', '#FF7A45', 'Moderate', '#FFB020', 'Minor', '#4C8DFF', '#8FA3B8'] as unknown as maplibregl.ExpressionSpecification;
 const SEV_NUM = ['match', ['get', 'sev'], 4, '#FF4D4F', 3, '#FF7A45', 2, '#FFB020', 1, '#4C8DFF', '#8FA3B8'] as unknown as maplibregl.ExpressionSpecification;
 
-const SOURCES = ['aoi', 'monitors', 'crime', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'outages', 'radio', 'transit', 'areas', 'draw', 'weather', 'tfr', 'traffic-lines', 'traffic', 'cameras', 'fires', 'clusters', 'trails', 'orbits', 'drone-links', 'drones', 'aircraft'];
+const SOURCES = ['aoi', 'monitors', 'team', 'crime', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'outages', 'radio', 'transit', 'areas', 'draw', 'weather', 'tfr', 'traffic-lines', 'traffic', 'cameras', 'fires', 'clusters', 'trails', 'orbits', 'drone-links', 'drones', 'aircraft'];
 
 function addDataLayers(map: MlMap) {
   addIcons(map);
@@ -55,6 +55,8 @@ function addDataLayers(map: MlMap) {
   L({ id: 'areas-label', type: 'symbol', source: 'areas', layout: { 'text-field': ['get', 'name'], 'text-font': LABEL_FONT, 'text-size': 12, 'symbol-placement': 'point' }, paint: { 'text-color': ['get', 'color'], 'text-halo-color': '#0B0F14', 'text-halo-width': 1.6 } });
   L({ id: 'monitors-line', type: 'line', source: 'monitors', paint: { 'line-color': '#C084FC', 'line-width': 1.6, 'line-dasharray': [1, 1.5], 'line-opacity': ['case', ['get', 'on'], 0.9, 0.35] } });
   L({ id: 'monitors-label', type: 'symbol', source: 'monitors', layout: { 'text-field': ['concat', '◉ ', ['get', 'name']], 'text-font': LABEL_FONT, 'text-size': 11, 'symbol-placement': 'line', 'text-max-angle': 30 }, paint: { 'text-color': '#D8B4FE', 'text-halo-color': '#0B0F14', 'text-halo-width': 1.4 } });
+  L({ id: 'team', type: 'circle', source: 'team', paint: { 'circle-radius': 6, 'circle-color': '#2BD47D', 'circle-stroke-color': '#0B0F14', 'circle-stroke-width': 2, 'circle-opacity': ['case', ['get', 'stale'], 0.45, 1] } });
+  L({ id: 'team-label', type: 'symbol', source: 'team', layout: { 'text-field': ['get', 'name'], 'text-font': LABEL_FONT, 'text-size': 11, 'text-offset': [0, 1.3], 'text-anchor': 'top' }, paint: { 'text-color': '#7EE2A8', 'text-halo-color': '#0B0F14', 'text-halo-width': 1.6 } });
   L({ id: 'aoi-line', type: 'line', source: 'aoi', paint: { 'line-color': '#3DD6F5', 'line-width': 1, 'line-opacity': 0.45, 'line-dasharray': [3, 3] } });
   L({ id: 'traffic-lines', type: 'line', source: 'traffic-lines', layout: { 'line-cap': 'round' }, paint: { 'line-color': SEV_NUM, 'line-width': 4, 'line-opacity': 0.55 } });
   L({ id: 'cameras', type: 'symbol', source: 'cameras', minzoom: 9, layout: { 'icon-image': ['get', 'icon'], 'icon-size': 0.7, 'icon-allow-overlap': true } });
@@ -134,10 +136,12 @@ function render(map: MlMap, s: State) {
   vis(['outages-fill', 'outages-line', 'outages-label'], s.layers.outages);
   vis(['drones', 'drone-links'], s.layers.drones);
   vis(['areas-fill', 'areas-line', 'areas-label', 'monitors-line', 'monitors-label'], s.layers.areas);
+  vis(['team', 'team-label'], s.layers.team);
 
   setData(map, 'aoi', { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: circleRing(pack.center, pack.radiusNm * NM_TO_M) } });
   setData(map, 'weather', fc(s.alerts.filter((a) => a.geometry).map((a) => ({ type: 'Feature', properties: { id: a.id, severity: a.severity }, geometry: a.geometry! }))));
   setData(map, 'tfr', fc(s.tfrs.map((t) => ({ type: 'Feature', properties: { id: t.id }, geometry: t.geometry }))));
+  setData(map, 'team', fc(s.team.map((m) => ({ type: 'Feature', properties: { id: m.id, name: m.name, stale: Date.now() - m.at > 30 * 60_000 }, geometry: { type: 'Point', coordinates: m.location } }))));
   setData(map, 'monitors', fc(s.monitors.filter((m) => m.kind === 'proximity' && m.center).map((m) => ({ type: 'Feature', properties: { id: m.id, name: m.name, on: m.enabled }, geometry: { type: 'LineString', coordinates: circleRing(m.center!, m.radiusM, 96) } }))));
   setData(map, 'areas', fc(s.areas.filter((a) => a.packId === s.packId && a.polygon.length >= 3).map((a) => ({ type: 'Feature', properties: { name: a.name, color: a.color }, geometry: { type: 'Polygon', coordinates: [[...a.polygon, a.polygon[0]]] } }))));
   setData(map, 'traffic', fc(s.traffic.map((t) => ({ type: 'Feature', properties: { id: t.id, sev: t.severity }, geometry: { type: 'Point', coordinates: t.location } }))));
@@ -214,7 +218,7 @@ function render(map: MlMap, s: State) {
   setData(map, 'draw', fc(drawF));
 }
 
-const CLICKABLE = ['aircraft', 'weather-fill', 'tfr-fill', 'crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'cameras', 'fires', 'traffic', 'transit', 'news', 'news-clusters', 'clusters', 'drones', 'outages-fill', 'radio-line', 'radio-label'];
+const CLICKABLE = ['team', 'aircraft', 'weather-fill', 'tfr-fill', 'crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'cameras', 'fires', 'traffic', 'transit', 'news', 'news-clusters', 'clusters', 'drones', 'outages-fill', 'radio-line', 'radio-label'];
 
 export function MapView() {
   const el = useRef<HTMLDivElement>(null);
@@ -311,7 +315,24 @@ export function MapView() {
           popup.setLngLat(e.lngLat).setHTML(`<small>FAA TFR · ${esc(t.type)} · NOTAM ${esc(t.id)}</small><b>${esc(t.title)}</b><p>${esc(t.description.slice(0, 300))}</p>`).addTo(map);
           if (t.url) void openExternal(t.url, `TFR ${t.id}`);
         }
-      } else if (f.layer.id === 'drones') setState({ tab: 'sky' });
+      } else if (f.layer.id === 'team') setState({ tab: 'team' });
+      else if (f.layer.id === 'drones') setState({ tab: 'sky' });
+    });
+    // Right-click: share this spot with the team.
+    map.on('contextmenu', (e) => {
+      if (getState().drawing || !getState().channels.some((c) => c.enabled)) return;
+      const spot = { lat: e.lngLat.lat, lon: e.lngLat.lng };
+      const el = document.createElement('div');
+      el.innerHTML = `<small>${spot.lat.toFixed(5)}, ${spot.lon.toFixed(5)}</small>`;
+      const btn = document.createElement('button');
+      btn.className = 'btn small';
+      btn.textContent = '⇪ Share this spot with the team';
+      btn.onclick = () => {
+        popup.remove();
+        setState({ teamDraft: { text: '', spot: { ...spot, label: 'Shared spot' } }, tab: 'team' });
+      };
+      el.appendChild(btn);
+      popup.setLngLat(e.lngLat).setDOMContent(el).addTo(map);
     });
     map.on('dblclick', (e) => {
       const d = getState().drawing;

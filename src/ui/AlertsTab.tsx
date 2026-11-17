@@ -6,6 +6,7 @@ import { SOURCE_LABEL } from '../lib/signals';
 import { fmtAgo, fmtTime } from './format';
 import { openExternal } from './popout';
 import { HitsInbox } from './MonitorsPanel';
+import { ShareButton } from './TeamTab';
 
 const KIND_ICON: Record<Incident['kind'], string> = { orbit: '⟳', squawk: '⚠', weather: '☁', tfr: '⛔', drone: '✣', fire: '🔥', quake: '≋', flood: '≈', storm: '⚡', air: '◌', airport: '✈', hotspot: '🛰' };
 
@@ -42,6 +43,7 @@ export function ClusterCards() {
               </li>
             ))}
           </ul>
+          <ShareButton text={`Developing: ${c.title} (${c.sources.map((x) => SOURCE_LABEL[x]).join(', ')})`} at={c.center} label={c.title} />
         </article>
       ))}
     </div>
@@ -77,6 +79,7 @@ export function AlertsTab() {
                 <span className="mono muted">{fmtAgo(i.at)}</span>
               </div>
               <div className="inc-detail">{i.detail}</div>
+              <ShareButton text={`${i.title}: ${i.detail}`} at={i.location} url={i.url} label={i.title} />
               {i.url && (
                 <button className="link" onClick={(e) => { e.stopPropagation(); void openExternal(i.url!, i.title); }}>
                   FAA details ↗
