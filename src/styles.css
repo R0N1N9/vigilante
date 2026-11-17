@@ -735,7 +735,7 @@ button.link { background: none; border: 0; padding: 0; color: var(--accent); cur
 @media (max-width: 640px) { .field-invite { flex-direction: column; align-items: center; } }
 
 /* Phone check-in page */
-.field { max-width: 560px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; gap: 10px; padding: 12px 14px calc(14px + env(safe-area-inset-bottom)); background: var(--bg); overflow-y: auto; height: 100%; }
+.fieldapp { max-width: 560px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; gap: 10px; padding: 12px 14px calc(14px + env(safe-area-inset-bottom)); background: var(--bg); overflow-y: auto; height: 100%; }
 .field-head { display: flex; align-items: baseline; gap: 8px; padding: 4px 0 8px; border-bottom: 1px solid var(--line); }
 .field-head b { font: 700 16px var(--mono); letter-spacing: .2em; color: var(--accent); }
 .field-head span { font: 600 10px var(--mono); letter-spacing: .3em; color: var(--dim); }
@@ -753,8 +753,8 @@ button.link { background: none; border: 0; padding: 0; color: var(--accent); cur
 .field-btn.stop { border-color: var(--crit); color: var(--crit); background: rgba(var(--crit-rgb),.1); }
 .field-btn:disabled { opacity: .45; }
 .live-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 10px var(--ok); animation: ledpulse 1.4s ease-in-out infinite; display: inline-block; }
-.field .hint { font-size: 12px; color: var(--dim); }
-.field .warn { color: var(--warn); font-size: 13px; }
+.fieldapp .hint { font-size: 12px; color: var(--dim); }
+.fieldapp .warn { color: var(--warn); font-size: 13px; }
 .field-quick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .field-quick .q { padding: 14px 8px; font: 600 15px var(--sans); border-radius: 8px; border: 1px solid var(--line-2); background: var(--panel); color: var(--text); }
 .field-quick .q.sos { border-color: var(--crit); color: #fff; background: rgba(var(--crit-rgb),.75); }
@@ -910,6 +910,34 @@ button.link { background: none; border: 0; padding: 0; color: var(--accent); cur
 .ico.crit { color: var(--crit); } .ico.warn { color: var(--warn); } .ico.ok { color: var(--ok); } .ico.accent { color: var(--accent); }
 .field-quick .q { display: inline-flex; align-items: center; justify-content: center; gap: 2px; }
 .inc-icon .ico { display: block; }
+
+/* Waypoints */
+.wp-modal h2 { display: flex; align-items: center; gap: 8px; }
+.wp-state { font: 600 9.5px var(--mono); letter-spacing: .16em; padding: 2px 7px; border-radius: 3px; border: 1px solid var(--line-2); color: var(--muted); }
+.wp-state.active { color: var(--accent); border-color: rgba(var(--accent-rgb), .5); }
+.wp-state.done { color: var(--ok); border-color: rgba(43,212,125,.5); }
+.wp-state.urgent { color: var(--crit); border-color: rgba(var(--crit-rgb), .6); }
+.wp-agents { display: flex; flex-direction: column; gap: 6px; }
+.wp-agent { display: grid; grid-template-columns: 10px minmax(80px, 1fr) auto auto auto; gap: 10px; align-items: center; font-size: 12.5px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 2px; }
+.ack { font: 600 9.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; border: 1px solid var(--line-2); color: var(--muted); white-space: nowrap; }
+.ack.ack { color: var(--info); border-color: rgba(var(--info-rgb), .5); }
+.ack.enroute { color: var(--accent); border-color: rgba(var(--accent-rgb), .5); }
+.ack.arrived { color: var(--ok); border-color: rgba(43,212,125,.5); }
+.ack.declined { color: var(--crit); border-color: rgba(var(--crit-rgb), .5); }
+.wp-list { display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1px solid var(--line); background: rgba(var(--panel-rgb), .6); }
+.wp-row { display: grid; grid-template-columns: 18px auto 1fr; gap: 8px; align-items: center; text-align: left; padding: 6px 8px; border: 1px solid var(--line); border-left: 2px solid var(--accent); border-radius: 2px; color: inherit; }
+.wp-row.urgent { border-left-color: var(--crit); }
+.wp-row.done, .wp-row.cancelled { opacity: .55; border-left-color: var(--dim); }
+.wp-row .muted { justify-self: end; }
+.ctx-menu { display: flex; flex-direction: column; gap: 6px; }
+/* Phone page waypoint card */
+.field-card.wp { border-color: rgba(var(--accent-rgb), .55); }
+.field-card.wp.urgent { border-color: var(--crit); box-shadow: 0 0 0 1px rgba(var(--crit-rgb), .35), 0 0 22px rgba(var(--crit-rgb), .15); }
+.wp-urgent { margin-left: auto; font: 600 10px var(--mono); letter-spacing: .16em; color: var(--crit); border: 1px solid rgba(var(--crit-rgb), .6); padding: 2px 6px; border-radius: 3px; }
+.field-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.wp-acks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.wp-acks .q { padding: 10px 6px; font: 600 13px var(--sans); border-radius: 8px; border: 1px solid var(--line-2); background: var(--panel); color: var(--text); }
+.wp-acks .q.on { border-color: var(--accent); color: var(--accent); background: rgba(var(--accent-rgb), .1); }
 
 
 

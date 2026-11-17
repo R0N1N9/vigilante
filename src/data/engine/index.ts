@@ -25,6 +25,7 @@ import { sendTestNotifications } from './notify';
 import { startComms } from './comms';
 import { newPosKey } from '../../lib/poscrypt';
 import type { ChatMessage, TeamChannel } from '../../lib/comms';
+import type { Waypoint } from '../../lib/waypoints';
 
 let chatTimer: number | undefined;
 function saveChatSoon(chat: ChatMessage[]) {
@@ -59,11 +60,11 @@ function startForPack(id: string) {
 
 /** Leader window only: load saved state, start all sources, and react to changes. */
 export async function startEngine(opts: { theme?: Exclude<ThemeId, 'custom'> | null } = {}) {
-  const [saved, areas, locations, monitors, hits, channels, chat] = await Promise.all([storeRead<Partial<Settings>>('settings'), storeRead<WatchArea[]>('areas'), storeRead<CityPack[]>('locations'), storeRead<Monitor[]>('monitors'), storeRead<MonitorHit[]>('hits'), storeRead<TeamChannel[]>('channels'), storeRead<ChatMessage[]>('chat'), loadHistory()]);
+  const [saved, areas, locations, monitors, hits, channels, chat, waypoints] = await Promise.all([storeRead<Partial<Settings>>('settings'), storeRead<WatchArea[]>('areas'), storeRead<CityPack[]>('locations'), storeRead<Monitor[]>('monitors'), storeRead<MonitorHit[]>('hits'), storeRead<TeamChannel[]>('channels'), storeRead<ChatMessage[]>('chat'), storeRead<Waypoint[]>('waypoints'), loadHistory()]);
   registerPacks(locations ?? []);
   let settings = withDefaults(saved);
   if (opts.theme) settings = { ...settings, appearance: withTheme(settings.appearance, opts.theme) }; // ?theme= (embeds)
-  setShared({ settings, areas: areas ?? [], locations: locations ?? [], monitors: (monitors ?? []).map((m) => ({ ...newMonitor(m.kind), ...m })), hits: hits ?? [], channels: (channels ?? []).map((c) => (c.kind === 'ntfy' && c.posKey === undefined ? { ...c, posKey: newPosKey() } : c)), chat: (chat ?? []).map((m) => (m.status === 'sending' ? { ...m, status: 'failed' as const, error: 'app closed before sending' } : m)) });
+  setShared({ settings, areas: areas ?? [], locations: locations ?? [], monitors: (monitors ?? []).map((m) => ({ ...newMonitor(m.kind), ...m })), hits: hits ?? [], channels: (channels ?? []).map((c) => (c.kind === 'ntfy' && c.posKey === undefined ? { ...c, posKey: newPosKey() } : c)), chat: (chat ?? []).map((m) => (m.status === 'sending' ? { ...m, status: 'failed' as const, error: 'app closed before sending' } : m)), waypoints: waypoints ?? [] });
   startMonitors();
   void startComms();
 
@@ -86,6 +87,7 @@ export async function startEngine(opts: { theme?: Exclude<ThemeId, 'custom'> | n
     if (s.monitors !== p.monitors) void storeWrite('monitors', s.monitors);
     if (s.hits !== p.hits) void storeWrite('hits', s.hits);
     if (s.channels !== p.channels) void storeWrite('channels', s.channels);
+    if (s.waypoints !== p.waypoints) void storeWrite('waypoints', s.waypoints);
     if (s.chat !== p.chat) saveChatSoon(s.chat);
     if (r.notifyTest && r.notifyTest !== p.requests.notifyTest) void sendTestNotifications();
       if (r.brief && r.brief !== p.requests.brief) makeBrief();

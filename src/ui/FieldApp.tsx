@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { CHECKIN_TAG, FIELD_CODES, vigilLink, ntfyPublishBody, ntfyStreamUrl, ntfyToMessage, parseInvite, spotUrl, type ChatMessage, type NtfyChannel, type NtfyEvent } from '../lib/comms';
 import { cleanProfile, openPosition, posTopic, sealPosition, type PositionReport, type Profile } from '../lib/poscrypt';
 import { distanceM, type LonLat } from '../lib/geo';
+import { ACK_LABEL, directionsLinks, isFor, openOps, opsTopic, sealOps, type AckState, type OpsMessage } from '../lib/waypoints';
 import { BrandMark } from './BrandMark';
 import { Icon, RichText } from './Icon';
 
@@ -104,6 +105,8 @@ export function FieldApp() {
   const [err, setErr] = useState('');
   const [text, setText] = useState('');
   const [ping, setPing] = useState(0);
+  const [wps, setWps] = useState<Map<string, Extract<OpsMessage, { type: 'wp' }>>>(new Map());
+  const [myAcks, setMyAcks] = useState<Record<string, AckState>>({});
   const sentAt = useRef(0);
   const sentWhere = useRef<LonLat | null>(null);
   const wake = useRef<WakeLockSentinel | null>(null);
@@ -126,6 +129,46 @@ export function FieldApp() {
     };
     return () => es.close();
   }, [ch?.topic, ch?.server, ch?.token, saved.deviceId]);
+
+  // Waypoints from the console (encrypted ops topic)
+  useEffect(() => {
+    if (!ch?.posKey) return;
+    const es = new EventSource(ntfyStreamUrl({ ...ch, topic: opsTopic(ch.topic) }, '24h'));
+    es.onmessage = (e) => {
+      try {
+        const ev = JSON.parse(e.data) as NtfyEvent;
+        if (ev.event !== 'message' || !ev.message) return;
+        void openOps(ch.posKey, ev.message).then((m) => {
+          if (!m) return;
+          if (m.type === 'wp') {
+            if (!isFor(m, saved.deviceId)) return;
+            setWps((cur) => {
+              const prev = cur.get(m.id);
+              if (prev && prev.t > m.t) return cur;
+              const n = new Map(cur);
+              n.set(m.id, m);
+              if (!prev && m.state === 'active' && Date.now() - m.t < 10 * 60_000) navigator.vibrate?.(m.pri === 'urgent' ? [300, 120, 300, 120, 300] : [200]);
+              return n;
+            });
+          } else if (m.id === saved.deviceId) setMyAcks((a) => ({ ...a, [m.wp]: m.state }));
+        });
+      } catch {
+        /* keepalive */
+      }
+    };
+    return () => es.close();
+  }, [ch?.topic, ch?.posKey, saved.deviceId]);
+
+  const ackWaypoint = async (wp: string, state: AckState) => {
+    if (!ch?.posKey) return;
+    setMyAcks((a) => ({ ...a, [wp]: state }));
+    try {
+      await publish(ch, { topic: opsTopic(ch.topic), message: await sealOps(ch.posKey, { v: 1, type: 'wp-ack', wp, id: saved.deviceId, n: saved.callsign || 'Phone', state, t: Date.now() }), tags: ['vigilance-ops'] });
+    } catch (e) {
+      setErr(`Reply not sent: ${String(e)}`);
+    }
+  };
+  const isApple = typeof navigator !== 'undefined' && /iPhone|iPad|Macintosh/.test(navigator.userAgent);
 
   // Teammates' positions (decrypted on the phone too)
   useEffect(() => {
@@ -303,7 +346,7 @@ export function FieldApp() {
 
   if (!ch) {
     return (
-      <div className="field">
+      <div className="fieldapp">
         <header className="field-head">
           <FieldMark />
           <b>VIGILANCE</b>
@@ -330,7 +373,7 @@ export function FieldApp() {
   }
 
   return (
-    <div className="field">
+    <div className="fieldapp">
       <header className="field-head">
         <FieldMark />
         <b>VIGILANCE</b>
@@ -406,6 +449,47 @@ export function FieldApp() {
         )}
         {err && <p className="warn">{err}</p>}
       </div>
+
+      {[...wps.values()]
+        .filter((w) => w.state === 'active')
+        .sort((a, b) => Number(b.pri === 'urgent') - Number(a.pri === 'urgent') || b.t - a.t)
+        .map((w) => {
+          const links = directionsLinks(w.lat, w.lon, w.name);
+          const mine = myAcks[w.id];
+          return (
+            <div key={w.id} className={`field-card wp ${w.pri}`}>
+              <h2>
+                <Icon name="pin" size={18} className={w.pri === 'urgent' ? 'crit' : 'accent'} /> {w.name}
+                {w.pri === 'urgent' && <span className="wp-urgent">URGENT</span>}
+              </h2>
+              {w.note && <p>{w.note}</p>}
+              <p className="mono small">
+                From {w.by}
+                {fix ? ` · ${fmtDist(distanceM([fix.coords.longitude, fix.coords.latitude], [w.lon, w.lat]))} away` : ''}
+                {mine ? ` · you: ${ACK_LABEL[mine].toLowerCase()}` : ''}
+              </p>
+              <a
+                className="field-btn go"
+                href={isApple ? links.apple : links.google}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => {
+                  if (!mine || mine === 'ack') void ackWaypoint(w.id, 'enroute');
+                }}
+              >
+                <Icon name="pin" size={16} />
+                Directions
+              </a>
+              <div className="wp-acks">
+                {(['ack', 'enroute', 'arrived', 'declined'] as AckState[]).map((s) => (
+                  <button key={s} className={`q ${mine === s ? 'on' : ''}`} onClick={() => void ackWaypoint(w.id, s)}>
+                    {ACK_LABEL[s]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
 
       {ping > 0 && !sharing && (
         <div className="field-card ping">

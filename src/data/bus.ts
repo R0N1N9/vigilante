@@ -33,8 +33,8 @@ function receive(msg: Msg) {
 }
 
 export function sharedSnapshot(): SharedUi {
-  const { packId, selectedHex, focus, ceilingAglFt, hideGround, layers, muted, settings, areas, locations, requests, monitors, hits, channels, chat, team, meshStatus } = getState();
-  return { packId, selectedHex, focus, ceilingAglFt, hideGround, layers, muted, settings, areas, locations, requests, monitors, hits, channels, chat, team, meshStatus };
+  const { packId, selectedHex, focus, ceilingAglFt, hideGround, layers, muted, settings, areas, locations, requests, monitors, hits, channels, chat, team, meshStatus, waypoints } = getState();
+  return { packId, selectedHex, focus, ceilingAglFt, hideGround, layers, muted, settings, areas, locations, requests, monitors, hits, channels, chat, team, meshStatus, waypoints };
 }
 
 export function startBus(isLeader: boolean) {

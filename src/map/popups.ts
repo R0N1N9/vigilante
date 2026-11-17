@@ -46,7 +46,7 @@ export function describeFeature(layer: string, id: string, s: State, esc: (t: st
 
 /** Layers that show a hover tooltip, topmost first. Polygons come last so points win. */
 export const HOVERABLE = [
-  'team', 'aircraft', 'drones', 'clusters', 'news', 'news-clusters', 'fires', 'traffic', 'transit', 'cameras',
+  'waypoints', 'team', 'aircraft', 'drones', 'clusters', 'news', 'news-clusters', 'fires', 'traffic', 'transit', 'cameras',
   'crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'orbit-ring',
   'monitors-label', 'monitors-line', 'areas-label', 'radio-label', 'areas-line', 'radio-line', 'outages-fill', 'tfr-fill', 'weather-fill',
 ];
@@ -62,6 +62,12 @@ export function hoverHtml(layer: string, p: Record<string, unknown>, s: State, e
     return m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} d ago`;
   };
   switch (layer) {
+    case 'waypoints': {
+      const w = s.waypoints.find((x) => x.id === id);
+      if (!w) return null;
+      const acks = Object.values(w.acks);
+      return tip(`WAYPOINT${w.priority === 'urgent' ? ' · URGENT' : ''} · ${w.state.toUpperCase()}`, esc(w.name), `${acks.filter((a) => a.state === 'arrived').length} arrived · ${acks.length} replied${w.note ? ` · ${esc(w.note.slice(0, 60))}` : ''}`, 'Click for agent status');
+    }
     case 'team': {
       const m = s.team.find((x) => x.id === id);
       return m ? tip(`TEAMMATE · ${m.source === 'mesh' ? 'MESHTASTIC RADIO' : m.source === 'phone' ? (m.app === 'vigil' ? 'VIGIL APP' : 'PHONE CHECK-IN') : 'SHARED SPOT'}`, esc(m.name), [`Position ${ago(m.at)}`, m.accuracyM != null ? `±${m.accuracyM} m` : '', m.speedMs != null && m.speedMs > 0.5 ? `${Math.round(m.speedMs * 2.237)} mph` : '', m.activity && m.activity !== 'unknown' ? esc(m.activity) : '', m.heartRate ? `HR ${m.heartRate} bpm` : '', m.battery != null ? `battery ${m.battery}%${m.charging ? ' (charging)' : ''}` : ''].filter(Boolean).join(' · '), 'Click for profile and telemetry') : null;

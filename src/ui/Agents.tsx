@@ -9,6 +9,7 @@ import { SHARE_LABEL, type ShareCategory } from '../lib/poscrypt';
 import { agentStatus, ageText, STATUS_LABEL, teamBounds, type AgentStatus } from '../lib/team';
 import { openSystem } from './popout';
 import { shareToTeam } from './TeamTab';
+import { placeWaypoint, WaypointList } from './Waypoints';
 import { Icon, RichText } from './Icon';
 
 const useNow = (ms = 10_000) => {
@@ -300,6 +301,10 @@ export function TeamView({ map }: { map: React.ReactNode }) {
           ))}
         </div>
         <div className="tv-actions">
+          <button className="btn small" onClick={() => placeWaypoint(getState().focus?.center ?? getPack(getState().packId).center)} title="Places at the selected spot (or the area center). Tip: right-click the map to place one exactly.">
+            <Icon name="pin" />
+            Place waypoint
+          </button>
           <button className="btn small" onClick={highlightTeam} disabled={!team.some((m) => m.location && !m.dark)}>
             <Icon name="target" />Show all on map
           </button>
@@ -323,6 +328,7 @@ export function TeamView({ map }: { map: React.ReactNode }) {
       <div className="tv-body">
         <div className="tv-map tile">{map}</div>
         <div className="tv-side">
+          <WaypointList />
           {alerts.length > 0 && (
             <div className="tv-alerts">
               {alerts.map((h) => (
