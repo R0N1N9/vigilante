@@ -63,13 +63,13 @@ function AppearanceSection({ value: a, onChange }: { value: Appearance; onChange
       <p className="muted small-text">Changes apply right away, in every window.</p>
       <div className="theme-grid">
         {(Object.keys(THEMES) as (keyof typeof THEMES)[]).map((id) => (
-          <button key={id} className={`theme-swatch ${a.theme === id ? 'on' : ''}`} onClick={() => onChange(withTheme(a, id))} style={{ ['--sw' as string]: THEMES[id].accent, ['--swbg' as string]: THEMES[id].panel }}>
+          <button key={id} className={`theme-swatch ${a.theme === id ? 'on' : ''}`} onClick={() => onChange(withTheme(a, id))} style={{ ['--sw' as string]: THEMES[id].accent, ['--sw2' as string]: THEMES[id].alert, ['--swbg' as string]: THEMES[id].panel }}>
             <i />
             <b>{THEMES[id].label}</b>
             <small>{THEMES[id].note}</small>
           </button>
         ))}
-        <button className={`theme-swatch ${a.theme === 'custom' ? 'on' : ''}`} onClick={() => onChange(withTheme(a, 'custom'))} style={{ ['--sw' as string]: a.accent, ['--swbg' as string]: a.panel }}>
+        <button className={`theme-swatch ${a.theme === 'custom' ? 'on' : ''}`} onClick={() => onChange(withTheme(a, 'custom'))} style={{ ['--sw' as string]: a.accent, ['--sw2' as string]: a.alert, ['--swbg' as string]: a.panel }}>
           <i />
           <b>Custom</b>
           <small>Your RGB colors</small>
@@ -78,6 +78,9 @@ function AppearanceSection({ value: a, onChange }: { value: Appearance; onChange
       <RgbField label="Accent" value={a.accent} onChange={(accent) => custom({ accent })} />
       <RgbField label="Panels" value={a.panel} onChange={(panel) => custom({ panel })} />
       <RgbField label="Background" value={a.bg} onChange={(bg) => custom({ bg })} />
+      <RgbField label="Alerts" value={a.alert} onChange={(alert) => custom({ alert })} />
+      <RgbField label="Critical" value={a.critical} onChange={(critical) => custom({ critical })} />
+      <p className="muted small-text">Alerts color warnings and cautions; Critical colors emergencies and severe conditions. In-between levels blend the two. Map data layers keep their own colors so they match the legend.</p>
       <label className="field range">
         <span>Panel opacity · {Math.round(a.panelOpacity * 100)}%</span>
         <input type="range" min={40} max={100} value={Math.round(a.panelOpacity * 100)} onChange={(e) => onChange({ ...a, panelOpacity: Number(e.target.value) / 100 })} />

@@ -38,7 +38,8 @@ function LocatorTile() {
   );
 }
 
-const LEVEL_COLOR: Record<string, string> = { Stable: '#2BD47D', Guarded: '#9BE15D', Elevated: '#FFB020', High: '#FF7A45', Severe: '#FF4D4F' };
+/** Theme-aware: follows the accent/alert/critical colors chosen in Settings → Appearance. */
+const LEVEL_COLOR: Record<string, string> = { Stable: 'var(--ok)', Guarded: 'var(--guarded)', Elevated: 'var(--warn)', High: 'var(--serious)', Severe: 'var(--crit)' };
 
 function Tile({ code, title, right, led = 'ok', className = '', children }: { code: string; title: string; right?: React.ReactNode; led?: 'ok' | 'warn' | 'crit' | 'idle'; className?: string; children: React.ReactNode }) {
   return (
@@ -90,16 +91,16 @@ function Gauge({ score, color, level }: { score: number; color: string; level: s
             y1={60 + r1 * Math.sin(a)}
             x2={60 + r2 * Math.cos(a)}
             y2={60 + r2 * Math.sin(a)}
-            stroke={k < lit ? color : 'rgba(143,163,184,.18)'}
+            style={{ stroke: k < lit ? color : 'rgba(143,163,184,.18)' }}
             strokeWidth={k % 6 === 0 ? 2 : 1.4}
             filter={k < lit ? 'url(#glow)' : undefined}
           />
         );
       })}
-      <text x="60" y="64" textAnchor="middle" className="gauge-num" fill={color}>
+      <text x="60" y="64" textAnchor="middle" className="gauge-num" style={{ fill: color }}>
         {score}
       </text>
-      <text x="60" y="80" textAnchor="middle" className="gauge-lvl" fill={color}>
+      <text x="60" y="80" textAnchor="middle" className="gauge-lvl" style={{ fill: color }}>
         {level.toUpperCase()}
       </text>
     </svg>
@@ -115,8 +116,8 @@ function Spark({ points, color }: { points: { t: number; score: number }[]; colo
   const d = points.map((p, i) => `${i ? 'L' : 'M'}${(((p.t - t0) / Math.max(1, t1 - t0)) * w).toFixed(1)},${(h - (p.score / 100) * h).toFixed(1)}`).join(' ');
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="spark" preserveAspectRatio="none">
-      <path d={`${d} L${w},${h} L0,${h} Z`} fill={color} opacity="0.08" />
-      <path d={d} fill="none" stroke={color} strokeWidth="1.4" />
+      <path d={`${d} L${w},${h} L0,${h} Z`} style={{ fill: color }} opacity="0.08" />
+      <path d={d} fill="none" style={{ stroke: color }} strokeWidth="1.4" />
     </svg>
   );
 }
@@ -288,7 +289,7 @@ function HoodsTile() {
                 <td className="hn">{h.name}</td>
                 <td>
                   <i className="bar">
-                    <b style={{ width: `${h.score}%`, background: h.score < 40 ? '#FF7A45' : h.score < 70 ? '#FFB020' : '#2BD47D' }} />
+                    <b style={{ width: `${h.score}%`, background: h.score < 40 ? 'var(--serious)' : h.score < 70 ? 'var(--warn)' : 'var(--ok)' }} />
                   </i>
                 </td>
                 <td className="r">{h.score}</td>

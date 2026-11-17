@@ -29,3 +29,18 @@ describe('theme', () => {
     expect(withDefaults({ appearance: { ...DEFAULT_APPEARANCE, panelOpacity: 0.6 } }).appearance.panelOpacity).toBe(0.6);
   });
 });
+
+describe('alert colors', () => {
+  it('emit warn, crit and a blended serious color', () => {
+    const v = themeVars({ ...DEFAULT_APPEARANCE, alert: '#ff0000', critical: '#0000ff' });
+    expect(v['--warn-rgb']).toBe('255, 0, 0');
+    expect(v['--crit-rgb']).toBe('0, 0, 255');
+    expect(v['--serious']).toBe('#800080');
+  });
+  it('the green & red preset swaps amber for red', () => {
+    const g = withTheme(DEFAULT_APPEARANCE, 'greenred');
+    expect(g.accent).toBe(THEMES.greenred.accent);
+    expect(g.alert).toBe(THEMES.greenred.alert);
+    expect(withDefaults({ appearance: { ...DEFAULT_APPEARANCE, alert: undefined as unknown as string } }).appearance.alert).toBeUndefined;
+  });
+});
