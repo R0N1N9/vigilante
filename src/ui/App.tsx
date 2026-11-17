@@ -17,6 +17,7 @@ import { Modals } from './Modals';
 import { NewsTab } from './NewsTab';
 import type { View } from './popout';
 import { InfraTab } from './InfraTab';
+import { TeamTab } from './TeamTab';
 import { DESKTOP_APP, GITHUB_URL, MOBILE_APP } from '../lib/links';
 
 /** Embed mode: one slim strip pointing at the full app. */
@@ -52,6 +53,7 @@ function MapStage() {
 
 const TABS: { id: RailTab; label: string }[] = [
   { id: 'alerts', label: 'Alerts' },
+  { id: 'team', label: 'Team' },
   { id: 'news', label: 'News' },
   { id: 'radio', label: 'Radio' },
   { id: 'traffic', label: 'City' },
@@ -63,7 +65,7 @@ const TABS: { id: RailTab; label: string }[] = [
 
 function Badge({ tab }: { tab: RailTab }) {
   const n = useStore((s) =>
-    tab === 'alerts' ? s.incidents.length + s.clusters.length + s.hits.filter((h) => !h.acked).length : tab === 'traffic' ? s.traffic.filter((t) => t.severity >= 2).length + s.transit.filter((t) => t.severity >= 2).length + s.outages.filter((o) => o.severity >= 1).length + s.fires.filter((f) => f.severity >= 1).length : tab === 'hazards' ? s.incidents.filter((i) => ['quake', 'flood', 'storm', 'air'].includes(i.kind)).length : tab === 'sky' ? s.drones.length : tab === 'news' ? s.news.filter((x) => x.severity >= 2 && x.local).length : 0,
+    tab === 'team' ? s.chat.filter((m) => !m.mine && m.at > s.teamSeenAt).length : tab === 'alerts' ? s.incidents.length + s.clusters.length + s.hits.filter((h) => !h.acked).length : tab === 'traffic' ? s.traffic.filter((t) => t.severity >= 2).length + s.transit.filter((t) => t.severity >= 2).length + s.outages.filter((o) => o.severity >= 1).length + s.fires.filter((f) => f.severity >= 1).length : tab === 'hazards' ? s.incidents.filter((i) => ['quake', 'flood', 'storm', 'air'].includes(i.kind)).length : tab === 'sky' ? s.drones.length : tab === 'news' ? s.news.filter((x) => x.severity >= 2 && x.local).length : 0,
   );
   return n ? <span className="badge">{n}</span> : null;
 }
@@ -112,6 +114,8 @@ function TabBody({ tab }: { tab: RailTab }) {
       return <HazardsTab />;
     case 'areas':
       return <AreasTab />;
+    case 'team':
+      return <TeamTab />;
   }
 }
 
@@ -195,6 +199,7 @@ export function App({ view, embed = false }: { view: View; embed?: boolean }) {
       {view === 'traffic' && <Solo title="ROADS · TRANSIT · POWER · FIRE"><InfraTab /></Solo>}
       {view === 'cameras' && <Solo title="CAMERA WALL"><CamerasTab wall={6} /></Solo>}
       {view === 'areas' && <Solo title="WATCH AREAS"><AreasTab /></Solo>}
+      {view === 'team' && <Solo title="TEAM"><TeamTab /></Solo>}
       <Modals />
     </div>
   );

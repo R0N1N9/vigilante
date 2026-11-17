@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'react';
 import type { Aircraft } from '../lib/adsb';
 import type { WatchArea } from '../lib/areas';
 import type { Monitor, MonitorHit } from '../lib/monitors';
+import type { ChatMessage, SharedSpot, TeamChannel, TeamMember } from '../lib/comms';
 import type { Brief } from '../lib/brief';
 import type { Cluster } from '../lib/correlate';
 import type { LonLat } from '../lib/geo';
@@ -131,6 +132,7 @@ export interface Layers {
   news: boolean;
   drones: boolean;
   areas: boolean;
+  team: boolean;
 }
 
 /** Shared UI choices and settings, synced across windows. */
@@ -152,9 +154,14 @@ export interface SharedUi {
   /** User-defined alert rules and what they caught (acknowledged from any window). */
   monitors: Monitor[];
   hits: MonitorHit[];
+  /** Team chat: channels, messages (outgoing ones start as 'sending'), teammates' positions, radio status. */
+  channels: TeamChannel[];
+  chat: ChatMessage[];
+  team: TeamMember[];
+  meshStatus: { state: 'off' | 'connecting' | 'connected' | 'error' | 'disconnected'; detail: string; node?: string; radioChannels?: { index: number; name: string }[] };
 }
 
-export type RailTab = 'alerts' | 'sky' | 'news' | 'radio' | 'traffic' | 'hazards' | 'cameras' | 'areas';
+export type RailTab = 'alerts' | 'team' | 'sky' | 'news' | 'radio' | 'traffic' | 'hazards' | 'cameras' | 'areas';
 
 /** Per-window choices. */
 export interface LocalUi {
@@ -164,7 +171,15 @@ export interface LocalUi {
   drawing: LonLat[] | null;
   /** Monitor id waiting for a map click to set its center. */
   pickPoint: string | null;
-  modal: 'settings' | 'brief' | 'about' | null;
+  modal: 'settings' | 'brief' | 'invite' | 'about' | null;
+  /** Channel whose invite is open. */
+  inviteChannelId: string | null;
+  /** When this window last looked at the Team tab (for the unread badge). */
+  teamSeenAt: number;
+  /** Text/spot waiting in the Team composer (from a Share button). */
+  teamDraft: { text: string; spot?: SharedSpot; url?: string } | null;
+  /** Invite opened from a #join= link, waiting for the user to confirm. */
+  joinCode: string | null;
   tvChannel: string | null;
   mainView: 'map' | 'dashboard';
 }
@@ -235,7 +250,7 @@ let state: State = {
   focus: null,
   ceilingAglFt: prefs.ceilingAglFt === undefined ? 10_000 : prefs.ceilingAglFt,
   hideGround: prefs.hideGround ?? true,
-  layers: { aircraft: true, trails: true, weather: true, aoi: true, tfr: true, traffic: true, transit: true, outages: true, fires: true, radio: true, crime: true, s311: false, hotspots: true, radar: false, quakes: true, floods: true, storms: true, ships: true, cameras: true, news: true, drones: true, areas: true, ...(prefs.layers ?? {}) },
+  layers: { aircraft: true, trails: true, weather: true, aoi: true, tfr: true, traffic: true, transit: true, outages: true, fires: true, radio: true, crime: true, s311: false, hotspots: true, radar: false, quakes: true, floods: true, storms: true, ships: true, cameras: true, news: true, drones: true, areas: true, team: true, ...(prefs.layers ?? {}) },
   muted: prefs.muted ?? false,
   settings: DEFAULT_SETTINGS,
   areas: [],
@@ -243,12 +258,20 @@ let state: State = {
   requests: {},
   monitors: [],
   hits: [],
+  channels: [],
+  chat: [],
+  team: [],
+  meshStatus: { state: 'off', detail: '' },
   basemap: prefs.basemap ?? 'dark',
-  tab: prefs.tab ?? 'alerts',
+  tab: typeof location !== 'undefined' && /#join=VG1\./.test(location.hash) ? 'team' : (prefs.tab ?? 'alerts'),
   cameraId: null,
   drawing: null,
   pickPoint: null,
   modal: null,
+  inviteChannelId: null,
+  teamSeenAt: Date.now(),
+  teamDraft: null,
+  joinCode: typeof location !== 'undefined' && /#join=VG1\./.test(location.hash) ? decodeURIComponent(location.hash.slice(6)) : null,
   tvChannel: null,
   mainView: prefs.mainView ?? 'map',
 };

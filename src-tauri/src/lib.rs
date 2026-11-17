@@ -11,6 +11,7 @@ mod wifi_rid;
 mod ais;
 mod ai;
 mod webhook;
+mod mesh;
 
 use std::sync::OnceLock;
 use std::time::Duration;
@@ -179,10 +180,12 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_opener::init())
         .manage(client)
         .manage(drones::DroneScanner::default())
         .manage(wifi_rid::WifiScanner::default())
         .manage(ais::AisStream::default())
+        .manage(mesh::MeshLink::default())
         .invoke_handler(tauri::generate_handler![
             http_get,
             http_get_bytes,
@@ -196,7 +199,11 @@ pub fn run() {
             ais::ais_start,
             ais::ais_stop,
             ai::ai_brief,
-            webhook::webhook_send
+            webhook::webhook_send,
+            mesh::mesh_connect,
+            mesh::mesh_send,
+            mesh::mesh_disconnect,
+            mesh::mesh_serial_ports
         ])
         .on_window_event(|window, event| {
             // Closing the main console closes the whole app, pop-outs included.

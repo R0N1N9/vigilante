@@ -22,6 +22,14 @@ import { refreshDashboard, requestAiBrief, resetDashboard } from './dashboard';
 import { newMonitor, type Monitor, type MonitorHit } from '../../lib/monitors';
 import { resetMonitors, startMonitors } from './monitors';
 import { sendTestNotifications } from './notify';
+import { startComms } from './comms';
+import type { ChatMessage, TeamChannel } from '../../lib/comms';
+
+let chatTimer: number | undefined;
+function saveChatSoon(chat: ChatMessage[]) {
+  window.clearTimeout(chatTimer);
+  chatTimer = window.setTimeout(() => void storeWrite('chat', chat), 2000);
+}
 
 function startForPack(id: string) {
   clearTimers();
@@ -50,12 +58,13 @@ function startForPack(id: string) {
 
 /** Leader window only: load saved state, start all sources, and react to changes. */
 export async function startEngine(opts: { theme?: Exclude<ThemeId, 'custom'> | null } = {}) {
-  const [saved, areas, locations, monitors, hits] = await Promise.all([storeRead<Partial<Settings>>('settings'), storeRead<WatchArea[]>('areas'), storeRead<CityPack[]>('locations'), storeRead<Monitor[]>('monitors'), storeRead<MonitorHit[]>('hits'), loadHistory()]);
+  const [saved, areas, locations, monitors, hits, channels, chat] = await Promise.all([storeRead<Partial<Settings>>('settings'), storeRead<WatchArea[]>('areas'), storeRead<CityPack[]>('locations'), storeRead<Monitor[]>('monitors'), storeRead<MonitorHit[]>('hits'), storeRead<TeamChannel[]>('channels'), storeRead<ChatMessage[]>('chat'), loadHistory()]);
   registerPacks(locations ?? []);
   let settings = withDefaults(saved);
   if (opts.theme) settings = { ...settings, appearance: withTheme(settings.appearance, opts.theme) }; // ?theme= (embeds)
-  setShared({ settings, areas: areas ?? [], locations: locations ?? [], monitors: (monitors ?? []).map((m) => ({ ...newMonitor(m.kind), ...m })), hits: hits ?? [] });
+  setShared({ settings, areas: areas ?? [], locations: locations ?? [], monitors: (monitors ?? []).map((m) => ({ ...newMonitor(m.kind), ...m })), hits: hits ?? [], channels: channels ?? [], chat: (chat ?? []).map((m) => (m.status === 'sending' ? { ...m, status: 'failed' as const, error: 'app closed before sending' } : m)) });
   startMonitors();
+  void startComms();
 
   startForPack(getState().packId);
   startDrones();
@@ -75,6 +84,8 @@ export async function startEngine(opts: { theme?: Exclude<ThemeId, 'custom'> | n
     if (s.locations !== p.locations) void storeWrite('locations', s.locations);
     if (s.monitors !== p.monitors) void storeWrite('monitors', s.monitors);
     if (s.hits !== p.hits) void storeWrite('hits', s.hits);
+    if (s.channels !== p.channels) void storeWrite('channels', s.channels);
+    if (s.chat !== p.chat) saveChatSoon(s.chat);
     if (r.notifyTest && r.notifyTest !== p.requests.notifyTest) void sendTestNotifications();
       if (r.brief && r.brief !== p.requests.brief) makeBrief();
     if (r.pushTest && r.pushTest !== p.requests.pushTest) void sendTestPush();

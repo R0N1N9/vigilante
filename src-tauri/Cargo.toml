@@ -23,6 +23,9 @@ tokio-tungstenite = { version = "0.30", features = ["rustls-tls-webpki-roots"] }
 tokio = { version = "1", features = ["sync", "macros", "time"] }
 tauri-plugin-notification = "2"
 url = "2"
+serialport = { version = "4", default-features = false }
+uuid = "1"
+tauri-plugin-opener = "2"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libc = "0.2"

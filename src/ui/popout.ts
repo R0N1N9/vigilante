@@ -2,12 +2,13 @@ import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import type { BackgroundThrottlingPolicy } from '@tauri-apps/api/window';
 import { isTauri } from '../lib/http';
 
-export type View = 'console' | 'dashboard' | 'map' | 'alerts' | 'sky' | 'news' | 'radio' | 'traffic' | 'cameras' | 'areas';
+export type View = 'console' | 'dashboard' | 'map' | 'alerts' | 'sky' | 'news' | 'radio' | 'traffic' | 'cameras' | 'areas' | 'team';
 
 export const POPOUT_VIEWS: { view: Exclude<View, 'console'>; label: string; w: number; h: number }[] = [
   { view: 'dashboard', label: 'Dashboard', w: 1500, h: 950 },
   { view: 'map', label: 'Map', w: 1280, h: 800 },
   { view: 'alerts', label: 'Alerts & log', w: 520, h: 860 },
+  { view: 'team', label: 'Team chat', w: 480, h: 820 },
   { view: 'cameras', label: 'Camera wall', w: 960, h: 720 },
   { view: 'news', label: 'News & live TV', w: 560, h: 860 },
   { view: 'traffic', label: 'Roads, transit, power & fire', w: 520, h: 820 },
@@ -82,6 +83,15 @@ export async function openRadio(feed: { name: string; url: string }) {
 }
 
 /** Open an article or page outside the console. */
+/** Hand a mailto: or sms: link to the system's mail or messaging app. */
+export async function openSystem(url: string) {
+  if (!/^(mailto|sms):/.test(url)) return;
+  if (isTauri()) {
+    const { openUrl } = await import('@tauri-apps/plugin-opener');
+    await openUrl(url);
+  } else window.location.href = url;
+}
+
 export async function openExternal(url: string, title = 'Vigilante') {
   if (!/^https:\/\//.test(url)) return;
   if (isTauri()) {

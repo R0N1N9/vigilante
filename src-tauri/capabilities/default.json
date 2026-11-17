@@ -9,6 +9,10 @@
     "core:window:allow-set-focus",
     "core:window:allow-close",
     "window-state:default",
-    "notification:default"
+    "notification:default",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [{ "url": "mailto:*" }, { "url": "sms:*" }]
+    }
   ]
 }

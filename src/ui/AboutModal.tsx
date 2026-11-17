@@ -1,30 +1,13 @@
-import QRCode from 'qrcode';
-import { useEffect, useState } from 'react';
 import { setState } from '../data/store';
 import { embedUrl } from '../lib/embed';
 import { isWeb } from '../lib/http';
 import { DESKTOP_APP, GITHUB_URL, MOBILE_APP } from '../lib/links';
-import { Modal } from './Modals';
-
-/** QR code drawn locally (no external QR service): an SVG string shown through a data: URL. */
-function Qr({ text, label }: { text: string; label: string }) {
-  const [src, setSrc] = useState<string | null>(null);
-  useEffect(() => {
-    let live = true;
-    QRCode.toString(text, { type: 'svg', margin: 1, errorCorrectionLevel: 'M', color: { dark: '#0b0f14', light: '#ffffff' } })
-      .then((svg) => live && setSrc(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`))
-      .catch(() => live && setSrc(null));
-    return () => {
-      live = false;
-    };
-  }, [text]);
-  return src ? <img className="qr" src={src} alt={`QR code: ${label}`} width={148} height={148} /> : <div className="qr qr-empty" aria-hidden />;
-}
+import { Modal, Qr } from './Modals';
 
 function AppLink({ url, label, note }: { url: string; label: string; note: string }) {
   return (
     <div className="get-app">
-      <Qr text={url} label={label} />
+      <Qr text={url} caption={label.split(' (')[0]} size={148} />
       <div>
         <b>{label}</b>
         <p className="muted small-text">{note}</p>

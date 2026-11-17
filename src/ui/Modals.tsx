@@ -8,6 +8,9 @@ import { DEFAULT_APPEARANCE, hexToRgb, rgbToHex, THEMES, withTheme, type Appeara
 import type { Severity } from '../lib/signals';
 import { fmtTime } from './format';
 import { AboutModal } from './AboutModal';
+import QRCode from 'qrcode';
+import { inviteLink, MESHTASTIC_APP_URL, nativeLink } from '../lib/comms';
+import { openSystem } from './popout';
 
 export function Modal({ title, children, wide = false }: { title: string; children: React.ReactNode; wide?: boolean }) {
   useEffect(() => {
@@ -320,8 +323,110 @@ function BriefModal() {
   );
 }
 
+/** QR code drawn locally with the pinned qrcode package (no external QR service). */
+export function Qr({ text, caption, size = 200 }: { text: string; caption: string; size?: number }) {
+  const [src, setSrc] = useState('');
+  useEffect(() => {
+    let live = true;
+    void QRCode.toDataURL(text, { margin: 2, width: 200, errorCorrectionLevel: text.length > 120 ? 'L' : 'M', color: { dark: '#000000', light: '#ffffff' } }).then((u) => live && setSrc(u));
+    return () => {
+      live = false;
+    };
+  }, [text]);
+  return (
+    <figure className="qr">
+      {src ? <img src={src} alt={`QR code: ${caption}`} width={size} height={size} style={{ width: size, height: size }} /> : <div className="qr-wait" style={{ width: size, height: size }} />}
+      <figcaption>{caption}</figcaption>
+    </figure>
+  );
+}
+
+function InviteModal() {
+  const ch = useStore((s) => s.channels.find((c) => c.id === s.inviteChannelId));
+  const callsign = useStore((s) => s.settings.team.callsign);
+  const [withToken, setWithToken] = useState(true);
+  const [copied, setCopied] = useState('');
+  if (!ch) return null;
+  const link = inviteLink(ch, withToken);
+  const native = nativeLink(ch);
+  const who = callsign ? `${callsign} invited you` : "You're invited";
+  const body =
+    ch.kind === 'ntfy'
+      ? `${who} to the "${ch.name}" team channel on Vigilante.\n\nJoin in Vigilante: ${link}\n\nNo Vigilante? Follow along in the free ntfy app: ${native}${ch.token && withToken ? '' : ''}\n\nThis link works like a key: please don't forward it.`
+      : `${who} to the "${ch.name}" Meshtastic channel.\n\n1. Open this link on your phone with the Meshtastic app installed so your radio joins the channel: ${native ?? '(ask for the channel link)'}\n2. Add it in Vigilante: ${link}\n\nGet the Meshtastic app: ${MESHTASTIC_APP_URL}\n\nThis link contains the channel key: please don't forward it.`;
+  const copy = async (what: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(what);
+      setCopied(label);
+      window.setTimeout(() => setCopied(''), 1800);
+    } catch {
+      prompt('Copy this:', what);
+    }
+  };
+  const subject = `Join "${ch.name}" on Vigilante`;
+  const canShare = typeof navigator !== 'undefined' && 'share' in navigator;
+  return (
+    <Modal title={`Invite to ${ch.name}`} wide>
+      <section>
+        <p className="muted small-text">
+          {ch.kind === 'ntfy'
+            ? 'Teammates scan or open the Vigilante link to join. People without Vigilante can scan the ntfy code to read and reply from the free ntfy phone app.'
+            : 'Teammates first scan the Meshtastic code with the Meshtastic app so their radio joins the encrypted channel, then add it in Vigilante with the other code.'}
+        </p>
+        <div className="qr-row">
+          <Qr text={link} caption="Join in Vigilante" />
+          {native ? <Qr text={ch.kind === 'ntfy' ? native : native} caption={ch.kind === 'ntfy' ? 'ntfy app (no Vigilante needed)' : 'Meshtastic app: join the radio channel'} /> : <div className="qr-missing small-text muted">Paste the channel's share link from the Meshtastic app (Channels → Share) into this channel's settings to show its QR code here.</div>}
+        </div>
+        <label className="field">
+          <span>Invite link</span>
+          <div className="copy-row">
+            <input readOnly value={link} onFocus={(e) => e.target.select()} />
+            <button className="btn small" onClick={() => void copy(link, 'link')}>
+              {copied === 'link' ? 'Copied' : 'Copy'}
+            </button>
+          </div>
+        </label>
+        {native && (
+          <label className="field">
+            <span>{ch.kind === 'ntfy' ? 'ntfy topic link' : 'Meshtastic channel link'}</span>
+            <div className="copy-row">
+              <input readOnly value={native} onFocus={(e) => e.target.select()} />
+              <button className="btn small" onClick={() => void copy(native, 'native')}>
+                {copied === 'native' ? 'Copied' : 'Copy'}
+              </button>
+            </div>
+          </label>
+        )}
+        {ch.kind === 'ntfy' && ch.token && (
+          <label className="check small-text">
+            <input type="checkbox" checked={withToken} onChange={() => setWithToken(!withToken)} /> Include the access token in the Vigilante link (otherwise send it separately)
+          </label>
+        )}
+        <div className="field-row">
+          <button className="btn small" onClick={() => void copy(body, 'msg')}>
+            {copied === 'msg' ? 'Copied' : 'Copy invite message'}
+          </button>
+          <button className="btn small" onClick={() => void openSystem(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`)}>
+            Email
+          </button>
+          <button className="btn small" onClick={() => void openSystem(`sms:?&body=${encodeURIComponent(body)}`)}>
+            Text message
+          </button>
+          {canShare && (
+            <button className="btn small" onClick={() => void navigator.share({ title: subject, text: body }).catch(() => {})}>
+              Share…
+            </button>
+          )}
+        </div>
+        <p className="muted small-text">Anyone with these links can join the channel. Send them only to people on your team, and make a new channel if one leaks.</p>
+      </section>
+    </Modal>
+  );
+}
+
 export function Modals() {
   const modal = useStore((s) => s.modal);
+  if (modal === 'invite') return <InviteModal />;
   if (modal === 'settings') return <SettingsModal />;
   if (modal === 'brief') return <BriefModal />;
   if (modal === 'about') return <AboutModal />;

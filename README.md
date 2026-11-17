@@ -64,6 +64,13 @@ Built for people who keep watch over a place: physical security and asset protec
 - **Desktop notifications** (Windows, macOS, Linux) for serious reports, with their own threshold.
 - **Team webhooks:** Slack, Discord, Microsoft Teams, or plain JSON to any https endpoint, with their own threshold.
 
+**Team chat** (Team tab, or Pop out → Team chat)
+- **ntfy channels** (internet): a group chat on an ntfy topic. Free, no accounts. Teammates join from Vigilante or just read and reply in the free **ntfy** phone app. On the public ntfy.sh server the topic name is the only lock, so the app makes a long random one; for a private team, run your own ntfy server and add an access token.
+- **Meshtastic channels** (off-grid radio): connect a Meshtastic LoRa radio to the laptop by **Bluetooth, USB cable or local Wi-Fi** and chat with the team over the mesh, with no cell service or internet. Messages are encrypted with the channel key on the radio (about 200 characters each). Teammates' radios that share GPS show up on the map as **team positions**.
+- **Invites:** every channel has an **Invite** button with **QR codes** and a link. Copy it, email it, text it or use the system share sheet. For ntfy, the second QR opens the topic in the ntfy app (no Vigilante needed). For Meshtastic, paste the channel's share link from the Meshtastic app into the channel settings; the invite then includes it so teammates' radios join the encrypted channel. To join, paste any invite link, `VG1.` code, ntfy topic URL or Meshtastic channel link into **Join with an invite**. (Invite links open the hosted web app once it's deployed.)
+- **Share to team:** ⇪ buttons on alerts, developing incidents, monitor hits and the aircraft card, plus **right-click the map → Share this spot**. Messages with a spot get a "Show on map" button; spots from teammates also appear as team positions.
+- **Auto-post:** each channel can also post new reports at or above a chosen level, so the whole team sees serious alerts.
+
 **Around it**
 - **Phone alerts** through the free **ntfy** app, with a severity threshold, an "only inside my watch areas" option and quiet hours
 - **Morning brief** at a time you choose, covering the previous 8 to 24 hours: developing incidents, air activity, weather, roads, news and drones. It also goes to your phone.

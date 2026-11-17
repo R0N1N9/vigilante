@@ -24,6 +24,9 @@ const param = new URLSearchParams(location.search).get('view');
 const view: View = !opts.embed && (POPOUT_VIEWS.some((v) => v.view === param) || param === 'areas') ? (param as View) : 'console';
 const isLeader = view === 'console';
 
+// Team invites (#join=...) open the Team tab, which embeds don't have: hand a top-level embed page to the full app, hash intact.
+if (opts.embed && /#join=VG1\./.test(location.hash) && window.top === window) location.replace(`${import.meta.env.BASE_URL}${location.hash}`);
+
 if (opts.embed) {
   document.documentElement.classList.add('embed');
   setState({ mainView: opts.view ?? 'dashboard' });

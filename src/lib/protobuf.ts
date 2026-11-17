@@ -88,6 +88,18 @@ export class Writer {
     for (let i = 0; i < 4; i++) this.parts.push(dv.getUint8(i));
     return this;
   }
+  /** 32-bit little-endian (fixed32; pass negatives for sfixed32). */
+  fixed32(no: number, v: number) {
+    this.varint(no * 8 + 5);
+    const dv = new DataView(new ArrayBuffer(4));
+    dv.setUint32(0, v >>> 0, true);
+    for (let i = 0; i < 4; i++) this.parts.push(dv.getUint8(i));
+    return this;
+  }
+  /** Empty sub-message (e.g. a heartbeat). */
+  empty(no: number) {
+    return this.bytes(no, new Uint8Array(0));
+  }
   finish() {
     return Uint8Array.from(this.parts);
   }

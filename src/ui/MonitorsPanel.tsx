@@ -7,6 +7,7 @@ import { KIND_LABEL, METRIC_LABEL, newMonitor, TEMPLATES, type Metric, type Moni
 import { SOURCE_LABEL, type Severity, type SignalSource } from '../lib/signals';
 import { fmtAgo } from './format';
 import { openExternal } from './popout';
+import { ShareButton } from './TeamTab';
 
 const SEV = ['Info', 'Low', 'Warning', 'Serious', 'Critical'];
 const list = (t: string) => t.split(/[,\n]/).map((x) => x.trim()).filter(Boolean);
@@ -280,6 +281,7 @@ export function HitsInbox() {
           {h.escalations > 0 && <span className="mono warn"> · re-sent {h.escalations}×</span>}
         </div>
         <div className="hit-actions">
+          <ShareButton text={`${h.monitorName}: ${h.title}`} at={h.location} url={h.url} label={h.title} />
           {!h.acked && (
             <button
               className="btn small"
