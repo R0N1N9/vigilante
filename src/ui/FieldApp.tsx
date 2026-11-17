@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { CHECKIN_TAG, FIELD_CODES, vigilLink, ntfyPublishBody, ntfyStreamUrl, ntfyToMessage, parseInvite, spotUrl, type ChatMessage, type NtfyChannel, type NtfyEvent } from '../lib/comms';
 import { openPosition, posTopic, sealPosition, type PositionReport } from '../lib/poscrypt';
 import { distanceM, type LonLat } from '../lib/geo';
+import { BrandMark } from './BrandMark';
 
 /**
  * Phone check-in page (?view=field#join=…). Runs in any phone browser with no
@@ -57,13 +58,7 @@ const DURATIONS = [
 ];
 
 function FieldMark() {
-  return (
-    <svg className="field-mark" viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden>
-      <path d="M2.5 12 Q12 3.6 21.5 12 Q12 20.4 2.5 12 Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-      <circle cx="12" cy="12" r="4.6" stroke="currentColor" strokeWidth="1.4" />
-      <circle cx="12" cy="12" r="2.1" fill="currentColor" />
-    </svg>
-  );
+  return <BrandMark className="field-mark" />;
 }
 
 export function FieldApp() {

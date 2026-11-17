@@ -6,6 +6,7 @@ import { getPack } from '../lib/packs';
 import { LocationPicker } from './LocationPicker';
 import { fmtAgo, fmtTime, tzAbbr } from './format';
 import { POPOUT_VIEWS, popOut, type View } from './popout';
+import { BrandMark } from './BrandMark';
 
 const FEED_LABEL: Record<FeedName, string> = {
   adsb: 'Aircraft (ADS-B)',
@@ -139,12 +140,7 @@ export function CommandBar({ view, embed = false }: { view: View; embed?: boolea
   return (
     <header className="cmdbar">
       <div className="brand">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden>
-          <path d="M2.5 12 Q12 3.6 21.5 12 Q12 20.4 2.5 12 Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-          <circle cx="12" cy="12" r="4.6" stroke="currentColor" strokeWidth="1.4" />
-          <circle cx="12" cy="12" r="2.1" fill="currentColor" />
-          <path d="M12 1 V3.4 M12 20.6 V23" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
+        <BrandMark />
         <span className="brand-text">VIGILANCE</span>
       </div>
       <LocationPicker />
