@@ -763,3 +763,11 @@ button.link { background: none; border: 0; padding: 0; color: var(--accent); cur
 .fmsg a { display: inline-block; margin-top: 4px; color: var(--accent); font-size: 13px; }
 .field-compose { display: flex; gap: 8px; position: sticky; bottom: 0; background: var(--bg); padding-top: 6px; }
 .field-compose input { flex: 1; min-width: 0; }
+.field-btn.dark { border-color: var(--line-2); color: var(--muted); background: transparent; }
+.field-card.ping { border-color: var(--accent); background: rgba(var(--accent-rgb), .07); }
+.field-card .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.vigil-open { display: block; padding: 10px 12px; border: 1px dashed var(--line-2); border-radius: 6px; color: var(--muted); font-size: 13px; text-decoration: none; }
+.vigil-open b { color: var(--accent); }
+.roster tr.dark .nm { color: var(--dim); }
+.roster .dark-tag { color: #A78BFA; letter-spacing: .2em; text-align: center; }
+.roster .src.vigil { color: #A78BFA; }
