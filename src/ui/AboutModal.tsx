@@ -3,7 +3,7 @@ import { embedUrl } from '../lib/embed';
 import { isWeb } from '../lib/http';
 import { DESKTOP_APP, GITHUB_URL, MOBILE_APP } from '../lib/links';
 import { Modal, Qr } from './Modals';
-import { BrandMark } from './BrandMark';
+import appIcon from '../../assets/brand/vigilance-icon.svg?url';
 
 function AppLink({ url, label, note }: { url: string; label: string; note: string }) {
   return (
@@ -42,7 +42,7 @@ export function AboutModal() {
     <Modal title="Get the app">
       <section>
         <div className="about-brand">
-          <BrandMark size={40} />
+          <img src={appIcon} alt="" width={56} height={56} />
           <b>VIGILANCE</b>
         </div>
         <p className="small-text">

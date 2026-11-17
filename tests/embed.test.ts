@@ -35,7 +35,7 @@ describe('embed URL params', () => {
   });
 
   it('accepts only theme presets', () => {
-    for (const t of ['tactical', 'greenred', 'nightvision', 'amber', 'redlight', 'steel']) expect(parseTheme(t)).toBe(t);
+    for (const t of ['tactical', 'nightvision', 'amber', 'redlight', 'steel']) expect(parseTheme(t)).toBe(t);
     expect(parseTheme('custom')).toBeNull();
     expect(parseTheme('constructor')).toBeNull();
     expect(parseTheme('AMBER')).toBe('amber');

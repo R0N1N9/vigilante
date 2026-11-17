@@ -7,7 +7,6 @@ import { getState, setState, subscribe, type State } from '../data/store';
 import { passesCeiling } from '../lib/adsb';
 import { circleRing, NM_TO_M, type LonLat } from '../lib/geo';
 import { getPack } from '../lib/packs';
-import { hexToRgb, severityColors } from '../lib/theme';
 import { openExternal, openRadio } from '../ui/popout';
 import { addIcons, CLASS_COLORS, DRONE_COLOR, RADIO_COLOR } from './icons';
 import { addTerrain, setTerrainOptions } from './terrain';
@@ -18,34 +17,13 @@ import { LABEL_FONT, styleFor, tuneDarkStyle } from './styles';
 const EMPTY: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
 const fc = (features: GeoJSON.Feature[]): GeoJSON.FeatureCollection => ({ type: 'FeatureCollection', features });
 
-/** Severity colors follow the theme's alert color (Settings → Appearance). */
-const sevFill = (c: string[]) => ['match', ['get', 'severity'], 'Extreme', c[4], 'Severe', c[3], 'Moderate', c[2], 'Minor', c[1], c[0]] as unknown as maplibregl.ExpressionSpecification;
-const sevNum = (c: string[]) => ['match', ['get', 'sev'], 4, c[4], 3, c[3], 2, c[2], 1, c[1], c[0]] as unknown as maplibregl.ExpressionSpecification;
-const rgba = (hex: string, a: number) => `rgba(${hexToRgb(hex).join(',')},${a})`;
-const crimeHeat = (c: string[]) =>
-  ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(0,0,0,0)', 0.2, 'rgba(76,141,255,0.35)', 0.5, rgba(c[2], 0.55), 0.8, rgba(c[3], 0.7), 1, rgba(c[4], 0.85)] as unknown as maplibregl.ExpressionSpecification;
-const currentSev = () => severityColors(getState().settings.appearance.alert);
-let SEVERITY_FILL = sevFill(currentSev());
-let SEV_NUM = sevNum(currentSev());
-
-/** Repaint everything colored by severity after the alert color changes. */
-function applySeverityColors(map: MlMap, alert: string) {
-  const c = severityColors(alert);
-  SEVERITY_FILL = sevFill(c);
-  SEV_NUM = sevNum(c);
-  const set = (id: string, prop: string, v: unknown) => map.getLayer(id) && map.setPaintProperty(id, prop as never, v as never);
-  set('weather-fill', 'fill-color', SEVERITY_FILL);
-  set('weather-line', 'line-color', SEVERITY_FILL);
-  for (const [id, prop] of [['crime-pts', 'circle-color'], ['storms', 'text-color'], ['traffic-lines', 'line-color'], ['clusters', 'circle-stroke-color']]) set(id, prop, SEV_NUM);
-  set('crime-heat', 'heatmap-color', crimeHeat(c));
-}
+const SEVERITY_FILL = ['match', ['get', 'severity'], 'Extreme', '#FF4D4F', 'Severe', '#FF7A45', 'Moderate', '#FFB020', 'Minor', '#4C8DFF', '#8FA3B8'] as unknown as maplibregl.ExpressionSpecification;
+const SEV_NUM = ['match', ['get', 'sev'], 4, '#FF4D4F', 3, '#FF7A45', 2, '#FFB020', 1, '#4C8DFF', '#8FA3B8'] as unknown as maplibregl.ExpressionSpecification;
 
 const SOURCES = ['aoi', 'monitors', 'team-trails', 'team', 'crime', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'outages', 'radio', 'transit', 'areas', 'draw', 'weather', 'tfr', 'traffic-lines', 'traffic', 'cameras', 'fires', 'clusters', 'trails', 'orbits', 'drone-links', 'drones', 'aircraft'];
 
 function addDataLayers(map: MlMap) {
   addIcons(map);
-  SEVERITY_FILL = sevFill(currentSev()); // settings may have loaded (or changed) since the module did
-  SEV_NUM = sevNum(currentSev());
   for (const id of SOURCES) if (!map.getSource(id)) map.addSource(id, { type: 'geojson', data: EMPTY });
   if (!map.getSource('newspins')) map.addSource('newspins', { type: 'geojson', data: EMPTY, cluster: true, clusterRadius: 38, clusterMaxZoom: 14 });
   const L = (layer: maplibregl.LayerSpecification) => map.addLayer(layer);
@@ -56,7 +34,7 @@ function addDataLayers(map: MlMap) {
   if (!map.getSource('radar'))
     map.addSource('radar', { type: 'raster', tiles: [radarTiles()], tileSize: 256, attribution: 'Radar: Iowa Environmental Mesonet / NWS NEXRAD' });
   L({ id: 'radar', type: 'raster', source: 'radar', paint: { 'raster-opacity': 0.55, 'raster-fade-duration': 0 } });
-  L({ id: 'crime-heat', type: 'heatmap', source: 'crime', maxzoom: 14, paint: { 'heatmap-weight': ['interpolate', ['linear'], ['get', 'sev'], 0, 0.25, 3, 1], 'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 9, 0.6, 13, 1.4], 'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 9, 10, 13, 22], 'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 12, 0.55, 14, 0], 'heatmap-color': crimeHeat(currentSev()) } });
+  L({ id: 'crime-heat', type: 'heatmap', source: 'crime', maxzoom: 14, paint: { 'heatmap-weight': ['interpolate', ['linear'], ['get', 'sev'], 0, 0.25, 3, 1], 'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 9, 0.6, 13, 1.4], 'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 9, 10, 13, 22], 'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 12, 0.55, 14, 0], 'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(0,0,0,0)', 0.2, 'rgba(76,141,255,0.35)', 0.5, 'rgba(255,176,32,0.55)', 0.8, 'rgba(255,122,69,0.7)', 1, 'rgba(255,77,79,0.85)'] } });
   L({ id: 'crime-pts', type: 'circle', source: 'crime', minzoom: 12, paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 12, 3, 16, 6], 'circle-color': SEV_NUM, 'circle-stroke-color': '#0B0F14', 'circle-stroke-width': 1, 'circle-opacity': 0.9 } });
   L({ id: 's311', type: 'circle', source: 's311', minzoom: 11, paint: { 'circle-radius': 3.5, 'circle-color': '#A3E635', 'circle-opacity': 0.7, 'circle-stroke-color': '#0B0F14', 'circle-stroke-width': 1 } });
   L({ id: 'hotspots', type: 'circle', source: 'hotspots', paint: { 'circle-radius': ['interpolate', ['linear'], ['get', 'frp'], 0, 4, 50, 9], 'circle-color': '#FF3D00', 'circle-opacity': 0.75, 'circle-blur': 0.4, 'circle-stroke-color': '#FFD08A', 'circle-stroke-width': 1 } });
@@ -465,7 +443,6 @@ export function MapView() {
       }
       if (s.drawing !== prev.drawing || s.pickPoint !== prev.pickPoint) map.getCanvas().style.cursor = s.drawing || s.pickPoint ? 'crosshair' : '';
       if (ready && s.settings.map !== prev.settings.map) setTerrainOptions(map, terrainOpts());
-      if (ready && s.settings.appearance.alert !== prev.settings.appearance.alert) applySeverityColors(map, s.settings.appearance.alert);
       if (ready && s.layers.radar && !prev.layers.radar) (map.getSource('radar') as maplibregl.RasterTileSource | undefined)?.setTiles([radarTiles()]);
       prev = s;
       if (ready) render(map, s);

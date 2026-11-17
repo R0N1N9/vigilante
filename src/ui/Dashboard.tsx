@@ -7,7 +7,6 @@ import { getState } from '../data/store';
 import { setShared } from '../data/bus';
 import { setState, useStore } from '../data/store';
 import { isEmbed } from '../lib/embed';
-import { severityColors } from '../lib/theme';
 import { isWeb } from '../lib/http';
 import { getPack } from '../lib/packs';
 import { nearestCameras } from '../lib/traffic';
@@ -41,14 +40,7 @@ function LocatorTile() {
   );
 }
 
-/** Stability level colors; Elevated and High follow the theme's alert color. */
-function useLevelColors(): Record<string, string> {
-  const alert = useStore((x) => x.settings.appearance.alert);
-  return useMemo(() => {
-    const c = severityColors(alert);
-    return { Stable: '#2BD47D', Guarded: '#9BE15D', Elevated: c[2], High: c[3], Severe: c[4] };
-  }, [alert]);
-}
+const LEVEL_COLOR: Record<string, string> = { Stable: '#2BD47D', Guarded: '#9BE15D', Elevated: '#FFB020', High: '#FF7A45', Severe: '#FF4D4F' };
 
 function Tile({ code, title, right, led = 'ok', className = '', children }: { code: string; title: string; right?: React.ReactNode; led?: 'ok' | 'warn' | 'crit' | 'idle'; className?: string; children: React.ReactNode }) {
   return (
@@ -132,7 +124,6 @@ function Spark({ points, color }: { points: { t: number; score: number }[]; colo
 }
 
 function StabilityTile() {
-  const levels = useLevelColors();
   const s = useStore((x) => x.stability);
   const hist = useStore((x) => x.stabilityHistory);
   const pack = useStore((x) => getPack(x.packId));
@@ -142,7 +133,7 @@ function StabilityTile() {
         <div className="empty">Computing from live sources…</div>
       </Tile>
     );
-  const color = levels[s.level];
+  const color = LEVEL_COLOR[s.level];
   return (
     <Tile code="01" title="STABILITY INDEX" led={s.score < 40 ? 'crit' : s.score < 70 ? 'warn' : 'ok'} right={`${pack.name.toUpperCase()} · NSI`} className="a-nsi">
       <div className="nsi">
@@ -300,7 +291,7 @@ function HoodsTile() {
                 <td className="hn">{h.name}</td>
                 <td>
                   <i className="bar">
-                    <b style={{ width: `${h.score}%`, background: h.score < 40 ? 'var(--hot)' : h.score < 70 ? 'var(--warn)' : '#2BD47D' }} />
+                    <b style={{ width: `${h.score}%`, background: h.score < 40 ? '#FF7A45' : h.score < 70 ? '#FFB020' : '#2BD47D' }} />
                   </i>
                 </td>
                 <td className="r">{h.score}</td>
@@ -484,7 +475,6 @@ function StatusTile() {
 }
 
 function SitrepBar() {
-  const levels = useLevelColors();
   const pack = useStore((x) => getPack(x.packId));
   const s = useStore((x) => x.stability);
   const crimes = useStore((x) => x.crimes);
@@ -495,7 +485,7 @@ function SitrepBar() {
   const live = Object.values(feeds).filter((f) => f.status === 'live').length;
   const total = Object.values(feeds).length;
   const violent48 = useMemo(() => crimes.filter((c) => c.severity >= 2 && Date.now() - c.at < 2 * 86_400_000).length, [crimes]);
-  const color = s ? levels[s.level] : 'var(--dim)';
+  const color = s ? LEVEL_COLOR[s.level] : 'var(--dim)';
   const lastViolent = useMemo(() => crimes.filter((c) => c.severity >= 2).sort((a, b) => b.at - a.at)[0], [crimes]);
   const firstSit = useStore((x) => x.clusters[0]?.center ?? x.incidents.find((i) => i.location)?.location ?? null);
   const heli = useStore((x) => x.aircraft.find((a) => a.kind === 'heli')?.hex);

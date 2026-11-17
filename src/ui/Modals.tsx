@@ -65,20 +65,19 @@ function AppearanceSection({ value: a, onChange }: { value: Appearance; onChange
       <p className="muted small-text">Changes apply right away, in every window.</p>
       <div className="theme-grid">
         {(Object.keys(THEMES) as (keyof typeof THEMES)[]).map((id) => (
-          <button key={id} className={`theme-swatch ${a.theme === id ? 'on' : ''}`} onClick={() => onChange(withTheme(a, id))} style={{ ['--sw' as string]: THEMES[id].accent, ['--sw2' as string]: THEMES[id].alert, ['--swbg' as string]: THEMES[id].panel }}>
+          <button key={id} className={`theme-swatch ${a.theme === id ? 'on' : ''}`} onClick={() => onChange(withTheme(a, id))} style={{ ['--sw' as string]: THEMES[id].accent, ['--swbg' as string]: THEMES[id].panel }}>
             <i />
             <b>{THEMES[id].label}</b>
             <small>{THEMES[id].note}</small>
           </button>
         ))}
-        <button className={`theme-swatch ${a.theme === 'custom' ? 'on' : ''}`} onClick={() => onChange(withTheme(a, 'custom'))} style={{ ['--sw' as string]: a.accent, ['--sw2' as string]: a.alert, ['--swbg' as string]: a.panel }}>
+        <button className={`theme-swatch ${a.theme === 'custom' ? 'on' : ''}`} onClick={() => onChange(withTheme(a, 'custom'))} style={{ ['--sw' as string]: a.accent, ['--swbg' as string]: a.panel }}>
           <i />
           <b>Custom</b>
           <small>Your RGB colors</small>
         </button>
       </div>
       <RgbField label="Accent" value={a.accent} onChange={(accent) => custom({ accent })} />
-      <RgbField label="Alerts" value={a.alert} onChange={(alert) => custom({ alert })} />
       <RgbField label="Panels" value={a.panel} onChange={(panel) => custom({ panel })} />
       <RgbField label="Background" value={a.bg} onChange={(bg) => custom({ bg })} />
       <label className="field range">
