@@ -18,6 +18,7 @@ import { NewsTab } from './NewsTab';
 import type { View } from './popout';
 import { InfraTab } from './InfraTab';
 import { TeamTab } from './TeamTab';
+import { TeamView } from './Agents';
 import { DESKTOP_APP, GITHUB_URL, MOBILE_APP } from '../lib/links';
 
 /** Embed mode: one slim strip pointing at the full app. */
@@ -169,7 +170,7 @@ export function App({ view, embed = false }: { view: View; embed?: boolean }) {
       {view === 'console' && !embed && (
         <>
           <main className="console">
-            {mainView === 'dashboard' ? <Dashboard /> : <MapStage />}
+            {mainView === 'dashboard' ? <Dashboard /> : mainView === 'team' ? <TeamView map={<MapStage />} /> : <MapStage />}
             <Rail />
           </main>
           <EventLog strip />

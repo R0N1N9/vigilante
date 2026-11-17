@@ -73,7 +73,7 @@ Reports go on a sibling topic (`<t>-pos`) so people following the chat in the nt
 | `t` | number | | Fix time, epoch **ms** |
 | `s` | `"on"`/`"off"`/`"dark"` | | See states below |
 | `app`, `ver` | string | | `"vigil"` and its version (the web page sends `"field"`) |
-| `perm` | string[] | | Categories being shared **right now**: `loc`, `bat`, `motion`, `hr`, `env` |
+| `perm` | string[] | | Categories being shared **right now**: `loc`, `bat`, `motion`, `hr`, `env`, `profile` |
 | `lat`, `lon` | number | `loc` | WGS-84 degrees (full precision: this is the opt-in exception to Vigil's 2-decimal rule) |
 | `acc` | number | `loc` | Horizontal accuracy, m |
 | `alt` | number | `loc` | Altitude, m |
@@ -82,8 +82,11 @@ Reports go on a sibling topic (`<t>-pos`) so people following the chat in the nt
 | `act` | string | `motion` | `still`, `walking`, `running`, `cycling`, `driving`, `unknown` |
 | `hr` | number | `hr` | Heart rate, bpm, from a paired wearable |
 | `env` | object | `env` | `lux` (light), `hpa` (pressure), `db` (noise level, never audio) |
+| `prof` | object | `profile` | `role` (≤40), `unit` (≤40), `phone` (`+`, digits, spaces, `().-`), `email`. Shown on the console's agent profile with call, text and email buttons. Invalid values are dropped |
 
 **The console enforces `perm`.** Fields outside the listed categories are thrown away on receipt, and a missing `perm` means `["loc"]`. A report without `loc` is still valid: the person shows as present, with no location.
+
+**Console status.** The console shows an agent as **online** if it heard from them in the last 3 minutes, **stale** up to 15 minutes, then **offline**, and **dark** after a `dark` report. While sharing, send at least one report a minute so the agent stays online.
 
 **States:**
 - `on`: sharing. Send when moved more than 20 m (at most every 8 s), otherwise every 30 to 60 s as a heartbeat.
@@ -137,7 +140,7 @@ To check an implementation, `openPosition` with the test key must return the pla
 
 These are suggestions for the Vigil side:
 
-- A **separate switch per category** (location, battery, motion, heart rate, environment), all **off by default**, each asking for its Android permission only when switched on. Background location needs `ACCESS_BACKGROUND_LOCATION` and a visible foreground-service notification (type `location`) while sharing.
+- A **separate switch per category** (location, battery, motion, heart rate, environment, contact profile), all **off by default**, each asking for its Android permission only when switched on. Background location needs `ACCESS_BACKGROUND_LOCATION` and a visible foreground-service notification (type `location`) while sharing.
 - A one-tap **Stealth / Go dark** control: in the app, in the notification and ideally as a Quick Settings tile. It sends `dark` once, stops all reports and pauses check-in replies until the user turns sharing back on.
 - An **auto-stop timer** (for example the end of a shift) and a clear "sharing with <channel>" indicator.
 - Check-in requests always asking the user unless they chose "answer automatically while sharing".

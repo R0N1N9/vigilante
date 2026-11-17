@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CHECKIN_TAG, FIELD_CODES, vigilLink, ntfyPublishBody, ntfyStreamUrl, ntfyToMessage, parseInvite, spotUrl, type ChatMessage, type NtfyChannel, type NtfyEvent } from '../lib/comms';
-import { openPosition, posTopic, sealPosition, type PositionReport } from '../lib/poscrypt';
+import { cleanProfile, openPosition, posTopic, sealPosition, type PositionReport, type Profile } from '../lib/poscrypt';
 import { distanceM, type LonLat } from '../lib/geo';
 import { BrandMark } from './BrandMark';
 
@@ -15,6 +15,9 @@ interface Saved {
   channel: NtfyChannel | null;
   callsign: string;
   deviceId: string;
+  /** Optional role/contact, sent only when shareProfile is on. */
+  profile?: Profile;
+  shareProfile?: boolean;
 }
 
 function load(): Saved {
@@ -158,12 +161,14 @@ export function FieldApp() {
       /* not supported */
     }
     const loc = pos && state === 'on';
+    const prof = saved.shareProfile && saved.profile ? cleanProfile(saved.profile) : undefined;
     const r: PositionReport = {
       v: 1,
       id: saved.deviceId,
       n: saved.callsign || 'Phone',
       app: 'field',
-      perm: [...(loc ? (['loc'] as const) : []), ...(bat != null ? (['bat'] as const) : [])],
+      perm: [...(loc ? (['loc'] as const) : []), ...(bat != null ? (['bat'] as const) : []), ...(prof && state === 'on' ? (['profile'] as const) : [])],
+      ...(prof && state === 'on' ? { prof } : {}),
       ...(loc
         ? {
             lat: pos.coords.latitude,
@@ -341,6 +346,23 @@ export function FieldApp() {
           <span>Your callsign</span>
           <input value={saved.callsign} onChange={(e) => update({ callsign: e.target.value.slice(0, 32) })} placeholder="e.g. Unit 7" disabled={sharing} />
         </label>
+        <details className="field-profile">
+          <summary>Role and contact (optional)</summary>
+          {(['role', 'unit', 'phone', 'email'] as const).map((k) => (
+            <label key={k}>
+              <span>{{ role: 'Role (e.g. Team lead, Medic)', unit: 'Unit / post', phone: 'Phone', email: 'Email' }[k]}</span>
+              <input
+                type={k === 'phone' ? 'tel' : k === 'email' ? 'email' : 'text'}
+                value={saved.profile?.[k] ?? ''}
+                onChange={(e) => update({ profile: { ...(saved.profile ?? {}), [k]: e.target.value.slice(0, k === 'email' ? 80 : 40) } })}
+              />
+            </label>
+          ))}
+          <label className="check-row">
+            <input type="checkbox" checked={!!saved.shareProfile} onChange={(e) => update({ shareProfile: e.target.checked })} />
+            <span>Share my role and contact details with the team while I'm sharing</span>
+          </label>
+        </details>
       </div>
 
       <div className={`field-card share ${sharing ? 'on' : ''}`}>

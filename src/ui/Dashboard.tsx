@@ -4,6 +4,7 @@ import { CHECKIN_REQUEST, CHECKIN_TAG, type TeamMember } from '../lib/comms';
 import { SHARE_LABEL, type ShareCategory } from '../lib/poscrypt';
 import { postToChannel } from '../data/engine/comms';
 import { PosterStrip } from './Posters';
+import { openAgent } from './Agents';
 import { getState } from '../data/store';
 import { setShared } from '../data/bus';
 import { setState, useStore } from '../data/store';
@@ -400,7 +401,7 @@ function TeamTile() {
               const ch = channels.find((c) => c.id === m.channelId);
               const extras = [m.activity && m.activity !== 'unknown' ? ACT_LABEL[m.activity] ?? m.activity : '', m.heartRate ? `♥ ${m.heartRate}` : '', m.env?.db != null ? `${Math.round(m.env.db)} dB` : ''].filter(Boolean).join(' · ');
               return (
-                <tr key={m.id} className={`${m.location ? 'act' : ''} ${stale ? 'stale' : ''} ${m.dark ? 'dark' : ''}`} onClick={() => m.location && locate(m.location, 16, m.name)} title={m.dark ? 'Went dark (stealth): no location is kept' : m.location ? 'Show on map' : 'Sharing presence without location'}>
+                <tr key={m.id} className={`act ${stale ? 'stale' : ''} ${m.dark ? 'dark' : ''}`} onClick={() => openAgent(m.id)} title="Profile and telemetry">
                   <td className={`src ${m.source} ${m.app ?? ''}`}>{m.dark ? '◌' : SRC_ICON[m.source]}</td>
                   <td className="nm">
                     {m.name}

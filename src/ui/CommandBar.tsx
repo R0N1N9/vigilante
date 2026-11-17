@@ -7,6 +7,7 @@ import { LocationPicker } from './LocationPicker';
 import { fmtAgo, fmtTime, tzAbbr } from './format';
 import { POPOUT_VIEWS, popOut, type View } from './popout';
 import { BrandMark } from './BrandMark';
+import { AgentsChip, OnlineIndicator } from './Agents';
 
 const FEED_LABEL: Record<FeedName, string> = {
   adsb: 'Aircraft (ADS-B)',
@@ -107,7 +108,8 @@ function PopoutMenu() {
   );
 }
 
-function MainViewSwitch() {
+/** Embeds are the public view: no Team view (team positions and profiles stay in the full app). */
+function MainViewSwitch({ embed = false }: { embed?: boolean }) {
   const mainView = useStore((s) => s.mainView);
   return (
     <div className="seg" aria-label="Main view">
@@ -117,6 +119,11 @@ function MainViewSwitch() {
       <button className={mainView === 'dashboard' ? 'on' : ''} onClick={() => setState({ mainView: 'dashboard' })}>
         Dashboard
       </button>
+      {!embed && (
+        <button className={mainView === 'team' ? 'on' : ''} onClick={() => setState({ mainView: 'team' })}>
+          Team
+        </button>
+      )}
     </div>
   );
 }
@@ -153,9 +160,11 @@ export function CommandBar({ view, embed = false }: { view: View; embed?: boolea
         {count} ALERT{count === 1 ? '' : 'S'}
       </button>
       <FeedStatus />
-      {view === 'console' && <MainViewSwitch />}
+      {!embed && <AgentsChip />}
+      {view === 'console' && <MainViewSwitch embed={embed} />}
       <div className="spacer" />
       <div className="actions">
+        <OnlineIndicator />
         {!embed && (
           <button className="btn" onClick={() => setState({ modal: 'brief' })} title="Situation brief">
             ☀ <span className="hide-sm">Brief</span>

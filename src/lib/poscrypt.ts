@@ -7,9 +7,17 @@
  */
 
 /** What a device can choose to share. Each category is a separate opt-in on the phone. */
-export type ShareCategory = 'loc' | 'bat' | 'motion' | 'hr' | 'env';
+export type ShareCategory = 'loc' | 'bat' | 'motion' | 'hr' | 'env' | 'profile';
 
-export const SHARE_LABEL: Record<ShareCategory, string> = { loc: 'location', bat: 'battery', motion: 'motion', hr: 'heart rate', env: 'environment' };
+export const SHARE_LABEL: Record<ShareCategory, string> = { loc: 'location', bat: 'battery', motion: 'motion', hr: 'heart rate', env: 'environment', profile: 'contact' };
+
+/** Role and contact details a person chose to share with their team (category 'profile'). */
+export interface Profile {
+  role?: string;
+  unit?: string;
+  phone?: string;
+  email?: string;
+}
 
 export type Activity = 'still' | 'walking' | 'running' | 'cycling' | 'driving' | 'unknown';
 
@@ -42,6 +50,8 @@ export interface PositionReport {
   hr?: number;
   /** Environment sensors (with 'env'): light lux, pressure hPa, noise dB. */
   env?: { lux?: number; hpa?: number; db?: number };
+  /** Role and contact details (with 'profile'). */
+  prof?: Profile;
   /** Accuracy in meters. */
   acc?: number;
   /** Speed m/s and heading degrees, when the phone knows them. */
@@ -108,6 +118,8 @@ export async function openPosition(key: string, text: string): Promise<PositionR
     if (!perm.includes('motion')) delete out.act;
     if (!perm.includes('hr')) delete out.hr;
     if (!perm.includes('env')) delete out.env;
+    if (!perm.includes('profile') || typeof r.prof !== 'object' || !r.prof) delete out.prof;
+    else out.prof = cleanProfile(r.prof);
     if (r.s === 'dark') return { v: 1, id: out.id, n: out.n, t: r.t, s: 'dark', app: r.app };
     return out;
   } catch {
@@ -116,4 +128,18 @@ export async function openPosition(key: string, text: string): Promise<PositionR
 }
 
 /** Positions ride on a sibling topic so ntfy app users in the chat don't get them as notifications. */
+/** Keep profile fields short and well-formed; drop anything that isn't a plausible phone or email. */
+export function cleanProfile(p: Profile): Profile | undefined {
+  const t = (v: unknown, n: number) => (typeof v === 'string' ? v.replace(/[\u0000-\u001f]/g, '').trim().slice(0, n) : '');
+  const phone = t(p.phone, 24);
+  const email = t(p.email, 80);
+  const out: Profile = {
+    ...(t(p.role, 40) ? { role: t(p.role, 40) } : {}),
+    ...(t(p.unit, 40) ? { unit: t(p.unit, 40) } : {}),
+    ...(/^\+?[0-9 ().-]{6,24}$/.test(phone) ? { phone } : {}),
+    ...(/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(email) ? { email } : {}),
+  };
+  return Object.keys(out).length ? out : undefined;
+}
+
 export const posTopic = (topic: string) => `${topic}-pos`;

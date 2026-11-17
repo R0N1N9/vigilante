@@ -64,7 +64,7 @@ export function hoverHtml(layer: string, p: Record<string, unknown>, s: State, e
   switch (layer) {
     case 'team': {
       const m = s.team.find((x) => x.id === id);
-      return m ? tip(`TEAMMATE · ${m.source === 'mesh' ? 'MESHTASTIC RADIO' : m.source === 'phone' ? (m.app === 'vigil' ? 'VIGIL APP' : 'PHONE CHECK-IN') : 'SHARED SPOT'}`, esc(m.name), [`Position ${ago(m.at)}`, m.accuracyM != null ? `±${m.accuracyM} m` : '', m.speedMs != null && m.speedMs > 0.5 ? `${Math.round(m.speedMs * 2.237)} mph` : '', m.activity && m.activity !== 'unknown' ? esc(m.activity) : '', m.heartRate ? `♥ ${m.heartRate} bpm` : '', m.battery != null ? `battery ${m.charging ? '⚡' : ''}${m.battery}%` : ''].filter(Boolean).join(' · '), 'Click to open team chat') : null;
+      return m ? tip(`TEAMMATE · ${m.source === 'mesh' ? 'MESHTASTIC RADIO' : m.source === 'phone' ? (m.app === 'vigil' ? 'VIGIL APP' : 'PHONE CHECK-IN') : 'SHARED SPOT'}`, esc(m.name), [`Position ${ago(m.at)}`, m.accuracyM != null ? `±${m.accuracyM} m` : '', m.speedMs != null && m.speedMs > 0.5 ? `${Math.round(m.speedMs * 2.237)} mph` : '', m.activity && m.activity !== 'unknown' ? esc(m.activity) : '', m.heartRate ? `♥ ${m.heartRate} bpm` : '', m.battery != null ? `battery ${m.charging ? '⚡' : ''}${m.battery}%` : ''].filter(Boolean).join(' · '), 'Click for profile and telemetry') : null;
     }
     case 'aircraft':
     case 'orbit-ring': {
