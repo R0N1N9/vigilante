@@ -7,6 +7,7 @@ A neighborhood situational-awareness console for your laptop. It watches the are
 ## What it does
 
 **On the map** (every layer can be switched off in the Layers panel)
+- **Tactical topographic basemap:** dark vector map with terrain relief, contour lines in feet, an optional **3D terrain** view, and a satellite option. Uses free AWS terrain tiles. A coordinate and zoom readout follows the cursor.
 - **Aircraft** within 25 nm (adsb.lol), with trails. Helicopters (amber), military (blue), low aircraft (white) and **emergency squawks** (red) are highlighted, aircraft **circling** a spot are flagged, and an altitude filter hides airliners at cruise.
 - **Drones** via FAA **Remote ID**: drone position and height, plus the pilot's position, using this laptop's Bluetooth. See [Drones](#drones).
 - **FAA no-fly zones (TFRs)** from tfr.faa.gov, as red dashed outlines. Toggle them off in Layers.
@@ -15,22 +16,24 @@ A neighborhood situational-awareness console for your laptop. It watches the are
 - **Transit disruptions:** RTD's official service alerts (Denver), pinned at the affected stops; police activity, medical emergencies and accidents are flagged. For MARTA (Atlanta), bus routes where several buses are 15+ minutes late, pinned where those buses are.
 - **Power outages** by county from the U.S. Department of Energy's ODIN program, shaded by customers out, plus one-click links to each utility's official outage map
 - **Traffic cameras**: click one for a snapshot that refreshes every few seconds
-- **News stories** that name a local neighborhood, pinned where they happened
+- **News pins** for every local story: exact when a neighborhood is named, approximate (city or county) otherwise. Pins cluster when zoomed out. Hover for the headline; click to open the story.
+- **Wildfires** (NIFC): active wildland fires and prescribed burns within 75 nm, sized by acres
+- **Scanner radio coverage:** dashed circles show each feed's approximate area; click one to start listening
 - Your **watch areas**
 
 **In the side rail**
 - **Alerts:** **developing incident** cards. When signals from different sources line up in the same blocks within the same hour (for example a helicopter circling + a road closed for police activity + a news story), they merge into one card with a timeline. Below them: live alerts.
 - **News:** local safety stories from local TV and newspaper feeds plus Google News, de-duplicated and filtered to stories that name your area. A small **TV player** shows a station's latest clips, or its **live stream** when it's on air, and pops out into an always-on-top **mini window**.
-- **City:** Roads, Transit and Power sub-tabs
+- **Radio:** scanner feeds for the city. Click ▶ to play inside the app.
+- **City:** Roads, Transit, Power and Fire (wildfires plus structure fires and rescues from local news, grouped by place)
 - **Cams:** a **camera wall** of the four cameras nearest whatever you selected
-- **Air:** the aircraft list
-- **Drones:** Remote ID detections, plus a simulator
+- **Sky:** aircraft list and drones (Bluetooth and Wi-Fi Remote ID, plus a simulator)
 - **Areas:** draw and manage watch areas
 
 **Around it**
 - **Phone alerts** through the free **ntfy** app, with a severity threshold, an "only inside my watch areas" option and quiet hours
 - **Morning brief** at a time you choose, covering the previous 8 to 24 hours: developing incidents, air activity, weather, roads, news and drones. It also goes to your phone.
-- **Pop-out windows** for every panel (Map, Alerts & log, Camera wall, News & TV, Roads, Aircraft, Drones), to drag onto other monitors. All windows stay in sync.
+- **Pop-out windows** for every panel (Map, Alerts & log, Camera wall, News & TV, Radio, City, Aircraft & drones), to drag onto other monitors. All windows stay in sync.
 - **Dispatch-style event log** and alert tones
 
 ## Run it
@@ -77,6 +80,7 @@ Then open http://localhost:5173. Pop-outs open as browser popups.
 ## Using it
 
 ### First-time setup (Settings ⚙)
+1. **Webcams (free):** get a Windy Webcams API key at [api.windy.com](https://api.windy.com/webcams) for public skyline, street and weather cams in the camera wall and on the map.
 1. **Traffic keys (free).** For Atlanta, create an account at [511ga.org](https://511ga.org), then request a developer key under *Developers*. For Denver, sign up at [manage-api.cotrip.org](https://manage-api.cotrip.org). Paste the keys into Settings.
 2. **Phone alerts.** Install **ntfy** ([iOS](https://apps.apple.com/app/ntfy/id1625396347) / [Android](https://play.google.com/store/apps/details?id=io.heckel.ntfy)), tick *Send alerts to my phone*, subscribe to the topic shown in Settings from the ntfy app, then press *Send a test notification*. The topic works like a password, so keep it random.
 3. **Morning brief.** Choose a time and how many hours it covers. Leave the app running overnight so it has something to report.
@@ -85,7 +89,20 @@ Then open http://localhost:5173. Pop-outs open as browser popups.
 Open the **Areas** tab, click **Draw a new area**, click the corners on the map, then click **Finish**. Anything inside a watch area is treated as one step more urgent, and phone alerts can be limited to watch areas.
 
 ### Drones
-Remote ID is a **short-range radio broadcast**, not an online feed: you only see drones within a few hundred meters of the laptop. Turn on *Scan with this laptop's Bluetooth* in the Drones tab (desktop app only; macOS asks for Bluetooth permission). Many DJI drones broadcast over **Wi-Fi only**, which laptops can't receive; a small ESP32 receiver (planned) covers those. **Simulate a drone** shows how a detection looks. If a drone concerns you, report it to police non-emergency or the FAA, and don't approach the pilot.
+Remote ID is a **short-range radio broadcast**, not an online feed: you only see drones within a few hundred meters of the laptop.
+
+- **Bluetooth Remote ID:** Sky → Drones → *Scan with this laptop's Bluetooth* (macOS asks for permission).
+- **Wi-Fi Remote ID (DJI Mavic 3, Mini, Air…), Linux only:** DJI drones send Remote ID as Wi-Fi beacon frames, which Bluetooth can't see. Use a Wi-Fi adapter that supports monitor mode:
+  ```bash
+  sudo airmon-ng start wlan0
+  sudo iw dev wlan0mon set channel 6
+  sudo setcap cap_net_raw+ep src-tauri/target/debug/vigilante   # re-run after every rebuild
+  ```
+  Then in Sky → Drones → *Wi-Fi Remote ID*, enter `wlan0mon` and press **Start Wi-Fi receiver**. The drone needs current firmware with Remote ID on, and usually a GPS lock, before it broadcasts. Monitor mode takes that adapter off your Wi-Fi network; use a second USB adapter if you need to stay online.
+- **Simulate a drone** shows how a detection looks. If a drone concerns you, report it to police non-emergency or the FAA, and don't approach the pilot.
+
+### Radio
+Radio → ▶ plays a feed in a small in-app player window (Broadcastify's own player), which you can move to another monitor. You can run several at once. Rows marked BROWSE open Broadcastify's list for that area so you can pick any feed. Denver PD's radio is encrypted, so it can't be heard anywhere.
 
 ### Everything else
 - **Switch city** with Denver / Atlanta in the top bar.
@@ -129,6 +146,10 @@ cd src-tauri && cargo test
 - Roads and cameras: [Georgia 511](https://511ga.org), [COtrip / CDOT](https://www.cotrip.org)
 - Transit: [RTD GTFS and GTFS-Realtime](https://www.rtd-denver.com/open-records/open-spatial-information/real-time-feeds), [MARTA GTFS and GTFS-Realtime](https://itsmarta.com/app-developer-resources.aspx)
 - Power outages: [DOE ODIN (Oak Ridge National Laboratory)](https://ornl.opendatasoft.com/explore/dataset/odin-real-time-outages-county/)
+- Wildfires: [NIFC WFIGS current incident locations](https://data-nifc.opendata.arcgis.com/)
+- Terrain: [AWS Terrain Tiles (Terrarium)](https://registry.opendata.aws/terrain-tiles/), contours via [maplibre-contour](https://github.com/onthegomap/maplibre-contour)
+- Webcams: [Windy.com](https://www.windy.com/webcams) (attribution shown on each cam)
+- Scanner radio: [Broadcastify](https://www.broadcastify.com) (played through their own web player)
 - News: station RSS feeds (Denver7, 9NEWS, FOX31, Denverite, CPR News, 11Alive, FOX 5 Atlanta, WSB-TV, Atlanta News First) and Google News search RSS. Headlines link to the original story.
 - Phone alerts: [ntfy](https://ntfy.sh)
 
@@ -137,6 +158,9 @@ cd src-tauri && cargo test
 - **Denver traffic is untested.** COtrip's incident format isn't public without a key, so the parser is deliberately tolerant. Denver cameras are blocked on finding COtrip's camera endpoint, which needs a key to look up. Atlanta (Georgia 511) follows 511's published format, and its camera snapshots were tested live.
 - **Live TV** relies on YouTube embeds. Stations only stream live during newscasts and breaking news; otherwise use *Latest*. If a desktop webview refuses to play the embed, use the **Mini ↗** window.
 - **Power outage coverage is partial.** ODIN only includes utilities that report to it. Around Denver that's United Power and CORE Electric, but not Xcel Energy, which serves most of the city. In Atlanta, Georgia Power and the EMCs don't report to it. Their own outage maps are one click away in the Power tab. Their internal map data feeds are undocumented, so the app doesn't use them.
+- **Radio plays through Broadcastify's own player**, not a raw stream URL, to stay within their terms. The feed list is curated per city, and coverage circles are approximate.
+- **Live fire-department dispatch** (structure fires and medical calls) isn't published as open data in Denver or Atlanta. Wildfires come from NIFC; structure fires and rescues come from local news and the radio.
+- **Windy webcams are untested** without a key; the parser follows Windy's v3 documentation.
 - **MARTA has no alerts feed**, so Atlanta transit disruptions are inferred from late buses. Rail isn't covered: MARTA's rail data needs a separate key.
 - **The brief and developing incidents only know what the app saw while it was running.** History is kept for 72 hours.
 - **News places** come from a built-in neighborhood list. Stories that only say "Denver" aren't pinned, to avoid false precision.
