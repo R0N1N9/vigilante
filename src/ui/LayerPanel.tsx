@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { isEmbed } from '../lib/embed';
 import { setShared } from '../data/bus';
 import { setState, useStore, type Layers } from '../data/store';
 
@@ -39,7 +40,7 @@ export function LayerPanel() {
   const layers = useStore((s) => s.layers);
   const ceiling = useStore((s) => s.ceilingAglFt);
   const hideGround = useStore((s) => s.hideGround);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(() => !isEmbed() && window.innerWidth > 700); // start folded in embeds and narrow windows
   const basemap = useStore((s) => s.basemap);
   const settings = useStore((s) => s.settings);
   const mapOpt = (k: keyof typeof settings.map) => setShared({ settings: { ...settings, map: { ...settings.map, [k]: !settings.map[k] } } });

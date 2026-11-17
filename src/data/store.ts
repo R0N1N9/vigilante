@@ -158,7 +158,7 @@ export interface LocalUi {
   tab: RailTab;
   cameraId: string | null;
   drawing: LonLat[] | null;
-  modal: 'settings' | 'brief' | null;
+  modal: 'settings' | 'brief' | 'about' | null;
   tvChannel: string | null;
   mainView: 'map' | 'dashboard';
 }

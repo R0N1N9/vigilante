@@ -624,3 +624,36 @@ pre.cmd { background: #070a0e; border: 1px solid var(--line); border-radius: 2px
 .icon-btn { display: inline-grid; place-items: center; }
 .icon-btn svg { width: 16px; height: 16px; display: block; }
 .icon-btn.muted { color: var(--warn); border-color: rgba(255,176,32,.4); }
+
+/* ---------- Get the app (About) ---------- */
+.get-app { display: grid; grid-template-columns: 148px 1fr; gap: 14px; align-items: start; padding: 12px 0; border-top: 1px solid var(--line); }
+.get-app b { display: block; margin-bottom: 4px; }
+.get-app p { margin: 0 0 8px; }
+.get-app .url { margin-top: 6px; word-break: break-all; }
+.qr { display: block; width: 148px; height: 148px; border-radius: 6px; background: #fff; image-rendering: pixelated; }
+.qr-empty { background: var(--panel-2); }
+@media (max-width: 520px) { .get-app { grid-template-columns: 1fr; } }
+a.btn { display: inline-block; text-decoration: none; }
+.linkish { color: var(--accent); padding: 0; font-size: inherit; }
+.linkish:hover { text-decoration: underline; }
+
+/* ---------- Embed mode (web: embed.html / ?embed=1) ---------- */
+.is-embed .cmdbar { height: 38px; gap: 10px; padding: 0 8px; -webkit-app-region: no-drag; }
+.is-embed .clock { font-size: 13px; }
+.is-embed .clock .zulu { display: none; }
+.is-embed .console { min-width: 0; }
+.embed-foot { display: flex; align-items: center; gap: 12px; height: 24px; padding: 0 10px; flex: none; font-size: 10px; letter-spacing: .06em; border-top: 1px solid var(--line); background: var(--panel); color: var(--muted); white-space: nowrap; overflow: hidden; }
+.embed-foot a { color: var(--accent); text-decoration: none; }
+.embed-foot a:hover { text-decoration: underline; }
+.embed-foot .spacer { flex: 1; }
+@media (max-width: 640px) { .hide-xs { display: none; } }
+
+/* Narrow windows and pop-out tabs: keep the command bar inside the window */
+@media (max-width: 760px) {
+  .feed-chip .dots { display: none; }
+  .cmdbar { gap: 8px; }
+}
+@media (max-width: 620px) {
+  .cmdbar .clock { display: none; }
+  .brand svg + .brand-text { display: none; }
+}

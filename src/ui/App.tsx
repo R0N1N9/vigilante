@@ -17,6 +17,26 @@ import { Modals } from './Modals';
 import { NewsTab } from './NewsTab';
 import type { View } from './popout';
 import { InfraTab } from './InfraTab';
+import { DESKTOP_APP, GITHUB_URL, MOBILE_APP } from '../lib/links';
+
+/** Embed mode: one slim strip pointing at the full app. */
+function EmbedFooter() {
+  return (
+    <footer className="embed-foot mono">
+      <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" title={DESKTOP_APP.label}>
+        VIGILANTE
+      </a>
+      <span className="muted hide-xs">open-source situational awareness</span>
+      <span className="spacer" />
+      <a href={MOBILE_APP.url} target="_blank" rel="noopener noreferrer" className="hide-xs">
+        {MOBILE_APP.label}
+      </a>
+      <button className="linkish" onClick={() => setState({ modal: 'about' })}>
+        Get the app
+      </button>
+    </footer>
+  );
+}
 
 function MapStage() {
   return (
@@ -127,14 +147,20 @@ function Solo({ title, children }: { title: string; children: React.ReactNode })
   );
 }
 
-export function App({ view }: { view: View }) {
+export function App({ view, embed = false }: { view: View; embed?: boolean }) {
   const mainView = useStore((s) => s.mainView);
   const appearance = useStore((s) => s.settings.appearance);
   useEffect(() => applyAppearance(appearance), [appearance]);
   return (
-    <div className={`app view-${view}`}>
-      <CommandBar view={view} />
-      {view === 'console' && (
+    <div className={`app view-${view}${embed ? ' is-embed' : ''}`}>
+      <CommandBar view={view} embed={embed} />
+      {view === 'console' && embed && (
+        <>
+          <main className="console">{mainView === 'dashboard' ? <Dashboard /> : <MapStage />}</main>
+          <EmbedFooter />
+        </>
+      )}
+      {view === 'console' && !embed && (
         <>
           <main className="console">
             {mainView === 'dashboard' ? <Dashboard /> : <MapStage />}

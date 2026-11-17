@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { setShared } from '../data/bus';
 import { getState, setState, useStore } from '../data/store';
+import { isWeb } from '../lib/http';
 import { getPack } from '../lib/packs';
 import { randomTopic, type Settings } from '../lib/settings';
 import { DEFAULT_APPEARANCE, hexToRgb, rgbToHex, THEMES, withTheme, type Appearance } from '../lib/theme';
 import type { Severity } from '../lib/signals';
 import { fmtTime } from './format';
+import { AboutModal } from './AboutModal';
 
-function Modal({ title, children, wide = false }: { title: string; children: React.ReactNode; wide?: boolean }) {
+export function Modal({ title, children, wide = false }: { title: string; children: React.ReactNode; wide?: boolean }) {
   useEffect(() => {
     const esc = (e: KeyboardEvent) => e.key === 'Escape' && setState({ modal: null });
     window.addEventListener('keydown', esc);
@@ -125,7 +127,15 @@ function SettingsModal() {
           <span>Claude API key (optional AI briefings on the Dashboard)</span>
           <input type="password" value={s.keys.claude} onChange={(e) => set('keys', { claude: e.target.value.trim() })} placeholder="from console.anthropic.com → API keys (pay per use)" />
         </label>
-        <p className="muted small-text">Keys are stored in a settings file on this computer. AI briefings send a summary of the dashboard data (no personal data) to Anthropic only when you press the button.</p>
+        {isWeb() ? (
+          <p className="muted small-text">
+            <b>Your keys stay in this browser</b> (local storage on this device). The Claude and AISstream keys go straight from your browser to Anthropic and AISstream. The 511 and COtrip
+            keys travel inside the request URL through this site's data proxy, which doesn't store them. AI briefings send a summary of the dashboard data (no personal data) only
+            when you press the button. Use the desktop app if you'd rather keep keys off the web entirely.
+          </p>
+        ) : (
+          <p className="muted small-text">Keys are stored in a settings file on this computer. AI briefings send a summary of the dashboard data (no personal data) to Anthropic only when you press the button.</p>
+        )}
       </section>
 
       <section>
@@ -262,5 +272,6 @@ export function Modals() {
   const modal = useStore((s) => s.modal);
   if (modal === 'settings') return <SettingsModal />;
   if (modal === 'brief') return <BriefModal />;
+  if (modal === 'about') return <AboutModal />;
   return null;
 }

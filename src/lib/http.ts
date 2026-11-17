@@ -2,14 +2,27 @@ import { invoke } from '@tauri-apps/api/core';
 
 export const isTauri = (): boolean => typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
+/** Running as the hosted web app (or browser dev mode): no Rust core. */
+export const isWeb = (): boolean => !isTauri();
+
+/**
+ * Where browser builds send data requests. The web build points this at the
+ * Cloudflare Worker in web/proxy (VITE_PROXY_URL); dev servers serve /proxy.
+ */
+export function proxyUrl(url: string, base: string = import.meta.env.VITE_PROXY_URL || '/proxy'): string {
+  return `${base.replace(/\/+$/, '')}?url=${encodeURIComponent(url)}`;
+}
+
 /**
  * Fetch text from an allow-listed data host (config/hosts.json).
  * Desktop: through the Rust core (no CORS limits, proper User-Agent).
- * Browser dev mode: through the Vite dev server's /proxy route.
+ * Browser: through the CORS proxy (Vite dev server's /proxy, or the web proxy Worker).
+ * Like the Rust core, no request headers are forwarded (its header allowlist is empty).
  */
 export async function getText(url: string, headers?: Record<string, string>): Promise<string> {
   if (isTauri()) return invoke<string>('http_get', { url, headers: headers ?? null });
-  const res = await fetch(`/proxy?url=${encodeURIComponent(url)}`, { headers });
+  if (headers && Object.keys(headers).length) throw new Error('request headers are not allowed');
+  const res = await fetch(proxyUrl(url), { credentials: 'omit' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.text();
 }
@@ -17,7 +30,7 @@ export async function getText(url: string, headers?: Record<string, string>): Pr
 /** Fetch binary data (protobuf feeds, zip files) from an allow-listed host. */
 export async function getBytes(url: string): Promise<Uint8Array> {
   if (isTauri()) return new Uint8Array(await invoke<ArrayBuffer>('http_get_bytes', { url }));
-  const res = await fetch(`/proxy?url=${encodeURIComponent(url)}`);
+  const res = await fetch(proxyUrl(url), { credentials: 'omit' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return new Uint8Array(await res.arrayBuffer());
 }
@@ -74,16 +87,30 @@ export interface NtfyMessage {
   click?: string;
 }
 
+/** ntfy's JSON publish body (https://docs.ntfy.sh/publish/#publish-as-json). */
+export function ntfyJson(m: NtfyMessage) {
+  return {
+    topic: m.topic,
+    title: m.title,
+    message: m.message,
+    priority: m.priority,
+    tags: m.tags.split(',').map((t) => t.trim()).filter(Boolean),
+    ...(m.click ? { click: m.click } : {}),
+  };
+}
+
 /** Send a phone notification via ntfy. */
 export async function ntfySend(m: NtfyMessage): Promise<void> {
   if (isTauri()) {
     await invoke('ntfy_send', { ...m, click: m.click ?? null });
     return;
   }
-  const res = await fetch(`${m.server.replace(/\/$/, '')}/${encodeURIComponent(m.topic)}`, {
+  // Browser: ntfy allows CORS. JSON publishing keeps non-Latin-1 titles working (HTTP headers can't carry them).
+  const res = await fetch(`${m.server.replace(/\/+$/, '')}/`, {
     method: 'POST',
-    body: m.message,
-    headers: { Title: m.title, Priority: String(m.priority), Tags: m.tags, ...(m.click ? { Click: m.click } : {}) },
+    credentials: 'omit',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(ntfyJson(m)),
   });
   if (!res.ok) throw new Error(`ntfy answered HTTP ${res.status}`);
 }

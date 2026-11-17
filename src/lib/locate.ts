@@ -98,6 +98,13 @@ export async function buildPack(g: GeoResult): Promise<CityPack> {
   } catch {
     /* outside NWS coverage: keep device time zone */
   }
+  return assemblePack(g, { timezone, nwsOffice, elevationFt });
+}
+
+/** The offline part of buildPack: a pack from a place plus whatever NWS metadata is known. */
+export function assemblePack(g: GeoResult, meta: { timezone: string; nwsOffice: string; elevationFt: number }): CityPack {
+  const { timezone, nwsOffice, elevationFt } = meta;
+  const [lon, lat] = g.at;
   const base = nearestBuiltin(g.at);
   const city = g.name.split(',')[0];
   const ab = STATE_ABBR[g.state] ?? '';

@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { setShared } from '../data/bus';
 import { setState, useStore } from '../data/store';
+import { isEmbed } from '../lib/embed';
+import { isWeb } from '../lib/http';
 import { getPack } from '../lib/packs';
 import { nearestCameras } from '../lib/traffic';
 import { SOURCE_LABEL } from '../lib/signals';
@@ -162,7 +164,8 @@ function InsightsTile() {
       led={insights.some((i) => i.severity >= 2) ? 'warn' : 'ok'}
       className="a-ins"
       right={
-        <button className="btn small" disabled={ai?.loading} onClick={() => (hasKey ? setShared({ requests: { ...requests, ai: Date.now() } }) : setState({ modal: 'settings' }))} title={hasKey ? 'Ask Claude for a briefing from the current data' : 'Add a Claude API key in Settings to enable AI briefings'}>
+        // Web: AI only with the visitor's own key (Settings); embeds have no Settings, so no button.
+        (hasKey || !isWeb()) && !isEmbed() && <button className="btn small" disabled={ai?.loading} onClick={() => (hasKey ? setShared({ requests: { ...requests, ai: Date.now() } }) : setState({ modal: 'settings' }))} title={hasKey ? 'Ask Claude for a briefing from the current data' : 'Add a Claude API key in Settings to enable AI briefings'}>
           {ai?.loading ? 'Thinking…' : hasKey ? '✦ AI briefing' : '✦ Enable AI'}
         </button>
       }

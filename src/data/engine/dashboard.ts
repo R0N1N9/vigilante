@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
+import { aiBriefBrowser } from '../../lib/ai';
 import { isTauri } from '../../lib/http';
 import { distanceM, NM_TO_M } from '../../lib/geo';
 import { CRIME_MAP_URL, ruleInsights } from '../../lib/insights';
@@ -117,16 +118,16 @@ function snapshot(): string {
 
 export async function requestAiBrief() {
   const key = getState().settings.keys.claude;
-  if (!isTauri()) return setState({ ai: { text: '', at: Date.now(), error: 'AI insights need the desktop app.' } });
   if (!key) return setState({ ai: { text: '', at: Date.now(), error: 'Add a Claude API key in Settings → Optional keys.' } });
   setState({ ai: { ...(getState().ai ?? { text: '', at: 0 }), loading: true, error: undefined } });
   publishData();
   try {
-    const text = await invoke<string>('ai_brief', { key, snapshot: snapshot() });
+    // Web: straight from the browser with the visitor's own key (stored only in this browser).
+    const text = isTauri() ? await invoke<string>('ai_brief', { key, snapshot: snapshot() }) : await aiBriefBrowser(key, snapshot());
     setState({ ai: { text, at: Date.now() } });
     log('AI     Briefing updated', 0);
   } catch (e) {
-    setState({ ai: { text: getState().ai?.text ?? '', at: getState().ai?.at ?? 0, error: String(e) } });
+    setState({ ai: { text: getState().ai?.text ?? '', at: getState().ai?.at ?? 0, error: e instanceof Error ? e.message : String(e) } });
   }
   publishData();
 }

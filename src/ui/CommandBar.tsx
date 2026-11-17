@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { setShared } from '../data/bus';
 import { setState, useStore, type Feed, type FeedName } from '../data/store';
+import { isTauri } from '../lib/http';
 import { getPack } from '../lib/packs';
 import { LocationPicker } from './LocationPicker';
 import { fmtAgo, fmtTime, tzAbbr } from './format';
@@ -87,7 +88,7 @@ function PopoutMenu() {
       </button>
       {open && (
         <div className="menu-list right">
-          <div className="menu-hint">POP OUT · drag the window to another monitor</div>
+          <div className="menu-hint">{isTauri() ? 'POP OUT · drag the window to another monitor' : 'POP OUT · opens a synced browser tab'}</div>
           {POPOUT_VIEWS.map((v) => (
             <button
               key={v.view}
@@ -119,7 +120,7 @@ function MainViewSwitch() {
   );
 }
 
-export function CommandBar({ view }: { view: View }) {
+export function CommandBar({ view, embed = false }: { view: View; embed?: boolean }) {
   const packId = useStore((s) => s.packId);
   const muted = useStore((s) => s.muted);
   const incidents = useStore((s) => s.incidents);
@@ -147,16 +148,18 @@ export function CommandBar({ view }: { view: View }) {
         <small>{tzAbbr(now, pack.timezone)}</small>
         <span className="zulu">{fmtTime(now, 'UTC')}Z</span>
       </div>
-      <button className={`alerts-chip mono sev-${top}`} title="Active alerts and developing incidents" onClick={() => setState({ tab: 'alerts' })}>
+      <button className={`alerts-chip mono sev-${top}`} title="Active alerts and developing incidents" onClick={() => setState(embed ? { mainView: 'dashboard' } : { tab: 'alerts' })}>
         {count} ALERT{count === 1 ? '' : 'S'}
       </button>
       <FeedStatus />
       {view === 'console' && <MainViewSwitch />}
       <div className="spacer" />
       <div className="actions">
-        <button className="btn" onClick={() => setState({ modal: 'brief' })} title="Situation brief">
-          ☀ <span className="hide-sm">Brief</span>
-        </button>
+        {!embed && (
+          <button className="btn" onClick={() => setState({ modal: 'brief' })} title="Situation brief">
+            ☀ <span className="hide-sm">Brief</span>
+          </button>
+        )}
         <button className={`icon-btn ${muted ? 'muted' : ''}`} onClick={() => setShared({ muted: !muted })} title={muted ? 'Alert tones off. Click to turn on' : 'Alert tones on. Click to mute'} aria-pressed={muted} aria-label="Alert tones">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z" />
@@ -170,14 +173,20 @@ export function CommandBar({ view }: { view: View }) {
             )}
           </svg>
         </button>
-        <button className="icon-btn" onClick={() => setState({ modal: 'settings' })} title="Settings" aria-label="Settings">
+        <button className="icon-btn" onClick={() => setState({ modal: 'about' })} title="About Vigilante · get the desktop and mobile app" aria-label="Get the app">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <rect x="7" y="3" width="10" height="18" rx="2" />
+            <path d="M11 17.5h2" />
+          </svg>
+        </button>
+        {!embed && <button className="icon-btn" onClick={() => setState({ modal: 'settings' })} title="Settings" aria-label="Settings">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
             <path d="M4 7h10M18 7h2M4 17h4M12 17h8" />
             <circle cx="16" cy="7" r="2" />
             <circle cx="10" cy="17" r="2" />
           </svg>
-        </button>
-        {view === 'console' && <PopoutMenu />}
+        </button>}
+        {view === 'console' && !embed && <PopoutMenu />}
       </div>
     </header>
   );

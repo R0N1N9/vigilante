@@ -1,4 +1,5 @@
 import { withDefaults, type Settings } from '../../lib/settings';
+import { withTheme, type ThemeId } from '../../lib/theme';
 import type { WatchArea } from '../../lib/areas';
 import { storeRead, storeWrite } from '../../lib/http';
 import { getPack, registerPacks, type CityPack } from '../../lib/packs';
@@ -44,10 +45,12 @@ function startForPack(id: string) {
 }
 
 /** Leader window only: load saved state, start all sources, and react to changes. */
-export async function startEngine() {
-  const [settings, areas, locations] = await Promise.all([storeRead<Partial<Settings>>('settings'), storeRead<WatchArea[]>('areas'), storeRead<CityPack[]>('locations'), loadHistory()]);
+export async function startEngine(opts: { theme?: Exclude<ThemeId, 'custom'> | null } = {}) {
+  const [saved, areas, locations] = await Promise.all([storeRead<Partial<Settings>>('settings'), storeRead<WatchArea[]>('areas'), storeRead<CityPack[]>('locations'), loadHistory()]);
   registerPacks(locations ?? []);
-  setShared({ settings: withDefaults(settings), areas: areas ?? [], locations: locations ?? [] });
+  let settings = withDefaults(saved);
+  if (opts.theme) settings = { ...settings, appearance: withTheme(settings.appearance, opts.theme) }; // ?theme= (embeds)
+  setShared({ settings, areas: areas ?? [], locations: locations ?? [] });
 
   startForPack(getState().packId);
   startDrones();
