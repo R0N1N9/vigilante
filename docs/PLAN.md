@@ -1,6 +1,6 @@
 # Vigilante: Neighborhood Situational Awareness Console
 
-**Status:** Planning / research (nothing built yet)
+**Status:** Phase 0 spike built (live aircraft + NWS alerts, Denver/Atlanta, pop-out windows). See the README.
 **Target:** Desktop app for Windows, macOS and Linux laptops. Works on one screen and scales out to several monitors.
 **Inspiration:** [World Monitor](https://github.com/koala73/worldmonitor) (global OSINT dashboard), police CAD/dispatch consoles, and the tar1090 and MarineTraffic map UIs.
 
@@ -26,7 +26,7 @@ The design idea is a dispatch console that stays calm when nothing is happening 
 |---|---|---|
 | Desktop shell | **Tauri 2** (Rust core + system webview) | Builds are about 10 MB, versus about 150 MB for Electron. It has native multi-window and monitor APIs (`availableMonitors`, `emit_to`) and permissions per window. World Monitor also ships a Tauri desktop build. |
 | UI | **React + TypeScript + Vite**, Tailwind, Radix UI primitives | Fast to build and easy to theme. |
-| Map | **MapLibre GL JS** with **deck.gl** overlays | Free and open. deck.gl can draw thousands of moving aircraft and vessels at 60 fps. |
+| Map | **MapLibre GL JS**, with **deck.gl** overlays added when needed | Free and open. Phase 0 uses MapLibre's built-in layers, which handle a few hundred aircraft easily. deck.gl comes in for heavy layers (vessels, heatmaps, replay). |
 | Basemap | **Protomaps / OpenFreeMap** vector tiles, plus optional satellite (Esri World Imagery, Mapbox) | Google Maps can be added as an optional layer through its Map Tiles API. It costs money and has strict terms, so it should not be the default. |
 | Ingestion | Rust async workers (tokio + reqwest + tungstenite) | Workers poll APIs and hold WebSockets open, then normalize everything into a single `Event` schema. |
 | Storage | **SQLite** with FTS5 (full-text news search) and R*Tree (spatial queries) | Runs on the laptop with no server, and supports replay and history. |

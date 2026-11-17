@@ -1,0 +1,15 @@
+{
+  "id": "atlanta",
+  "name": "Atlanta",
+  "region": "GA",
+  "timezone": "America/New_York",
+  "center": [-84.388, 33.749],
+  "zoom": 9.7,
+  "radiusNm": 25,
+  "fieldElevationFt": 1050,
+  "nwsOffice": "FFC",
+  "radioFeeds": [
+    { "name": "Fulton County feeds (Atlanta Fire Rescue, Atlanta Metro)", "url": "https://www.broadcastify.com/listen/ctid/442", "agency": "Fulton County" }
+  ],
+  "notes": "ATL is the world's busiest airport: use the altitude filter."
+}

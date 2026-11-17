@@ -1,0 +1,35 @@
+{
+  "name": "vigilante",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Neighborhood situational awareness console (desktop, multi-monitor).",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@tauri-apps/api": "^2.12.5",
+    "maplibre-gl": "^5.24.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.12.5",
+    "@types/geojson": "^7946.0.16",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "typescript": "^5.9.3",
+    "undici": "^8.12.4",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0"
+  }
+}

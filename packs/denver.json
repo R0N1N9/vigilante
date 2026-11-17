@@ -1,0 +1,15 @@
+{
+  "id": "denver",
+  "name": "Denver",
+  "region": "CO",
+  "timezone": "America/Denver",
+  "center": [-104.9903, 39.7392],
+  "zoom": 9.7,
+  "radiusNm": 25,
+  "fieldElevationFt": 5280,
+  "nwsOffice": "BOU",
+  "radioFeeds": [
+    { "name": "Denver Fire Alerting and EMS", "url": "https://www.broadcastify.com/listen/feed/7435", "agency": "Denver Fire / Denver Health EMS" }
+  ],
+  "notes": "Denver PD radio encrypted since July 2019."
+}
