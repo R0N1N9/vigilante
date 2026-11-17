@@ -1,4 +1,5 @@
-import maplibregl, { type GeoJSONSource, type Map as MlMap } from 'maplibre-gl';
+import { maplibregl } from './maplibre';
+import type { GeoJSONSource, Map as MlMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useEffect, useRef } from 'react';
 import { setShared } from '../data/bus';

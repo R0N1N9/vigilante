@@ -56,6 +56,16 @@ const DURATIONS = [
   { h: 12, label: '12 hours' },
 ];
 
+function FieldMark() {
+  return (
+    <svg className="field-mark" viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden>
+      <path d="M2.5 12 Q12 3.6 21.5 12 Q12 20.4 2.5 12 Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      <circle cx="12" cy="12" r="4.6" stroke="currentColor" strokeWidth="1.4" />
+      <circle cx="12" cy="12" r="2.1" fill="currentColor" />
+    </svg>
+  );
+}
+
 export function FieldApp() {
   const [saved, setSaved] = useState<Saved>(() => {
     const s = load();
@@ -294,6 +304,7 @@ export function FieldApp() {
     return (
       <div className="field">
         <header className="field-head">
+          <FieldMark />
           <b>VIGILANCE</b>
           <span>FIELD</span>
         </header>
@@ -320,6 +331,7 @@ export function FieldApp() {
   return (
     <div className="field">
       <header className="field-head">
+        <FieldMark />
         <b>VIGILANCE</b>
         <span>FIELD</span>
         <em className={connected ? 'ok' : ''}>● {ch.name}</em>

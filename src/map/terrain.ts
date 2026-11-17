@@ -1,5 +1,6 @@
 import mlcontour from 'maplibre-contour';
-import maplibregl, { type Map as MlMap } from 'maplibre-gl';
+import { maplibregl } from './maplibre';
+import type { Map as MlMap } from 'maplibre-gl';
 import { LABEL_FONT } from './styles';
 
 /**

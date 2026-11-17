@@ -139,8 +139,11 @@ export function CommandBar({ view, embed = false }: { view: View; embed?: boolea
   return (
     <header className="cmdbar">
       <div className="brand">
-        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
-          <path d="M5 6 L12 19 L19 6" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden>
+          <path d="M2.5 12 Q12 3.6 21.5 12 Q12 20.4 2.5 12 Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+          <circle cx="12" cy="12" r="4.6" stroke="currentColor" strokeWidth="1.4" />
+          <circle cx="12" cy="12" r="2.1" fill="currentColor" />
+          <path d="M12 1 V3.4 M12 20.6 V23" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
         </svg>
         <span className="brand-text">VIGILANCE</span>
       </div>

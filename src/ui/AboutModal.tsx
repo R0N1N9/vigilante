@@ -3,6 +3,7 @@ import { embedUrl } from '../lib/embed';
 import { isWeb } from '../lib/http';
 import { DESKTOP_APP, GITHUB_URL, MOBILE_APP } from '../lib/links';
 import { Modal, Qr } from './Modals';
+import appIcon from '../../assets/brand/vigilance-icon.svg?url';
 
 function AppLink({ url, label, note }: { url: string; label: string; note: string }) {
   return (
@@ -40,6 +41,10 @@ export function AboutModal() {
   return (
     <Modal title="Get the app">
       <section>
+        <div className="about-brand">
+          <img src={appIcon} alt="" width={56} height={56} />
+          <b>VIGILANCE</b>
+        </div>
         <p className="small-text">
           <b>Vigilance</b> is an open-source situational-awareness console for asset protection, executive protection, patrol and neighborhood watch. It uses public, keyless data
           sources and never tracks or identifies individuals.
