@@ -2,6 +2,7 @@ import { setShared } from '../data/bus';
 import { getState, setState, useStore } from '../data/store';
 import { AREA_COLORS, centroid } from '../lib/areas';
 import { MonitorsPanel } from './MonitorsPanel';
+import { Icon } from './Icon';
 
 export function AreasTab() {
   const areas = useStore((s) => s.areas);
@@ -17,7 +18,7 @@ export function AreasTab() {
         <b>Watch areas</b>
         <p>Draw your street, your kid's school, your commute. Anything inside a watch area is treated as one step more urgent, and phone alerts can be limited to them.</p>
         <button className="btn" disabled={!!drawing} onClick={() => setState({ drawing: [], tab: 'areas' })}>
-          ✎ Draw a new area
+          <Icon name="pencil" /> Draw a new area
         </button>
       </div>
       {mine.map((a) => (

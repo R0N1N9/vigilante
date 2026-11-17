@@ -3,6 +3,7 @@ import { CHECKIN_TAG, FIELD_CODES, vigilLink, ntfyPublishBody, ntfyStreamUrl, nt
 import { cleanProfile, openPosition, posTopic, sealPosition, type PositionReport, type Profile } from '../lib/poscrypt';
 import { distanceM, type LonLat } from '../lib/geo';
 import { BrandMark } from './BrandMark';
+import { Icon, RichText } from './Icon';
 
 /**
  * Phone check-in page (?view=field#join=…). Runs in any phone browser with no
@@ -399,7 +400,7 @@ export function FieldApp() {
               Stop sharing
             </button>
             <button className="field-btn dark" onClick={goDark} title="Hide yourself from the team map immediately; the console keeps no last position">
-              ◌ Go dark
+              <Icon name="eyeoff" size={16} />Go dark
             </button>
           </>
         )}
@@ -408,7 +409,9 @@ export function FieldApp() {
 
       {ping > 0 && !sharing && (
         <div className="field-card ping">
-          <h2>📍 Check-in requested</h2>
+          <h2>
+            <Icon name="pin" size={18} className="crit" /> Check-in requested
+          </h2>
           <p>The console asked the team for a location update. Sending is up to you.</p>
           <div className="row">
             <button className="field-btn go" onClick={() => void answerOnce()}>
@@ -423,16 +426,16 @@ export function FieldApp() {
 
       <div className="field-quick">
         <button className="q sos" onClick={() => void quick('sos')}>
-          🚨 SOS
+          <Icon name="siren" size={18} />SOS
         </button>
         <button className="q backup" onClick={() => void quick('backup')}>
-          ⚠ Backup
+          <Icon name="warning" size={18} />Backup
         </button>
         <button className="q" onClick={() => void quick('onscene')}>
-          ✓ On scene
+          <Icon name="check" size={18} />On scene
         </button>
         <button className="q" onClick={() => void quick('clear')}>
-          ✓ All clear
+          <Icon name="check" size={18} />All clear
         </button>
       </div>
 
@@ -467,10 +470,12 @@ export function FieldApp() {
             <div className="meta">
               <b>{m.mine ? 'You' : m.from}</b> {new Date(m.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
             </div>
-            <div>{m.text}</div>
+            <div>
+              <RichText text={m.text} />
+            </div>
             {m.spot && (
               <a href={spotUrl(m.spot)} target="_blank" rel="noreferrer">
-                📍 Open location
+                <Icon name="pin" size={13} />Open location
               </a>
             )}
           </div>

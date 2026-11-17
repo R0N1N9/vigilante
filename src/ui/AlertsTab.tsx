@@ -7,8 +7,9 @@ import { fmtAgo, fmtTime } from './format';
 import { openExternal } from './popout';
 import { HitsInbox } from './MonitorsPanel';
 import { ShareButton } from './TeamTab';
+import { Icon, type IconName } from './Icon';
 
-const KIND_ICON: Record<Incident['kind'], string> = { orbit: '⟳', squawk: '⚠', weather: '☁', tfr: '⛔', drone: '✣', fire: '🔥', quake: '≋', flood: '≈', storm: '⚡', air: '◌', airport: '✈', hotspot: '🛰' };
+const KIND_ICON: Record<Incident['kind'], IconName> = { orbit: 'orbit', squawk: 'warning', weather: 'cloud', tfr: 'noentry', drone: 'drone', fire: 'flame', quake: 'quake', flood: 'flood', storm: 'bolt', air: 'wind', airport: 'plane', hotspot: 'satellite' };
 
 export function ClusterCards() {
   const clusters = useStore((s) => s.clusters);
@@ -72,7 +73,7 @@ export function AlertsTab() {
         const wx = i.alertId ? alerts.find((a) => a.id === i.alertId) : undefined;
         return (
           <article key={i.id} className={`incident sev-${i.severity}`} onClick={() => open(i)}>
-            <div className="inc-icon">{KIND_ICON[i.kind]}</div>
+            <div className="inc-icon"><Icon name={KIND_ICON[i.kind]} size={16} /></div>
             <div className="inc-body">
               <div className="inc-title">
                 {i.title}

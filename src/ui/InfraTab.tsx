@@ -7,6 +7,7 @@ import { openExternal } from './popout';
 import { TrafficTab } from './TrafficTab';
 import { CrimeList, Requests311 } from './IntelPanels';
 import { PosterBoard } from './Posters';
+import { Icon } from './Icon';
 
 function TransitList() {
   const transit = useStore((s) => s.transit);
@@ -82,8 +83,8 @@ function PowerList() {
       </div>
       {outages.map((o) => (
         <article key={o.id} className={`incident sev-${o.severity}`}>
-          <div className="inc-icon" style={{ color: '#FFB020' }}>
-            ⚡
+          <div className="inc-icon" style={{ color: 'var(--warn)' }}>
+            <Icon name="bolt" size={16} />
           </div>
           <div className="inc-body">
             <div className="inc-title">
@@ -123,7 +124,7 @@ function FireList() {
       </div>
       {fires.map((f) => (
         <article key={f.id} className={`incident sev-${f.severity}`} onClick={() => setShared({ focus: { at: Date.now(), center: f.location, zoom: 11 } })}>
-          <div className="inc-icon">{f.kind === 'prescribed' ? '♨' : '🔥'}</div>
+          <div className="inc-icon"><Icon name="flame" size={16} className={f.kind === 'prescribed' ? 'ok' : 'crit'} /></div>
           <div className="inc-body">
             <div className="inc-title">
               {f.name}
@@ -144,7 +145,7 @@ function FireList() {
       </div>
       {fireNews.map(({ lead: n, more }) => (
         <article key={n.id} className={`incident sev-${n.severity}`} onClick={() => void openExternal(n.url, n.source)}>
-          <div className="inc-icon">{n.category === 'rescue' ? '⛑' : '🔥'}</div>
+          <div className="inc-icon"><Icon name={n.category === 'rescue' ? 'rescue' : 'flame'} size={16} /></div>
           <div className="inc-body">
             <div className="inc-title">
               {n.title}

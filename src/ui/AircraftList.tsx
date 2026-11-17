@@ -3,6 +3,7 @@ import { setShared } from '../data/bus';
 import { useStore } from '../data/store';
 import { passesCeiling, type Aircraft } from '../lib/adsb';
 import { CLASS_COLORS } from '../map/icons';
+import { Icon } from './Icon';
 
 type Filter = 'all' | 'heli' | 'low' | 'mil';
 const FILTERS: { id: Filter; label: string }[] = [
@@ -66,7 +67,7 @@ export function AircraftList() {
                 </td>
                 <td>
                   {a.callsign}
-                  {orbiting[a.hex] && <span className="orbit-badge">⟳</span>}
+                  {orbiting[a.hex] && <span className="orbit-badge"><Icon name="orbit" size={12} /></span>}
                 </td>
                 <td className="muted">{a.type || '—'}</td>
                 <td className="r">{a.onGround ? 'GND' : a.altFt == null ? '—' : Math.round(a.altFt / 100).toString().padStart(3, '0')}</td>

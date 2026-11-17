@@ -2,6 +2,7 @@ import { setShared } from '../data/bus';
 import { useStore } from '../data/store';
 import { getPack } from '../lib/packs';
 import { openRadio } from './popout';
+import { Icon } from './Icon';
 
 export function RadioTab() {
   const pack = useStore((s) => getPack(s.packId));
@@ -28,7 +29,7 @@ export function RadioTab() {
           </div>
           {f.coverage && (
             <button className="btn small" onClick={() => setShared({ focus: { at: Date.now(), center: [f.coverage![0], f.coverage![1]], zoom: 10.5 } })} title="Show coverage on map">
-              ⌖
+              <Icon name="locate" />
             </button>
           )}
         </article>

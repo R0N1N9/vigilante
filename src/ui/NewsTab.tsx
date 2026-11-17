@@ -4,6 +4,7 @@ import { setState, useStore } from '../data/store';
 import { getPack } from '../lib/packs';
 import { fmtAgo } from './format';
 import { openExternal, openTvWindow, tvUrl, type TvMode } from './popout';
+import { Icon } from './Icon';
 
 export function LiveTv() {
   const pack = useStore((s) => getPack(s.packId));
@@ -80,7 +81,7 @@ export function NewsTab({ withTv = true }: { withTv?: boolean }) {
               {n.source} · {fmtAgo(n.published)}
               {n.place && (
                 <button className="place" onClick={() => setShared({ focus: { at: Date.now(), center: n.location!, zoom: 13 } })} title="Show on map">
-                  ⌖ {n.place}
+                  <Icon name="pin" size={12} /> {n.place}
                 </button>
               )}
             </div>
