@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import type { Aircraft } from '../lib/adsb';
 import type { WatchArea } from '../lib/areas';
+import type { Monitor, MonitorHit } from '../lib/monitors';
 import type { Brief } from '../lib/brief';
 import type { Cluster } from '../lib/correlate';
 import type { LonLat } from '../lib/geo';
@@ -147,7 +148,10 @@ export interface SharedUi {
   /** Saved locations the user searched for (custom city packs). */
   locations: CityPack[];
   /** One-shot requests any window can make of the leader (value = request time). */
-  requests: { brief?: number; pushTest?: number; droneSim?: number; ai?: number };
+  requests: { brief?: number; pushTest?: number; droneSim?: number; ai?: number; notifyTest?: number };
+  /** User-defined alert rules and what they caught (acknowledged from any window). */
+  monitors: Monitor[];
+  hits: MonitorHit[];
 }
 
 export type RailTab = 'alerts' | 'sky' | 'news' | 'radio' | 'traffic' | 'hazards' | 'cameras' | 'areas';
@@ -158,6 +162,8 @@ export interface LocalUi {
   tab: RailTab;
   cameraId: string | null;
   drawing: LonLat[] | null;
+  /** Monitor id waiting for a map click to set its center. */
+  pickPoint: string | null;
   modal: 'settings' | 'brief' | 'about' | null;
   tvChannel: string | null;
   mainView: 'map' | 'dashboard';
@@ -235,10 +241,13 @@ let state: State = {
   areas: [],
   locations: [],
   requests: {},
+  monitors: [],
+  hits: [],
   basemap: prefs.basemap ?? 'dark',
   tab: prefs.tab ?? 'alerts',
   cameraId: null,
   drawing: null,
+  pickPoint: null,
   modal: null,
   tvChannel: null,
   mainView: prefs.mainView ?? 'map',

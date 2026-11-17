@@ -53,6 +53,17 @@ Built for people who keep watch over a place: physical security and asset protec
 - **Sky:** aircraft list and drones (Bluetooth and Wi-Fi Remote ID, plus a simulator)
 - **Areas:** draw and manage watch areas
 
+**Alerts and monitoring**
+- **Monitors** (Watch tab): your own alert rules.
+  - **Keywords:** any new report (news, crime, traffic, weather, transit…) whose text contains your words or phrases, e.g. "shots fired", a street name or a client's company name.
+  - **Radius around a point:** anything reported within a set distance of a site, a residence or a route stop. Pick the point on the map; the ring is drawn on the map.
+  - **Aircraft watchlist:** callsign or tail-number prefixes, ICAO hex codes, `type:AS50`, or classes like `type:heli`, `type:military`, `type:emergency`.
+  - **Threshold:** a live number crossing a line: stability index, AQI, customers without power, violent reports in 48 h, helicopters up, aircraft circling, active weather alerts, or data feeds failing (system health).
+  - Each monitor sets its alert level, a cooldown so it doesn't repeat, **re-send until acknowledged** (escalation), whether it can break quiet hours, and where it goes: desktop, sound, phone (ntfy) and/or team webhook. Templates cover the common ones.
+- **Alert inbox:** monitor hits sit at the top of the Alerts tab and in the dashboard's Active Situations until someone **acknowledges** them, from any window. Click one to see it on the map. Acknowledged hits are kept as history.
+- **Desktop notifications** (Windows, macOS, Linux) for serious reports, with their own threshold.
+- **Team webhooks:** Slack, Discord, Microsoft Teams, or plain JSON to any https endpoint, with their own threshold.
+
 **Around it**
 - **Phone alerts** through the free **ntfy** app, with a severity threshold, an "only inside my watch areas" option and quiet hours
 - **Morning brief** at a time you choose, covering the previous 8 to 24 hours: developing incidents, air activity, weather, roads, news and drones. It also goes to your phone.
@@ -117,6 +128,9 @@ npm run preview:web   # serve dist-web/ with the production security headers
 | Data sources | Rust core | The CORS proxy Worker in [`web/proxy/`](web/proxy/) (same host allowlist, GET only) |
 | Settings, watch areas, saved places | Settings files | This browser's local storage |
 | Phone alerts (ntfy) | Rust core | Straight from the browser (ntfy allows CORS) |
+| Monitors and alert inbox | Settings files | This browser's local storage |
+| Desktop notifications | OS notifications (Tauri plugin) | Browser notifications, after the visitor allows them |
+| Team webhooks (Slack, Teams, Discord, JSON) | Rust core | Desktop only. Slack and Teams refuse posts from web pages, and the proxy stays GET-only rather than relaying to arbitrary URLs. |
 | AI briefing, AIS ships | Optional key, kept in the core | Only with the visitor's own key, which stays in their browser; hidden otherwise |
 | Drone Remote ID (Bluetooth/Wi-Fi) | Yes | No: browsers can't listen for it. The Drones tab says so. |
 | Pop-outs | OS windows on any monitor | New browser tabs, kept in sync over BroadcastChannel |

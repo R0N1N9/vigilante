@@ -19,6 +19,9 @@ import { startFires } from './fires';
 import { startIntel } from './intel';
 import { startShips } from './ships';
 import { refreshDashboard, requestAiBrief, resetDashboard } from './dashboard';
+import { newMonitor, type Monitor, type MonitorHit } from '../../lib/monitors';
+import { resetMonitors, startMonitors } from './monitors';
+import { sendTestNotifications } from './notify';
 
 function startForPack(id: string) {
   clearTimers();
@@ -40,17 +43,19 @@ function startForPack(id: string) {
   startShips(gen);
   startNews(gen);
   resetDashboard();
+  resetMonitors();
   recomputeClusters(false);
   publishData();
 }
 
 /** Leader window only: load saved state, start all sources, and react to changes. */
 export async function startEngine(opts: { theme?: Exclude<ThemeId, 'custom'> | null } = {}) {
-  const [saved, areas, locations] = await Promise.all([storeRead<Partial<Settings>>('settings'), storeRead<WatchArea[]>('areas'), storeRead<CityPack[]>('locations'), loadHistory()]);
+  const [saved, areas, locations, monitors, hits] = await Promise.all([storeRead<Partial<Settings>>('settings'), storeRead<WatchArea[]>('areas'), storeRead<CityPack[]>('locations'), storeRead<Monitor[]>('monitors'), storeRead<MonitorHit[]>('hits'), loadHistory()]);
   registerPacks(locations ?? []);
   let settings = withDefaults(saved);
   if (opts.theme) settings = { ...settings, appearance: withTheme(settings.appearance, opts.theme) }; // ?theme= (embeds)
-  setShared({ settings, areas: areas ?? [], locations: locations ?? [] });
+  setShared({ settings, areas: areas ?? [], locations: locations ?? [], monitors: (monitors ?? []).map((m) => ({ ...newMonitor(m.kind), ...m })), hits: hits ?? [] });
+  startMonitors();
 
   startForPack(getState().packId);
   startDrones();
@@ -64,11 +69,14 @@ export async function startEngine(opts: { theme?: Exclude<ThemeId, 'custom'> | n
     const s = getState();
     const p = prev;
     prev = s; // update first: the actions below change state and re-enter this listener
+    const r = s.requests;
     if (s.settings !== p.settings) void storeWrite('settings', s.settings);
     if (s.areas !== p.areas) void storeWrite('areas', s.areas);
     if (s.locations !== p.locations) void storeWrite('locations', s.locations);
-    const r = s.requests;
-    if (r.brief && r.brief !== p.requests.brief) makeBrief();
+    if (s.monitors !== p.monitors) void storeWrite('monitors', s.monitors);
+    if (s.hits !== p.hits) void storeWrite('hits', s.hits);
+    if (r.notifyTest && r.notifyTest !== p.requests.notifyTest) void sendTestNotifications();
+      if (r.brief && r.brief !== p.requests.brief) makeBrief();
     if (r.pushTest && r.pushTest !== p.requests.pushTest) void sendTestPush();
     if (r.droneSim && r.droneSim !== p.requests.droneSim) simulateDrone();
     if (r.ai && r.ai !== p.requests.ai) void requestAiBrief();

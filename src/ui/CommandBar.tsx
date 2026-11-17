@@ -131,8 +131,10 @@ export function CommandBar({ view, embed = false }: { view: View; embed?: boolea
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
-  const top = Math.max(0, ...incidents.map((i) => i.severity), ...clusters.map((c) => c.severity));
-  const count = incidents.length + clusters.length;
+  const openHits = useStore((s) => s.hits.filter((h) => !h.acked).length);
+  const hitTop = useStore((s) => Math.max(0, ...s.hits.filter((h) => !h.acked).map((h) => h.severity)));
+  const top = Math.max(0, hitTop, ...incidents.map((i) => i.severity), ...clusters.map((c) => c.severity));
+  const count = incidents.length + clusters.length + openHits;
 
   return (
     <header className="cmdbar">
@@ -148,7 +150,7 @@ export function CommandBar({ view, embed = false }: { view: View; embed?: boolea
         <small>{tzAbbr(now, pack.timezone)}</small>
         <span className="zulu">{fmtTime(now, 'UTC')}Z</span>
       </div>
-      <button className={`alerts-chip mono sev-${top}`} title="Active alerts and developing incidents" onClick={() => setState(embed ? { mainView: 'dashboard' } : { tab: 'alerts' })}>
+      <button className={`alerts-chip mono sev-${top}${openHits && hitTop >= 3 ? ' pulse' : ''}`} title="Active alerts and developing incidents" onClick={() => setState(embed ? { mainView: 'dashboard' } : { tab: 'alerts' })}>
         {count} ALERT{count === 1 ? '' : 'S'}
       </button>
       <FeedStatus />

@@ -5,6 +5,7 @@ import { describeLocation } from '../lib/places';
 import { SOURCE_LABEL } from '../lib/signals';
 import { fmtAgo, fmtTime } from './format';
 import { openExternal } from './popout';
+import { HitsInbox } from './MonitorsPanel';
 
 const KIND_ICON: Record<Incident['kind'], string> = { orbit: '⟳', squawk: '⚠', weather: '☁', tfr: '⛔', drone: '✣', fire: '🔥', quake: '≋', flood: '≈', storm: '⚡', air: '◌', airport: '✈', hotspot: '🛰' };
 
@@ -60,6 +61,7 @@ export function AlertsTab() {
 
   return (
     <div className="list">
+      <HitsInbox />
       <ClusterCards />
       {incidents.length === 0 && clusters.length === 0 && (
         <div className="empty">All quiet. Developing incidents, circling aircraft, emergency squawks, drones, no-fly zones and NWS alerts appear here.</div>

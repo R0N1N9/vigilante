@@ -58,12 +58,12 @@ const TABS: { id: RailTab; label: string }[] = [
   { id: 'hazards', label: 'Hazards' },
   { id: 'cameras', label: 'Cams' },
   { id: 'sky', label: 'Sky' },
-  { id: 'areas', label: 'Areas' },
+  { id: 'areas', label: 'Watch' },
 ];
 
 function Badge({ tab }: { tab: RailTab }) {
   const n = useStore((s) =>
-    tab === 'alerts' ? s.incidents.length + s.clusters.length : tab === 'traffic' ? s.traffic.filter((t) => t.severity >= 2).length + s.transit.filter((t) => t.severity >= 2).length + s.outages.filter((o) => o.severity >= 1).length + s.fires.filter((f) => f.severity >= 1).length : tab === 'hazards' ? s.incidents.filter((i) => ['quake', 'flood', 'storm', 'air'].includes(i.kind)).length : tab === 'sky' ? s.drones.length : tab === 'news' ? s.news.filter((x) => x.severity >= 2 && x.local).length : 0,
+    tab === 'alerts' ? s.incidents.length + s.clusters.length + s.hits.filter((h) => !h.acked).length : tab === 'traffic' ? s.traffic.filter((t) => t.severity >= 2).length + s.transit.filter((t) => t.severity >= 2).length + s.outages.filter((o) => o.severity >= 1).length + s.fires.filter((f) => f.severity >= 1).length : tab === 'hazards' ? s.incidents.filter((i) => ['quake', 'flood', 'storm', 'air'].includes(i.kind)).length : tab === 'sky' ? s.drones.length : tab === 'news' ? s.news.filter((x) => x.severity >= 2 && x.local).length : 0,
   );
   return n ? <span className="badge">{n}</span> : null;
 }

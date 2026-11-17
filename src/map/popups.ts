@@ -48,7 +48,7 @@ export function describeFeature(layer: string, id: string, s: State, esc: (t: st
 export const HOVERABLE = [
   'aircraft', 'drones', 'clusters', 'news', 'news-clusters', 'fires', 'traffic', 'transit', 'cameras',
   'crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'orbit-ring',
-  'areas-label', 'radio-label', 'areas-line', 'radio-line', 'outages-fill', 'tfr-fill', 'weather-fill',
+  'monitors-label', 'monitors-line', 'areas-label', 'radio-label', 'areas-line', 'radio-line', 'outages-fill', 'tfr-fill', 'weather-fill',
 ];
 
 const tip = (kind: string, title: string, detail = '', hint = '') =>
@@ -146,6 +146,11 @@ export function hoverHtml(layer: string, p: Record<string, unknown>, s: State, e
     case 'areas-line':
     case 'areas-label':
       return tip('WATCH AREA', esc(String(p.name ?? 'Watch area')), 'Alerts inside are one step more urgent');
+    case 'monitors-line':
+    case 'monitors-label': {
+      const m = s.monitors.find((x) => x.id === id);
+      return m ? tip(`MONITOR · RADIUS ${(m.radiusM / 1609).toFixed(m.radiusM < 1609 ? 2 : 1)} MI${m.enabled ? '' : ' · OFF'}`, esc(m.name), 'Alerts on anything reported inside this ring', 'Edit in the Watch tab') : null;
+    }
     case 'radio-fill':
     case 'radio-line':
     case 'radio-label':

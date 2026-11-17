@@ -191,6 +191,58 @@ function SettingsModal() {
       </section>
 
       <section>
+        <h3>Desktop and team alerts</h3>
+        <p className="muted small-text">For every new report. Monitors (Watch tab) choose their own channels. Watch areas and quiet hours apply here too.</p>
+        <div className="field-row">
+          <label className="check">
+            <input type="checkbox" checked={s.notify.desktop} onChange={() => set('notify', { desktop: !s.notify.desktop })} /> Desktop notifications
+          </label>
+          <label className="field">
+            <span>for</span>
+            <select value={s.notify.desktopMinSeverity} onChange={(e) => set('notify', { desktopMinSeverity: Number(e.target.value) as Severity })}>
+              {[1, 2, 3, 4].map((n) => (
+                <option key={n} value={n}>
+                  {SEV_LABEL[n]}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        {isWeb() && <p className="muted small-text"><b>Team webhooks need the desktop app.</b> Slack and Teams don't accept posts from web pages, and this site doesn't relay them.</p>}
+        <fieldset className="plain" disabled={isWeb()}>
+        <label className="field">
+          <span>Team webhook URL (Slack, Discord, Microsoft Teams, or any https endpoint that takes JSON)</span>
+          <input type="password" value={s.notify.webhookUrl} onChange={(e) => set('notify', { webhookUrl: e.target.value.trim() })} placeholder="https://hooks.slack.com/services/…" />
+        </label>
+        <div className="field-row">
+          <label className="field">
+            <span>Format</span>
+            <select value={s.notify.webhookFormat} onChange={(e) => set('notify', { webhookFormat: e.target.value as Settings['notify']['webhookFormat'] })}>
+              <option value="slack">Slack</option>
+              <option value="discord">Discord</option>
+              <option value="teams">Microsoft Teams</option>
+              <option value="json">Plain JSON</option>
+            </select>
+          </label>
+          <label className="field">
+            <span>Send</span>
+            <select value={s.notify.webhookMinSeverity} onChange={(e) => set('notify', { webhookMinSeverity: Number(e.target.value) as Severity })}>
+              {[1, 2, 3, 4].map((n) => (
+                <option key={n} value={n}>
+                  {SEV_LABEL[n]}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        </fieldset>
+        <p className="muted small-text">The webhook URL works like a password: anyone with it can post to your channel. It's stored in the settings file on this computer.</p>
+        <button className="btn small" disabled={dirty} onClick={() => setShared({ requests: { ...requests, notifyTest: Date.now() } })} title={dirty ? 'Save first' : ''}>
+          Send a test ({isWeb() ? 'browser notification' : `desktop${s.notify.webhookUrl ? ' + webhook' : ''}`})
+        </button>
+      </section>
+
+      <section>
         <h3>Morning brief</h3>
         <label className="check">
           <input type="checkbox" checked={s.brief.enabled} onChange={() => set('brief', { enabled: !s.brief.enabled })} />

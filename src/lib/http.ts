@@ -114,3 +114,24 @@ export async function ntfySend(m: NtfyMessage): Promise<void> {
   });
   if (!res.ok) throw new Error(`ntfy answered HTTP ${res.status}`);
 }
+
+export interface WebhookMessage {
+  url: string;
+  format: 'slack' | 'discord' | 'teams' | 'json';
+  title: string;
+  message: string;
+  severity: number;
+  link?: string;
+}
+
+export const WEBHOOKS_DESKTOP_ONLY = 'Team webhooks need the desktop app';
+
+/**
+ * Post an alert to a Slack/Discord/Teams/JSON webhook. Desktop only: Slack and
+ * Teams don't allow CORS, and relaying POSTs to user-supplied URLs would turn the
+ * web proxy (GET-only, fixed host allowlist) into an open relay.
+ */
+export async function webhookSend(m: WebhookMessage): Promise<void> {
+  if (!isTauri()) throw new Error(WEBHOOKS_DESKTOP_ONLY);
+  await invoke('webhook_send', { ...m, link: m.link ?? null });
+}
