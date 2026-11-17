@@ -106,7 +106,7 @@ export async function webhookSend(m: WebhookMessage): Promise<void> {
   if (!/^https:\/\//.test(m.url)) throw new Error('webhook must use https');
   const level = ['INFO', 'INFO', 'WARNING', 'SERIOUS', 'CRITICAL'][Math.min(4, m.severity)];
   const text = `[${level}] ${m.title}\n${m.message}${m.link ? `\n${m.link}` : ''}`;
-  const body = m.format === 'slack' || m.format === 'teams' ? { text } : m.format === 'discord' ? { content: text.slice(0, 1900), username: 'Vigilante' } : { source: 'vigilante', title: m.title, message: m.message, severity: m.severity, level, url: m.link ?? null };
+  const body = m.format === 'slack' || m.format === 'teams' ? { text } : m.format === 'discord' ? { content: text.slice(0, 1900), username: 'Vigilance' } : { source: 'vigilance', title: m.title, message: m.message, severity: m.severity, level, url: m.link ?? null };
   const res = await fetch(m.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   if (!res.ok) throw new Error(`webhook answered HTTP ${res.status}`);
 }

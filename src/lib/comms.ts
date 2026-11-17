@@ -4,6 +4,7 @@
  */
 import type { LonLat } from './geo';
 import type { Severity } from './signals';
+import { isPosKey, newPosKey } from './poscrypt';
 
 /** Where the hosted web app lives; invite links open it (or paste the code into the desktop app). */
 export const WEB_APP_URL = 'https://r0n1n9.github.io/vigilante/';
@@ -19,6 +20,8 @@ export interface NtfyChannel {
   topic: string;
   /** Optional access token for a protected topic on your own ntfy server. */
   token: string;
+  /** Key that encrypts phone check-in positions (shared only through invites). */
+  posKey: string;
   /** Post new reports at or above this level to the channel automatically (0 = off). */
   shareAlerts: Severity;
 }
@@ -64,7 +67,14 @@ export interface TeamMember {
   channelId: string;
   at: number;
   location: LonLat;
-  source: 'mesh' | 'ntfy';
+  /** mesh: Meshtastic radio · phone: live check-in page · ntfy: a spot someone shared in chat. */
+  source: 'mesh' | 'ntfy' | 'phone';
+  accuracyM?: number;
+  speedMs?: number;
+  heading?: number;
+  battery?: number;
+  /** Recent positions, oldest first (live sources only). */
+  trail?: LonLat[];
 }
 
 export interface MeshRadioSettings {
@@ -86,7 +96,7 @@ export function randomTopic(prefix = 'vg-team'): string {
 }
 
 export function newNtfyChannel(patch: Partial<NtfyChannel> = {}): NtfyChannel {
-  return { id: uid(), kind: 'ntfy', name: 'Team channel', enabled: true, server: 'https://ntfy.sh', topic: randomTopic(), token: '', shareAlerts: 0, ...patch };
+  return { id: uid(), kind: 'ntfy', name: 'Team channel', enabled: true, server: 'https://ntfy.sh', topic: randomTopic(), token: '', posKey: newPosKey(), shareAlerts: 0, ...patch };
 }
 
 export function newMeshChannel(patch: Partial<MeshChannel> = {}): MeshChannel {
@@ -102,6 +112,7 @@ interface InviteV1 {
   s?: string;
   t?: string;
   a?: string;
+  p?: string;
   c?: number;
   u?: string;
 }
@@ -112,14 +123,30 @@ const unb64url = (s: string) => new TextDecoder().decode(Uint8Array.from(atob(s.
 export function inviteCode(ch: TeamChannel, includeToken = true): string {
   const inv: InviteV1 =
     ch.kind === 'ntfy'
-      ? { v: 1, k: 'ntfy', n: ch.name, s: ch.server, t: ch.topic, ...(includeToken && ch.token ? { a: ch.token } : {}) }
+      ? { v: 1, k: 'ntfy', n: ch.name, s: ch.server, t: ch.topic, p: ch.posKey, ...(includeToken && ch.token ? { a: ch.token } : {}) }
       : { v: 1, k: 'mesh', n: ch.name, c: ch.channelIndex, ...(ch.inviteUrl ? { u: ch.inviteUrl } : {}) };
   return `VG1.${b64url(JSON.stringify(inv))}`;
 }
 
 export const inviteLink = (ch: TeamChannel, includeToken = true) => `${WEB_APP_URL}#join=${inviteCode(ch, includeToken)}`;
 
-/** Link for people without Vigilante: the ntfy web/phone app, or the Meshtastic channel URL. */
+/** Phone check-in page: opens in any phone browser, shares live location (opt-in) and joins the chat. */
+export const fieldLink = (ch: NtfyChannel, includeToken = true) => `${WEB_APP_URL}?view=field#join=${inviteCode(ch, includeToken)}`;
+
+/** Quick status codes phones send; the console turns SOS and backup requests into alerts that need acknowledging. */
+export const FIELD_CODES = {
+  sos: { text: '🚨 EMERGENCY', severity: 4 as Severity },
+  backup: { text: '⚠ NEED BACKUP', severity: 3 as Severity },
+  onscene: { text: '✓ ON SCENE', severity: 0 as Severity },
+  clear: { text: '✓ ALL CLEAR', severity: 0 as Severity },
+};
+
+export function fieldCodeOf(text: string): keyof typeof FIELD_CODES | null {
+  for (const [k, v] of Object.entries(FIELD_CODES)) if (text.startsWith(v.text)) return k as keyof typeof FIELD_CODES;
+  return null;
+}
+
+/** Link for people without Vigilance: the ntfy web/phone app, or the Meshtastic channel URL. */
 export function nativeLink(ch: TeamChannel): string | null {
   if (ch.kind === 'mesh') return ch.inviteUrl || null;
   const host = ch.server.replace(/^https?:\/\//, '').replace(/\/$/, '');
@@ -136,7 +163,7 @@ const TOPIC_RE = /^[A-Za-z0-9_-]{1,64}$/;
 const MESH_URL_RE = /^https:\/\/meshtastic\.org\/e\/#[A-Za-z0-9_-]+$/;
 
 /**
- * Turn anything a teammate might paste into a channel: a Vigilante invite
+ * Turn anything a teammate might paste into a channel: a Vigilance invite
  * code or link, an ntfy topic URL (https://ntfy.sh/topic or ntfy://…), or a
  * Meshtastic channel URL. Returns null if it isn't one of those.
  */
@@ -147,7 +174,7 @@ export function parseInvite(input: string): TeamChannel | null {
     try {
       const inv = JSON.parse(unb64url(code)) as InviteV1;
       if (inv.v !== 1) return null;
-      if (inv.k === 'ntfy' && inv.s && inv.t && /^https:\/\//.test(inv.s) && TOPIC_RE.test(inv.t)) return newNtfyChannel({ name: String(inv.n || 'Team channel').slice(0, 60), server: inv.s, topic: inv.t, token: inv.a ?? '' });
+      if (inv.k === 'ntfy' && inv.s && inv.t && /^https:\/\//.test(inv.s) && TOPIC_RE.test(inv.t)) return newNtfyChannel({ name: String(inv.n || 'Team channel').slice(0, 60), server: inv.s, topic: inv.t, token: inv.a ?? '', posKey: isPosKey(inv.p) ? inv.p : '' });
       if (inv.k === 'mesh') return newMeshChannel({ name: String(inv.n || 'Mesh').slice(0, 60), channelIndex: Math.max(0, Math.min(7, Number(inv.c) || 0)), inviteUrl: inv.u && MESH_URL_RE.test(inv.u) ? inv.u : '' });
     } catch {
       return null;
@@ -215,7 +242,7 @@ export function ntfyToMessage(e: NtfyEvent, channelId: string, installId: string
     remoteId: e.id,
     channelId,
     at: e.time * 1000,
-    from: e.title?.trim() || (e.tags?.includes('vigilante') ? 'Vigilante' : 'ntfy app'),
+    from: e.title?.trim() || (e.tags?.some((t) => t === 'vigilance' || t === 'vigilante') ? 'Vigilance' : 'ntfy app'),
     text,
     mine: !!e.tags?.includes(installTag(installId)),
     spot,
@@ -231,7 +258,7 @@ export function ntfyPublishBody(ch: NtfyChannel, from: string, text: string, ins
     topic: ch.topic,
     title: from,
     message: text,
-    tags: ['vigilante', installTag(installId)],
+    tags: ['vigilance', installTag(installId)],
     ...(click ? { click, actions: [{ action: 'view', label: spot ? 'Map' : 'Open', url: click }] } : {}),
   };
 }

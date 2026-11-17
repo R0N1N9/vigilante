@@ -3,6 +3,9 @@ import { listen } from '@tauri-apps/api/event';
 import { meshText, ntfyPublishBody, ntfyStreamUrl, ntfyToMessage, parseSpot, type ChatMessage, type MeshChannel, type NtfyChannel, type NtfyEvent, type TeamChannel, type TeamMember } from '../../lib/comms';
 import { decodeFromRadio, decodePosition, decodeUser, encodeHeartbeat, encodeText, encodeWantConfig, nodeIdOf, PORT, type MeshUser } from '../../lib/meshproto';
 import { isTauri } from '../../lib/http';
+import { openPosition, posTopic } from '../../lib/poscrypt';
+import { fieldCodeOf, FIELD_CODES } from '../../lib/comms';
+import type { MonitorHit } from '../../lib/monitors';
 import type { Severity, Signal } from '../../lib/signals';
 import { setShared } from '../bus';
 import { alertTone } from '../sound';
@@ -24,6 +27,7 @@ function addMessages(msgs: ChatMessage[]) {
   if (!fresh.length) return;
   const chat = [...s.chat, ...fresh].sort((a, b) => a.at - b.at).slice(-CHAT_MAX);
   setShared({ chat });
+  fresh.forEach(raiseFieldAlert);
   const incoming = fresh.filter((m) => !m.mine && Date.now() - m.at < 5 * 60_000);
   if (incoming.length) {
     alertTone(1);
@@ -37,15 +41,81 @@ function patchMessage(id: string, patch: Partial<ChatMessage>) {
   setShared({ chat: getState().chat.map((m) => (m.id === id ? { ...m, ...patch } : m)) });
 }
 
+const TRAIL_MAX = 40;
+
 function upsertMember(m: TeamMember) {
   const now = Date.now();
-  const team = [m, ...getState().team.filter((x) => x.id !== m.id && now - x.at < TEAM_TTL_MS)];
+  const prev = getState().team.find((x) => x.id === m.id);
+  if (prev && prev.at > m.at) return; // out-of-order (history replay)
+  const trail = m.source === 'ntfy' ? undefined : [...(prev?.trail ?? []), m.location].slice(-TRAIL_MAX);
+  const team = [{ ...m, trail }, ...getState().team.filter((x) => x.id !== m.id && now - x.at < TEAM_TTL_MS)];
   setShared({ team });
+}
+
+function removeMember(id: string) {
+  setShared({ team: getState().team.filter((x) => x.id !== id) });
+}
+
+/** SOS / backup calls from phones become alerts that sit in the inbox until acknowledged. */
+function raiseFieldAlert(m: ChatMessage) {
+  const code = fieldCodeOf(m.text);
+  if (!code || FIELD_CODES[code].severity < 3 || m.mine || Date.now() - m.at > 30 * 60_000) return;
+  const s = getState();
+  const ch = s.channels.find((c) => c.id === m.channelId);
+  const hit: MonitorHit = {
+    id: `field:${m.id}`,
+    monitorId: 'team-field',
+    monitorName: `TEAM · ${ch?.name ?? 'channel'}`,
+    at: m.at,
+    title: `${FIELD_CODES[code].text}: ${m.from}`,
+    detail: m.text,
+    severity: FIELD_CODES[code].severity,
+    location: m.spot ? [m.spot.lon, m.spot.lat] : null,
+    acked: false,
+    escalations: 0,
+  };
+  if (s.hits.some((h) => h.id === hit.id)) return;
+  setShared({ hits: [hit, ...s.hits].slice(0, 300) });
+  alertTone(4);
+  void desktopNotify(hit.title, `${ch?.name ?? 'Team'}${m.spot ? ' · location attached' : ''}`);
+  log(`TEAM   ${hit.title}`, hit.severity);
 }
 
 // ---------- ntfy ----------
 
 const streams = new Map<string, { es: EventSource; key: string }>();
+const posStreams = new Map<string, { es: EventSource; key: string }>();
+
+/** Live phone positions: a sibling topic carrying encrypted reports. */
+function connectPositions(ch: NtfyChannel) {
+  const key = `${ch.server}|${ch.topic}|${ch.token}|${ch.posKey}`;
+  const cur = posStreams.get(ch.id);
+  if (cur?.key === key) return;
+  cur?.es.close();
+  if (!ch.posKey) {
+    posStreams.delete(ch.id);
+    return;
+  }
+  const es = new EventSource(ntfyStreamUrl({ ...ch, topic: posTopic(ch.topic) }, '1h'));
+  es.onmessage = (e) => {
+    let ev: NtfyEvent;
+    try {
+      ev = JSON.parse(e.data) as NtfyEvent;
+    } catch {
+      return;
+    }
+    if (ev.event !== 'message' || !ev.message) return;
+    void openPosition(ch.posKey, ev.message).then((r) => {
+      if (!r) return;
+      const id = `phone:${ch.id}:${r.id}`;
+      if (r.s === 'off') return removeMember(id);
+      if (Date.now() - r.t > TEAM_TTL_MS) return;
+      removeMember(`ntfy:${ch.id}:${r.n}`);
+      upsertMember({ id, name: r.n, channelId: ch.id, at: r.t, location: [r.lon, r.lat], source: 'phone', accuracyM: r.acc, speedMs: r.spd, heading: r.hdg, battery: r.bat });
+    });
+  };
+  posStreams.set(ch.id, { es, key });
+}
 
 function connectNtfy(ch: NtfyChannel) {
   const key = `${ch.server}|${ch.topic}|${ch.token}`;
@@ -68,7 +138,9 @@ function connectNtfy(ch: NtfyChannel) {
         }
       }
       addMessages([msg]);
-      if (msg.spot && !msg.mine) upsertMember({ id: `ntfy:${ch.id}:${msg.from}`, name: msg.from, channelId: ch.id, at: msg.at, location: [msg.spot.lon, msg.spot.lat], source: 'ntfy' });
+      // A spot in chat marks the sender on the map, unless they're already live-sharing from a phone.
+      const live = getState().team.some((t) => t.source === 'phone' && t.channelId === ch.id && t.name === msg.from && Date.now() - t.at < 10 * 60_000);
+      if (msg.spot && !msg.mine && !live) upsertMember({ id: `ntfy:${ch.id}:${msg.from}`, name: msg.from, channelId: ch.id, at: msg.at, location: [msg.spot.lon, msg.spot.lat], source: 'ntfy' });
     } catch {
       /* not a message event */
     }
@@ -81,7 +153,7 @@ function connectNtfy(ch: NtfyChannel) {
 
 async function sendNtfy(ch: NtfyChannel, m: ChatMessage) {
   const s = getState();
-  const body = ntfyPublishBody(ch, s.settings.team.callsign || 'Vigilante', m.text, s.settings.team.installId, m.spot, m.url);
+  const body = ntfyPublishBody(ch, s.settings.team.callsign || 'Vigilance', m.text, s.settings.team.installId, m.spot, m.url);
   const res = await fetch(`${ch.server.replace(/\/$/, '')}/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...(ch.token ? { Authorization: `Bearer ${ch.token}` } : {}) },
@@ -221,15 +293,17 @@ function reconcile(s: State) {
   for (const ch of s.channels as TeamChannel[]) {
     if (ch.kind === 'ntfy' && ch.enabled) {
       connectNtfy(ch);
+      connectPositions(ch);
       live.add(ch.id);
     }
   }
-  for (const [id, st] of streams) {
-    if (!live.has(id)) {
-      st.es.close();
-      streams.delete(id);
+  for (const map of [streams, posStreams])
+    for (const [id, st] of map) {
+      if (!live.has(id)) {
+        st.es.close();
+        map.delete(id);
+      }
     }
-  }
 }
 
 export async function startComms() {

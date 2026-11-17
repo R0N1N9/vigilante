@@ -14,20 +14,28 @@ import { App } from './ui/App';
 import { POPOUT_VIEWS, type View } from './ui/popout';
 
 const param = new URLSearchParams(location.search).get('view');
-const view: View = POPOUT_VIEWS.some((v) => v.view === param) || param === 'areas' ? (param as View) : 'console';
-const isLeader = view === 'console';
 
-// Keep the custom-location registry in sync in every window.
-let knownLocations = getState().locations;
-subscribe(() => {
-  const l = getState().locations;
-  if (l !== knownLocations) {
-    knownLocations = l;
-    registerPacks(l);
-  }
-});
+// Phone check-in page: a light standalone view with no data engine.
+if (param === 'field') {
+  void import('./ui/FieldApp').then(({ FieldApp }) => createRoot(document.getElementById('root')!).render(<FieldApp />));
+} else boot();
 
-startBus(isLeader);
-if (isLeader) void startEngine();
+function boot() {
+  const view: View = POPOUT_VIEWS.some((v) => v.view === param) || param === 'areas' ? (param as View) : 'console';
+  const isLeader = view === 'console';
 
-createRoot(document.getElementById('root')!).render(<App view={view} />);
+  // Keep the custom-location registry in sync in every window.
+  let knownLocations = getState().locations;
+  subscribe(() => {
+    const l = getState().locations;
+    if (l !== knownLocations) {
+      knownLocations = l;
+      registerPacks(l);
+    }
+  });
+
+  startBus(isLeader);
+  if (isLeader) void startEngine();
+
+  createRoot(document.getElementById('root')!).render(<App view={view} />);
+}

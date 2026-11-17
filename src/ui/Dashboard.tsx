@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { distanceM } from '../lib/geo';
 import { setShared } from '../data/bus';
 import { setState, useStore } from '../data/store';
 import { getPack } from '../lib/packs';
@@ -334,6 +335,56 @@ function CrimeTrendTile() {
   );
 }
 
+const SRC_ICON: Record<string, string> = { phone: '▣', mesh: '◇', ntfy: '◆' };
+
+function TeamTile() {
+  const team = useStore((x) => x.team);
+  const channels = useStore((x) => x.channels);
+  const pack = useStore((x) => getPack(x.packId));
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 15_000);
+    return () => clearInterval(t);
+  }, []);
+  const rows = [...team].sort((a, b) => b.at - a.at);
+  const online = rows.filter((m) => now - m.at < 5 * 60_000).length;
+  const age = (t: number) => {
+    const s = Math.round((now - t) / 1000);
+    return s < 60 ? `${s}s` : s < 3600 ? `${Math.round(s / 60)}m` : `${Math.round(s / 3600)}h`;
+  };
+  return (
+    <Tile code="10" title="TEAM" led={online ? 'ok' : 'idle'} right={`${online} ONLINE`} className="a-team">
+      {rows.length ? (
+        <table className="roster">
+          <tbody>
+            {rows.map((m) => {
+              const stale = now - m.at > 5 * 60_000;
+              const ch = channels.find((c) => c.id === m.channelId);
+              return (
+                <tr key={m.id} className={`act ${stale ? 'stale' : ''}`} onClick={() => locate(m.location, 16, m.name)} title="Show on map">
+                  <td className={`src ${m.source}`}>{SRC_ICON[m.source]}</td>
+                  <td className="nm">
+                    {m.name}
+                    <small>{m.source === 'phone' ? 'PHONE' : m.source === 'mesh' ? 'RADIO' : 'SHARED SPOT'}{ch ? ` · ${ch.name.toUpperCase()}` : ''}</small>
+                  </td>
+                  <td className="r">{fmtDistNm(distanceM(m.location, pack.center))}</td>
+                  <td className="r">{m.speedMs != null && m.speedMs > 0.5 ? `${Math.round(m.speedMs * 2.237)} mph` : m.accuracyM != null ? `±${m.accuracyM} m` : ''}</td>
+                  <td className="r">{m.battery != null ? `${m.battery}%` : ''}</td>
+                  <td className={`r ${stale ? 'muted' : 'ok'}`}>{age(m.at)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      ) : (
+        <div className="empty">{channels.length ? 'No one is sharing a location yet. Send teammates the phone check-in QR from Team → Channels → Invite.' : 'Create a team channel in the Team tab, then invite phones to check in.'}</div>
+      )}
+    </Tile>
+  );
+}
+
+const fmtDistNm = (m: number) => (m < 1609 ? `${Math.round(m * 3.281).toLocaleString('en-US')} ft` : `${(m / 1609).toFixed(1)} mi`);
+
 function StatusTile() {
   const s = useStore((x) => x);
   const pack = getPack(s.packId);
@@ -393,6 +444,8 @@ function SitrepBar() {
     const a = x.aircraft.find((y) => y.kind === 'heli');
     return a ? `${a.lon},${a.lat}` : '';
   });
+  const teamOnline = useStore((x) => x.team.filter((m) => Date.now() - m.at < 5 * 60_000).length);
+  const teamFirst = useStore((x) => x.team[0]?.location ?? null);
   const kpi = (label: string, value: React.ReactNode, tone = '', go?: () => void) => (
     <button className={`kpi ${tone}${go ? ' act' : ''}`} onClick={go} disabled={!go}>
       <b>{value}</b>
@@ -418,6 +471,7 @@ function SitrepBar() {
         {kpi('OPEN SITUATIONS', incidents, incidents ? 'warn' : '', firstSit ? () => locate(firstSit, 13, 'Open situation') : undefined)}
         {kpi('HELOS AIRBORNE', helis, helis ? 'warn' : '', heli ? () => locate(heliAt.split(',').map(Number) as LonLat, 12, 'Helicopter', { hex: heli }) : undefined)}
         {kpi('AIR QUALITY', aqi ?? '—', (aqi ?? 0) > 100 ? 'warn' : '', () => locate(pack.center, pack.zoom, 'Air quality', { url: 'https://www.airnow.gov/', title: 'AirNow' }))}
+        {kpi('TEAM ONLINE', teamOnline, '', teamFirst ? () => locate(teamFirst, 14, 'Team') : undefined)}
         {kpi('FEEDS LIVE', `${live}/${total}`)}
       </div>
     </div>
@@ -438,6 +492,7 @@ export function Dashboard() {
       <AlertsTile />
       <HoodsTile />
       <CrimeTrendTile />
+      <TeamTile />
       <StatusTile />
     </div>
   );

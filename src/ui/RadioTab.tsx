@@ -10,7 +10,7 @@ export function RadioTab() {
       <div className="callout">
         <b>Scanner radio</b>
         <p>
-          Feeds play inside Vigilante in a small player window (Broadcastify's own player), so you can park it on another monitor and keep listening. Dashed circles on the map show each feed's approximate coverage; click one to tune in.
+          Feeds play inside Vigilance in a small player window (Broadcastify's own player), so you can park it on another monitor and keep listening. Dashed circles on the map show each feed's approximate coverage; click one to tune in.
         </p>
         <p className="muted">{pack.notes}</p>
       </div>

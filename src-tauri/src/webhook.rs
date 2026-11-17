@@ -33,9 +33,9 @@ pub fn webhook_body(format: &str, title: &str, message: &str, severity: u8, link
     };
     match format {
         "slack" => json!({ "text": text }),
-        "discord" => json!({ "content": text.chars().take(1900).collect::<String>(), "username": "Vigilante" }),
+        "discord" => json!({ "content": text.chars().take(1900).collect::<String>(), "username": "Vigilance" }),
         "teams" => json!({ "text": text.replace('\n', "  \n") }),
-        _ => json!({ "source": "vigilante", "title": title, "message": message, "severity": severity, "level": level, "url": link }),
+        _ => json!({ "source": "vigilance", "title": title, "message": message, "severity": severity, "level": level, "url": link }),
     }
 }
 
@@ -54,7 +54,7 @@ pub async fn webhook_send(
     let client = reqwest::Client::builder()
         .redirect(reqwest::redirect::Policy::none())
         .timeout(std::time::Duration::from_secs(15))
-        .user_agent("Vigilante/0.1 (alert webhook)")
+        .user_agent("Vigilance/0.1 (alert webhook)")
         .build()
         .map_err(|e| e.to_string())?;
     let resp = client

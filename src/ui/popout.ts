@@ -30,7 +30,7 @@ export async function popOut(view: Exclude<View, 'console'>) {
     }
     new WebviewWindow(label, {
       url: `index.html?view=${view}`,
-      title: `Vigilante · ${spec.label}`,
+      title: `Vigilance · ${spec.label}`,
       width: spec.w,
       height: spec.h,
       minWidth: 360,
@@ -89,7 +89,7 @@ export async function openSystem(url: string) {
   } else window.location.href = url;
 }
 
-export async function openExternal(url: string, title = 'Vigilante') {
+export async function openExternal(url: string, title = 'Vigilance') {
   if (!/^https:\/\//.test(url)) return;
   if (isTauri()) {
     const label = `web-${Math.random().toString(36).slice(2, 8)}`;

@@ -60,7 +60,7 @@ describe('spots and messages', () => {
   it('publishes with tags, title and a map action', () => {
     const ch = newNtfyChannel({ topic: 't' });
     const b = ntfyPublishBody(ch, 'Unit 7', 'hi', 'me', { lat: 1, lon: 2 });
-    expect(b).toMatchObject({ topic: 't', title: 'Unit 7', message: 'hi', tags: ['vigilante', 'vg-me'] });
+    expect(b).toMatchObject({ topic: 't', title: 'Unit 7', message: 'hi', tags: ['vigilance', 'vg-me'] });
     expect(b.click).toContain('mlat=1.00000');
     expect(ntfyStreamUrl({ ...ch, token: 'tk_1' }, '24h')).toMatch(/\/t\/sse\?since=24h&auth=[A-Za-z0-9_-]+$/);
   });

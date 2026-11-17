@@ -141,7 +141,7 @@ export function CommandBar({ view }: { view: View }) {
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
           <path d="M5 6 L12 19 L19 6" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <span className="brand-text">VIGILANTE</span>
+        <span className="brand-text">VIGILANCE</span>
       </div>
       <LocationPicker />
       <div className="clock mono">

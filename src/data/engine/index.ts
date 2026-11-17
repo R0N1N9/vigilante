@@ -22,6 +22,7 @@ import { newMonitor, type Monitor, type MonitorHit } from '../../lib/monitors';
 import { resetMonitors, startMonitors } from './monitors';
 import { sendTestNotifications } from './notify';
 import { startComms } from './comms';
+import { newPosKey } from '../../lib/poscrypt';
 import type { ChatMessage, TeamChannel } from '../../lib/comms';
 
 let chatTimer: number | undefined;
@@ -59,7 +60,7 @@ function startForPack(id: string) {
 export async function startEngine() {
   const [settings, areas, locations, monitors, hits, channels, chat] = await Promise.all([storeRead<Partial<Settings>>('settings'), storeRead<WatchArea[]>('areas'), storeRead<CityPack[]>('locations'), storeRead<Monitor[]>('monitors'), storeRead<MonitorHit[]>('hits'), storeRead<TeamChannel[]>('channels'), storeRead<ChatMessage[]>('chat'), loadHistory()]);
   registerPacks(locations ?? []);
-  setShared({ settings: withDefaults(settings), areas: areas ?? [], locations: locations ?? [], monitors: (monitors ?? []).map((m) => ({ ...newMonitor(m.kind), ...m })), hits: hits ?? [], channels: channels ?? [], chat: (chat ?? []).map((m) => (m.status === 'sending' ? { ...m, status: 'failed' as const, error: 'app closed before sending' } : m)) });
+  setShared({ settings: withDefaults(settings), areas: areas ?? [], locations: locations ?? [], monitors: (monitors ?? []).map((m) => ({ ...newMonitor(m.kind), ...m })), hits: hits ?? [], channels: (channels ?? []).map((c) => (c.kind === 'ntfy' && c.posKey === undefined ? { ...c, posKey: newPosKey() } : c)), chat: (chat ?? []).map((m) => (m.status === 'sending' ? { ...m, status: 'failed' as const, error: 'app closed before sending' } : m)) });
   startMonitors();
   void startComms();
 
