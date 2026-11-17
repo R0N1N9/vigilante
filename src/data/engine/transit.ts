@@ -39,6 +39,11 @@ function report(list: TransitDisruption[], first: boolean) {
 
 export function startTransit(gen: number) {
   const t = getPack(ctx.packId).transit;
+  if (!t) {
+    setFeed('transit', { status: 'off', at: 0, error: 'No transit feed set up for this area yet' });
+    publishData();
+    return;
+  }
   let staticData: GtfsLite | null = null;
   let staticLoading: Promise<void> | null = null;
   let first = true;

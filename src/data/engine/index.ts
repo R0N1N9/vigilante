@@ -1,7 +1,7 @@
 import { withDefaults, type Settings } from '../../lib/settings';
 import type { WatchArea } from '../../lib/areas';
 import { storeRead, storeWrite } from '../../lib/http';
-import { getPack } from '../../lib/packs';
+import { getPack, registerPacks, type CityPack } from '../../lib/packs';
 import { publishData, setShared } from '../bus';
 import { EMPTY_DATA, getState, setState, subscribe } from '../store';
 import { makeBrief, startBriefScheduler } from './brief';
@@ -41,8 +41,9 @@ function startForPack(id: string) {
 
 /** Leader window only: load saved state, start all sources, and react to changes. */
 export async function startEngine() {
-  const [settings, areas] = await Promise.all([storeRead<Partial<Settings>>('settings'), storeRead<WatchArea[]>('areas'), loadHistory()]);
-  setShared({ settings: withDefaults(settings), areas: areas ?? [] });
+  const [settings, areas, locations] = await Promise.all([storeRead<Partial<Settings>>('settings'), storeRead<WatchArea[]>('areas'), storeRead<CityPack[]>('locations'), loadHistory()]);
+  registerPacks(locations ?? []);
+  setShared({ settings: withDefaults(settings), areas: areas ?? [], locations: locations ?? [] });
 
   startForPack(getState().packId);
   startDrones();
@@ -56,6 +57,7 @@ export async function startEngine() {
     prev = s; // update first: the actions below change state and re-enter this listener
     if (s.settings !== p.settings) void storeWrite('settings', s.settings);
     if (s.areas !== p.areas) void storeWrite('areas', s.areas);
+    if (s.locations !== p.locations) void storeWrite('locations', s.locations);
     const r = s.requests;
     if (r.brief && r.brief !== p.requests.brief) makeBrief();
     if (r.pushTest && r.pushTest !== p.requests.pushTest) void sendTestPush();

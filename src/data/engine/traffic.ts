@@ -19,6 +19,11 @@ function report(events: TrafficEvent[], first: boolean) {
 
 export function startTraffic(gen: number) {
   const pack = getPack(ctx.packId);
+  if (pack.traffic.provider === 'none') {
+    setFeed('traffic', { status: 'off', at: 0, error: 'No road-incident source for this state yet' });
+    publishData();
+    return;
+  }
   const key = pack.traffic.provider === 'ga511' ? getState().settings.keys.ga511 : getState().settings.keys.cotrip;
   if (!key) {
     setFeed('traffic', { status: 'off', at: 0, error: `Add a free ${pack.traffic.provider === 'ga511' ? 'Georgia 511' : 'COtrip'} key in Settings` });

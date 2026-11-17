@@ -373,3 +373,27 @@ pre.cmd { background: #070a0e; border: 1px solid var(--line); border-radius: 2px
 @media (max-width: 1400px) { .clock .zulu { display: none; } }
 @media (max-width: 1200px) { .brand-text { display: none; } .hide-sm { display: none; } }
 @media (max-width: 980px) { .clock small { display: none; } .alerts-chip { padding: 3px 6px; } }
+
+/* Location picker */
+.loc-btn { display: flex; align-items: center; gap: 8px; padding: 4px 10px; border: 1px solid var(--line-2); border-radius: var(--r); max-width: 230px; }
+.loc-btn:hover { border-color: var(--accent); }
+.loc-dot { color: var(--accent); }
+.loc-name { display: flex; align-items: baseline; gap: 6px; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.loc-name small { color: var(--dim); font: 10px var(--mono); }
+.caret { color: var(--dim); font-size: 10px; }
+.loc-pop { left: 0; right: auto; width: 340px; max-height: 70vh; overflow-y: auto; }
+.loc-search { display: flex; gap: 6px; padding: 4px 4px 6px; }
+.loc-search input { flex: 1; min-width: 0; }
+.loc-row { display: flex; flex-direction: column; align-items: flex-start; width: 100%; text-align: left; padding: 7px 10px; border-radius: 3px; font-size: 12px; }
+.loc-row small { color: var(--dim); font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.loc-row:hover, .loc-row.saved:hover { background: var(--panel-2); }
+.loc-row.mine { flex-direction: row; color: var(--accent); }
+.loc-row.saved { flex-direction: row; align-items: center; padding: 0 6px 0 0; }
+.loc-row.saved > button:first-child { flex: 1; display: flex; flex-direction: column; align-items: flex-start; padding: 7px 10px; text-align: left; min-width: 0; }
+.loc-row.saved.on b { color: var(--accent); }
+.loc-note { font-size: 11px; color: var(--muted); padding: 4px 10px; }
+.loc-note.err { color: var(--crit); }
+
+/* Rail tabs: never hide a tab. Wrap onto a second row when space runs out. */
+.rail .tabs { flex-wrap: wrap; overflow: visible; row-gap: 0; }
+.rail .tabs button { flex: 1 0 auto; min-width: 52px; padding: 9px 4px 8px; }

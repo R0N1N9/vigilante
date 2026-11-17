@@ -13,6 +13,7 @@ export function startPower(gen: number) {
     if (!alive(gen)) return;
     const pack = getPack(ctx.packId);
     try {
+      if (!pack.power.state) throw new Error('state unknown for this location');
       const outages = parseOdin(await getJsonRetry(odinUrl(pack.power.state)), pack.center, pack.radiusNm);
       if (!alive(gen)) return;
       const prev = new Map(getState().outages.map((o) => [o.id, o.severity]));

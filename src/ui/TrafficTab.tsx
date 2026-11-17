@@ -8,6 +8,12 @@ export function TrafficTab() {
   const feed = useStore((s) => s.feeds.traffic);
   const pack = useStore((s) => getPack(s.packId));
   const provider = pack.traffic.provider === 'ga511' ? 'Georgia 511' : 'COtrip (CDOT)';
+  if (pack.traffic.provider === 'none')
+    return (
+      <div className="list">
+        <div className="empty">No road-incident feed is set up for this state yet. Georgia (511) and Colorado (COtrip) are supported today.</div>
+      </div>
+    );
 
   if (feed.status === 'off')
     return (

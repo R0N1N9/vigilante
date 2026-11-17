@@ -8,6 +8,7 @@ import type { NewsItem } from '../lib/news';
 import type { NwsAlert } from '../lib/nws';
 import type { TrailPoint } from '../lib/orbit';
 import { DEFAULT_SETTINGS, type Settings } from '../lib/settings';
+import type { CityPack } from '../lib/packs';
 import type { Severity } from '../lib/signals';
 import type { Tfr } from '../lib/tfr';
 import type { Camera, TrafficEvent } from '../lib/traffic';
@@ -115,6 +116,8 @@ export interface SharedUi {
   muted: boolean;
   settings: Settings;
   areas: WatchArea[];
+  /** Saved locations the user searched for (custom city packs). */
+  locations: CityPack[];
   /** One-shot requests any window can make of the leader (value = request time). */
   requests: { brief?: number; pushTest?: number; droneSim?: number };
 }
@@ -187,6 +190,7 @@ let state: State = {
   muted: prefs.muted ?? false,
   settings: DEFAULT_SETTINGS,
   areas: [],
+  locations: [],
   requests: {},
   basemap: prefs.basemap ?? 'dark',
   tab: prefs.tab ?? 'alerts',

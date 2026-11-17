@@ -12,18 +12,25 @@ function TransitList() {
   const pack = useStore((s) => getPack(s.packId));
   const [showPlanned, setShowPlanned] = useState(false);
   const rows = transit.filter((t) => showPlanned || t.severity >= 1 || t.kind === 'delays');
+  if (!pack.transit)
+    return (
+      <div className="list">
+        <div className="empty">No transit agency feed is set up for {pack.name} yet. Denver (RTD) and Atlanta (MARTA) are supported today.</div>
+      </div>
+    );
+  const agency = pack.transit;
   return (
     <div className="list">
       <div className="row-head">
         <span className="mono muted small-text">
-          {pack.transit.agency} · {rows.length} shown{feed.error ? ` · ${feed.error}` : ''}
+          {agency.agency} · {rows.length} shown{feed.error ? ` · ${feed.error}` : ''}
           {feed.status === 'live' ? ` · ${fmtAgo(feed.at)} ago` : ''}
         </span>
         <label className="check small-text">
           <input type="checkbox" checked={showPlanned} onChange={() => setShowPlanned(!showPlanned)} /> planned work
         </label>
       </div>
-      {pack.transit.agency === 'MARTA' && (
+      {agency.agency === 'MARTA' && (
         <p className="muted small-text note">MARTA doesn't publish an alerts feed. These are bus routes where several buses are running 15+ minutes late, from MARTA's live data. Rail isn't included.</p>
       )}
       {rows.map((t) => (
@@ -42,8 +49,8 @@ function TransitList() {
         </article>
       ))}
       {!rows.length && <div className="empty">{feed.status === 'idle' ? 'Loading transit data…' : 'No transit disruptions right now.'}</div>}
-      <button className="link" onClick={() => void openExternal(pack.transit.infoUrl, `${pack.transit.agency} alerts`)}>
-        Official {pack.transit.agency} alerts ↗
+      <button className="link" onClick={() => void openExternal(agency.infoUrl, `${agency.agency} alerts`)}>
+        Official {agency.agency} alerts ↗
       </button>
     </div>
   );
@@ -60,7 +67,7 @@ function PowerList() {
         <b>{total ? `${total.toLocaleString('en-US')} customers without power in the area` : 'No reported outages in the area'}</b>
         <p>
           County totals from the U.S. Department of Energy's ODIN program. Only utilities that report to ODIN are counted:{' '}
-          {pack.id === 'denver' ? 'United Power and CORE Electric are; Xcel Energy, which serves most of Denver, is not.' : 'Georgia Power and the Georgia EMCs currently are not.'} For those, use the official maps below.
+          {pack.id === 'denver' ? 'United Power and CORE Electric are; Xcel Energy, which serves most of Denver, is not.' : pack.id === 'atlanta' ? 'Georgia Power and the Georgia EMCs currently are not.' : 'many large investor-owned utilities do not report.'} For those, use the official maps below.
         </p>
         <div className="btn-row">
           {pack.power.utilities.map((u) => (

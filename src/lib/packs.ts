@@ -45,22 +45,37 @@ export interface CityPack {
   nwsOffice: string;
   radioFeeds: RadioFeed[];
   notes: string;
-  traffic: { provider: 'ga511' | 'cotrip' };
+  traffic: { provider: 'ga511' | 'cotrip' | 'none' };
   /** localTerms: city/county names that mark a story as local even without a neighborhood. */
   news: { feeds: NewsFeed[]; googleQuery: string; localTerms: TermTuple[] };
   liveTv: LiveTv[];
   places: PlaceTuple[];
   transit:
     | { agency: 'RTD'; alertsUrl: string; staticUrl: string; infoUrl: string }
-    | { agency: 'MARTA'; tripUpdatesUrl: string; vehiclesUrl: string; staticUrl: string; infoUrl: string };
+    | { agency: 'MARTA'; tripUpdatesUrl: string; vehiclesUrl: string; staticUrl: string; infoUrl: string }
+    | null;
+  /** True for locations the user searched for (vs. the built-in city packs). */
+  custom?: boolean;
   /** Outage counts come from DOE ODIN by state; utilities link to their own official outage maps. */
   power: { state: string; utilities: { name: string; url: string }[] };
 }
 
 export const PACKS: CityPack[] = [denver as unknown as CityPack, atlanta as unknown as CityPack];
 
+/** Locations the user searched for or picked from device location. */
+const custom = new Map<string, CityPack>();
+
+export function registerPacks(list: CityPack[]) {
+  custom.clear();
+  list.forEach((p) => custom.set(p.id, p));
+}
+
+export function allPacks(): CityPack[] {
+  return [...PACKS, ...custom.values()];
+}
+
 export function getPack(id: string): CityPack {
-  return PACKS.find((p) => p.id === id) ?? PACKS[0];
+  return custom.get(id) ?? PACKS.find((p) => p.id === id) ?? PACKS[0];
 }
 
 export function placesOf(pack: CityPack): Place[] {

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { setShared } from '../data/bus';
 import { setState, useStore, type Feed, type FeedName } from '../data/store';
-import { PACKS, getPack } from '../lib/packs';
+import { getPack } from '../lib/packs';
+import { LocationPicker } from './LocationPicker';
 import { fmtAgo, fmtTime, tzAbbr } from './format';
 import { POPOUT_VIEWS, popOut, type View } from './popout';
 
@@ -116,13 +117,7 @@ export function CommandBar({ view }: { view: View }) {
         </svg>
         <span className="brand-text">VIGILANTE</span>
       </div>
-      <div className="seg" role="tablist" aria-label="City">
-        {PACKS.map((p) => (
-          <button key={p.id} role="tab" aria-selected={p.id === packId} className={p.id === packId ? 'on' : ''} onClick={() => setShared({ packId: p.id })}>
-            {p.name}
-          </button>
-        ))}
-      </div>
+      <LocationPicker />
       <div className="clock mono">
         {fmtTime(now, pack.timezone, true)}
         <small>{tzAbbr(now, pack.timezone)}</small>

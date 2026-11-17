@@ -15,7 +15,7 @@
     {
       "name": "Denver Fire Alerting & EMS",
       "agency": "Denver Fire / Denver Health EMS",
-      "url": "https://www.broadcastify.com/webPlayer/7435",
+      "url": "https://www.broadcastify.com/listen/feed/7435",
       "coverage": [
         -104.99,
         39.74,
@@ -25,7 +25,7 @@
     {
       "name": "South Metro Fire Rescue",
       "agency": "South Metro Fire (Arapahoe, Douglas, Jefferson)",
-      "url": "https://www.broadcastify.com/webPlayer/23085",
+      "url": "https://www.broadcastify.com/listen/feed/23085",
       "coverage": [
         -104.84,
         39.56,
@@ -35,7 +35,7 @@
     {
       "name": "Adams County Fire & EMS",
       "agency": "Brighton, Thornton, Westminster, North Metro fire",
-      "url": "https://www.broadcastify.com/webPlayer/28370",
+      "url": "https://www.broadcastify.com/listen/feed/28370",
       "coverage": [
         -104.94,
         39.88,

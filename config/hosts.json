@@ -23,6 +23,7 @@
     "itsmarta.com",
     "ornl.opendatasoft.com",
     "services3.arcgis.com",
-    "api.windy.com"
+    "api.windy.com",
+    "nominatim.openstreetmap.org"
   ]
 }

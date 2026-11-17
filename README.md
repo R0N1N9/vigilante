@@ -102,10 +102,11 @@ Remote ID is a **short-range radio broadcast**, not an online feed: you only see
 - **Simulate a drone** shows how a detection looks. If a drone concerns you, report it to police non-emergency or the FAA, and don't approach the pilot.
 
 ### Radio
-Radio → ▶ plays a feed in a small in-app player window (Broadcastify's own player), which you can move to another monitor. You can run several at once. Rows marked BROWSE open Broadcastify's list for that area so you can pick any feed. Denver PD's radio is encrypted, so it can't be heard anywhere.
+Radio → ▶ plays a feed in a small in-app player window (Broadcastify's free public feed page, no account needed), which you can move to another monitor. You can run several at once. Rows marked BROWSE open Broadcastify's list for that area so you can pick any feed. Denver PD's radio is encrypted, so it can't be heard anywhere.
 
 ### Everything else
-- **Switch city** with Denver / Atlanta in the top bar.
+- **Change location** with the ◎ location button (top left): search any US city, address or ZIP, or press *Use my location*. Searched places are saved in the same menu. Denver and Atlanta have full local sources. Anywhere else gets the national sources (aircraft, weather, FAA, wildfires, power, news search, webcams), and places within ~60 km of Denver or Atlanta reuse that city's local news, radio and transit.
+- **Data feed chip** (e.g. `8/10 LIVE`) shows how many of the 10 data sources are currently delivering. Click it to see each one. *off* means it needs a key, hardware or a supported city.
 - **Brief (☀)** shows the latest situation brief, and **Refresh** rebuilds it.
 - **Pop out ▾** opens any panel in its own window. Closing the main window closes them all.
 - **Bell icon** mutes or unmutes alert tones.
