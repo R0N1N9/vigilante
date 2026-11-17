@@ -219,34 +219,108 @@ export const quakeSeverity = (q: Quake): Severity => (q.mag >= 5 ? 4 : q.mag >= 
 
 // ----------------------------------------------------------- FBI Wanted ---
 
+/** wanted: fugitives · missing: kidnapped or missing people · info: FBI seeking information about a crime or person. */
+export type PosterKind = 'wanted' | 'missing' | 'info';
+
 export interface Wanted {
   id: string;
   title: string;
   classification: string;
+  kind: PosterKind;
+  /** Poster header, e.g. "WANTED", "MISSING", "SEEKING INFORMATION", "TEN MOST WANTED". */
+  label: string;
   subjects: string[];
   reward: string;
   caution: string;
+  /** e.g. "SHOULD BE CONSIDERED ARMED AND DANGEROUS". */
+  warning: string;
   image: string | null;
+  imageLarge: string | null;
+  /** Official printable poster (PDF). */
+  pdf: string | null;
   url: string;
   published: number;
+  modified: number;
+  /** Case summary (date and place) and details, as plain text. */
+  summary: string;
+  details: string;
+  remarks: string;
+  /** Physical description as published on the poster. */
+  sex: string;
+  race: string;
+  hair: string;
+  eyes: string;
+  height: string;
+  weight: string;
+  dob: string[];
+  aliases: string[];
+  placeOfBirth: string;
 }
 
-export const fbiUrl = (office: string) => `https://api.fbi.gov/wanted/v1/list?field_offices=${encodeURIComponent(office)}&pageSize=40`;
+const POSTER_LABEL: Record<string, string> = {
+  missing: 'MISSING',
+  information: 'SEEKING INFORMATION',
+  ten: 'TEN MOST WANTED',
+  'crimes-against-children': 'WANTED · CRIMES AGAINST CHILDREN',
+  terrorist: 'MOST WANTED TERRORIST',
+  fraudster: 'WANTED · FRAUD',
+  'law-enforcement-assistance': 'LAW ENFORCEMENT ASSISTANCE',
+  default: 'WANTED',
+};
+
+const posterKind = (c: string): PosterKind => (c === 'missing' ? 'missing' : c === 'information' || c === 'law-enforcement-assistance' ? 'info' : 'wanted');
+
+/** Inches → 5'6" (a range when min and max differ). */
+function feetInches(min: unknown, max: unknown): string {
+  const f = (n: number) => `${Math.floor(n / 12)}'${n % 12}"`;
+  const a = Number(min);
+  const b = Number(max);
+  if (!a && !b) return '';
+  if (a && b && a !== b) return `${f(a)} to ${f(b)}`;
+  return f(a || b);
+}
+
+export const fbiUrl = (office: string) => `https://api.fbi.gov/wanted/v1/list?field_offices=${encodeURIComponent(office)}&pageSize=50`;
 
 const strip = (s: string) => s.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
 
 export function parseWanted(d: { items?: Record<string, unknown>[] }): Wanted[] {
-  return (d.items ?? []).map((i) => ({
-    id: `fbi:${i.uid}`,
-    title: String(i.title ?? '').replace(/\b\w+/g, (w) => w[0] + w.slice(1).toLowerCase()),
-    classification: String(i.poster_classification ?? 'default'),
-    subjects: (i.subjects as string[] | null) ?? [],
-    reward: strip(String(i.reward_text ?? '')),
-    caution: strip(String(i.caution ?? i.description ?? '')).slice(0, 300),
-    image: ((i.images as { thumb?: string }[] | null) ?? [])[0]?.thumb ?? null,
-    url: String(i.url ?? ''),
-    published: Date.parse(String(i.publication ?? '')) || 0,
-  }));
+  const str = (v: unknown) => (v == null ? '' : strip(String(v)));
+  const fbiOnly = (u: unknown) => (typeof u === 'string' && /^https:\/\/(www\.)?fbi\.gov\//.test(u) ? u : null);
+  return (d.items ?? []).map((i) => {
+    const classification = String(i.poster_classification ?? 'default');
+    const img = ((i.images as { thumb?: string; large?: string; original?: string }[] | null) ?? [])[0];
+    const pdf = ((i.files as { url?: string; name?: string }[] | null) ?? []).find((f) => /english/i.test(f.name ?? '')) ?? ((i.files as { url?: string }[] | null) ?? [])[0];
+    return {
+      id: `fbi:${i.uid}`,
+      title: String(i.title ?? '').replace(/\b\w+/g, (w) => w[0] + w.slice(1).toLowerCase()),
+      classification,
+      kind: posterKind(classification),
+      label: POSTER_LABEL[classification] ?? 'WANTED',
+      subjects: (i.subjects as string[] | null) ?? [],
+      reward: str(i.reward_text),
+      caution: str(i.caution ?? i.description).slice(0, 300),
+      warning: str(i.warning_message),
+      image: fbiOnly(img?.thumb),
+      imageLarge: fbiOnly(img?.large ?? img?.original),
+      pdf: fbiOnly(pdf?.url),
+      url: String(i.url ?? ''),
+      published: Date.parse(String(i.publication ?? '')) || 0,
+      modified: Date.parse(String(i.modified ?? '')) || 0,
+      summary: str(i.description),
+      details: str(i.details).slice(0, 1500),
+      remarks: str(i.remarks).slice(0, 600),
+      sex: str(i.sex),
+      race: str(i.race_raw ?? i.race),
+      hair: str(i.hair_raw ?? i.hair),
+      eyes: str(i.eyes_raw ?? i.eyes),
+      height: feetInches(i.height_min, i.height_max),
+      weight: str(i.weight),
+      dob: ((i.dates_of_birth_used as string[] | null) ?? []).map(String),
+      aliases: ((i.aliases as string[] | null) ?? []).map(String),
+      placeOfBirth: str(i.place_of_birth),
+    };
+  });
 }
 
 // ------------------------------------------------------- River gauges ---

@@ -66,7 +66,25 @@ describe('earthquakes', () => {
 describe('FBI wanted', () => {
   it('parses items', () => {
     const w = parseWanted({ items: [{ uid: 'x1', title: 'JOSE DEL CARMEN GARCIA MARTINEZ', poster_classification: 'default', subjects: ['ViCAP Unidentified Persons'], reward_text: '<p>Up to $10,000</p>', caution: '<p>Armed &amp; dangerous</p>', images: [{ thumb: 'https://www.fbi.gov/t.jpg' }], url: 'https://www.fbi.gov/wanted/x', publication: '2026-10-01T00:00:00' }] });
-    expect(w[0]).toMatchObject({ id: 'fbi:x1', title: 'Jose Del Carmen Garcia Martinez', reward: 'Up to $10,000', caution: 'Armed & dangerous', image: 'https://www.fbi.gov/t.jpg' });
+    expect(w[0]).toMatchObject({ id: 'fbi:x1', title: 'Jose Del Carmen Garcia Martinez', reward: 'Up to $10,000', caution: 'Armed & dangerous', image: 'https://www.fbi.gov/t.jpg', kind: 'wanted', label: 'WANTED' });
+  });
+  it('builds a full missing-person poster', () => {
+    const [m] = parseWanted({
+      items: [
+        {
+          uid: 'm1', title: 'JENNIFER LYNN MARCUM', poster_classification: 'missing', subjects: ['Kidnappings and Missing Persons'],
+          description: 'February 16, 2003\nDenver, Colorado', details: '<p>Disappeared from Denver International Airport.</p>', remarks: '<p>Pierced ears.</p>',
+          sex: 'Female', race_raw: 'White', hair_raw: 'Brown', eyes_raw: 'Blue', height_min: 66, height_max: 66, weight: '115 pounds', dates_of_birth_used: ['June 15, 1977'],
+          images: [{ thumb: 'https://www.fbi.gov/wanted/kidnap/x/@@images/image/thumb', large: 'https://www.fbi.gov/wanted/kidnap/x/@@images/image/large' }],
+          files: [{ name: 'English', url: 'https://www.fbi.gov/wanted/kidnap/x/download.pdf' }],
+          url: 'https://www.fbi.gov/wanted/kidnap/x', publication: '2010-09-13T11:25:00', modified: '2026-03-15T00:04:19+00:00',
+        },
+        { uid: 'i1', title: 'TRIPLE HOMICIDE', poster_classification: 'information', warning_message: 'SHOULD BE CONSIDERED ARMED AND DANGEROUS', height_min: 68, height_max: 72, images: [{ thumb: 'https://evil.example/x.jpg' }] },
+      ],
+    });
+    expect(m).toMatchObject({ kind: 'missing', label: 'MISSING', height: `5'6"`, hair: 'Brown', details: 'Disappeared from Denver International Airport.', pdf: 'https://www.fbi.gov/wanted/kidnap/x/download.pdf', imageLarge: 'https://www.fbi.gov/wanted/kidnap/x/@@images/image/large' });
+    const [, info] = parseWanted({ items: [{ uid: 'm1' }, { uid: 'i1', poster_classification: 'information', warning_message: 'SHOULD BE CONSIDERED ARMED AND DANGEROUS', height_min: 68, height_max: 72, images: [{ thumb: 'https://evil.example/x.jpg' }] }] });
+    expect(info).toMatchObject({ kind: 'info', label: 'SEEKING INFORMATION', warning: 'SHOULD BE CONSIDERED ARMED AND DANGEROUS', height: `5'8" to 6'0"`, image: null });
   });
 });
 

@@ -5,7 +5,8 @@ import { getPack } from '../lib/packs';
 import { fmtAgo } from './format';
 import { openExternal } from './popout';
 import { TrafficTab } from './TrafficTab';
-import { CrimeList, Requests311, WantedList } from './IntelPanels';
+import { CrimeList, Requests311 } from './IntelPanels';
+import { PosterBoard } from './Posters';
 
 function TransitList() {
   const transit = useStore((s) => s.transit);
@@ -172,8 +173,9 @@ export function InfraTab() {
   const power = useStore((s) => s.outages.length);
   const fire = useStore((s) => s.fires.filter((f) => f.severity >= 1).length);
   const crime = useStore((s) => s.crimes.filter((c) => c.severity >= 2 && Date.now() - c.at < 2 * 86_400_000).length);
-  const counts: Record<Section, number> = { crime, s311: 0, roads, transit, power, fire, wanted: 0 };
-  const LABEL: Record<Section, string> = { crime: 'Crime', s311: '311', roads: 'Roads', transit: 'Transit', power: 'Power', fire: 'Fire', wanted: 'Wanted' };
+  const missing = useStore((s) => s.wanted.filter((w) => w.kind === 'missing').length);
+  const counts: Record<Section, number> = { crime, s311: 0, roads, transit, power, fire, wanted: missing };
+  const LABEL: Record<Section, string> = { crime: 'Crime', s311: '311', roads: 'Roads', transit: 'Transit', power: 'Power', fire: 'Fire', wanted: 'Wanted & missing' };
   return (
     <>
       <div className="subtabs seg small">
@@ -184,7 +186,7 @@ export function InfraTab() {
           </button>
         ))}
       </div>
-      {section === 'crime' ? <CrimeList /> : section === 's311' ? <Requests311 /> : section === 'wanted' ? <WantedList /> : section === 'roads' ? <TrafficTab /> : section === 'transit' ? <TransitList /> : section === 'power' ? <PowerList /> : <FireList />}
+      {section === 'crime' ? <CrimeList /> : section === 's311' ? <Requests311 /> : section === 'wanted' ? <PosterBoard /> : section === 'roads' ? <TrafficTab /> : section === 'transit' ? <TransitList /> : section === 'power' ? <PowerList /> : <FireList />}
     </>
   );
 }

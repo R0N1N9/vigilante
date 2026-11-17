@@ -180,9 +180,16 @@ export function startIntel(gen: number) {
     gen,
     'wanted',
     6 * 3600_000,
-    async () => {
+    async (first) => {
       const wanted = parseWanted(await getJsonRetry(fbiUrl(pack.intel.fbiOffice!)));
-      if (alive(gen)) setState({ wanted });
+      if (!alive(gen)) return;
+      setState({ wanted });
+      // A newly posted missing-person or wanted poster for this field office is worth telling the team.
+      for (const w of wanted)
+        emitSignal(
+          { id: `fbi:${w.id}`, source: 'fbi', kind: w.kind, title: `New FBI poster: ${w.label} · ${w.title}`, detail: [w.subjects[0], w.warning].filter(Boolean).join(' · '), severity: w.kind === 'missing' ? 2 : 1, at: w.published || Date.now(), location: null, url: w.url, packId: ctx.packId },
+          { quiet: first || Date.now() - w.published > 7 * 86_400_000, regional: true },
+        );
     },
     pack.intel.fbiOffice ? undefined : 'No FBI field office set for this area',
   );

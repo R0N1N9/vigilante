@@ -113,6 +113,7 @@ const TAGS: Record<Signal['source'], string> = {
   storm: 'thunder_cloud_and_rain',
   air: 'mask',
   hotspot: 'fire',
+  fbi: 'rotating_light',
 };
 
 /**

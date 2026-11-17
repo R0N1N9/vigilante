@@ -432,7 +432,7 @@ pre.cmd { background: #070a0e; border: 1px solid var(--line); border-radius: 2px
     "nsi nsi nsi map map map map map map act act act"
     "ins ins ins ins ins cam cam cam cam tv  tv  tv"
     "nws nws nws nws hds hds hds hds crm crm crm crm"
-    "tm  tm  tm  tm  tm  sts sts sts sts sts sts sts";
+    "tm  tm  tm  tm  wm  wm  wm  wm  sts sts sts sts";
   grid-template-rows: repeat(5, max-content);
   background:
     radial-gradient(ellipse 80% 50% at 50% 0%, rgba(var(--cy), .07), transparent 70%),
@@ -441,7 +441,7 @@ pre.cmd { background: #070a0e; border: 1px solid var(--line); border-radius: 2px
     var(--bg);
 }
 .dashboard::after { content: ''; opacity: var(--texture); position: fixed; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(255,255,255,.012) 0 1px, transparent 1px 3px); }
-.sitrep { grid-area: sit; } .a-map { grid-area: map; } .a-team { grid-area: tm; } .a-nsi { grid-area: nsi; } .a-ins { grid-area: ins; } .a-tv { grid-area: tv; }
+.sitrep { grid-area: sit; } .a-map { grid-area: map; } .a-team { grid-area: tm; } .a-posters { grid-area: wm; } .a-nsi { grid-area: nsi; } .a-ins { grid-area: ins; } .a-tv { grid-area: tv; }
 .a-cams { grid-area: cam; } .a-news { grid-area: nws; } .a-sit { grid-area: act; }
 .a-hoods { grid-area: hds; } .a-crime { grid-area: crm; } .a-status { grid-area: sts; }
 
@@ -564,11 +564,11 @@ pre.cmd { background: #070a0e; border: 1px solid var(--line); border-radius: 2px
 
 /* Responsive: 2 columns, then 1 */
 @media (max-width: 1500px) {
-  .dashboard { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "sit sit" "map map" "nsi act" "ins cam" "tv nws" "hds crm" "tm tm" "sts sts"; grid-template-rows: repeat(8, max-content); }
+  .dashboard { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "sit sit" "map map" "nsi act" "ins cam" "tv nws" "hds crm" "tm wm" "sts sts"; grid-template-rows: repeat(8, max-content); }
   .sr-kpis { grid-template-columns: repeat(6, minmax(70px, 1fr)); }
 }
 @media (max-width: 1050px) {
-  .dashboard { grid-template-columns: minmax(0, 1fr); grid-template-areas: "sit" "map" "nsi" "ins" "tv" "cam" "nws" "act" "hds" "crm" "tm" "sts"; grid-template-rows: repeat(12, max-content); }
+  .dashboard { grid-template-columns: minmax(0, 1fr); grid-template-areas: "sit" "map" "nsi" "ins" "tv" "cam" "nws" "act" "hds" "crm" "tm" "wm" "sts"; grid-template-rows: repeat(13, max-content); }
   .sr-kpis { grid-template-columns: repeat(3, 1fr); }
   .nsi { flex-direction: column; }
 }
@@ -581,7 +581,7 @@ pre.cmd { background: #070a0e; border: 1px solid var(--line); border-radius: 2px
 @media (min-width: 1501px) {
   .a-nsi .nsi { flex-direction: column; align-items: stretch; }
   .a-nsi .gauge { align-self: center; width: 150px; height: 150px; }
-  .stats-grid { grid-template-columns: repeat(4, 1fr); }
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 1050px) { .stage.locator { height: 340px; } }
 
@@ -778,3 +778,42 @@ button.link { background: none; border: 0; padding: 0; color: var(--accent); cur
 .roster .src.vigil { color: #A78BFA; }
 .brand svg { filter: drop-shadow(0 0 4px rgba(var(--accent-rgb), .6)); }
 .field-mark { color: var(--accent); align-self: center; filter: drop-shadow(0 0 4px rgba(var(--accent-rgb), .6)); }
+
+/* FBI wanted & missing posters */
+.poster-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.poster { --pc: var(--crit); display: flex; flex-direction: column; text-align: left; border: 1px solid rgba(var(--accent-rgb), .15); border-top: 3px solid var(--pc); background: rgba(var(--panel-rgb), .8); border-radius: 2px; overflow: hidden; padding: 0; color: inherit; }
+.poster.missing { --pc: var(--warn); }
+.poster.info { --pc: var(--info); }
+.poster:hover { border-color: var(--pc); box-shadow: 0 0 0 1px var(--pc); }
+.poster-band { font: 700 9.5px var(--mono); letter-spacing: .18em; color: #0b0f14; background: var(--pc); padding: 3px 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.poster-photo { aspect-ratio: 4 / 5; background: #0a0e13; display: grid; place-items: center; overflow: hidden; }
+.poster-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top; filter: saturate(.9); }
+.poster-photo i { font: normal 9.5px var(--mono); letter-spacing: .2em; color: var(--dim); }
+.poster-name { padding: 6px 8px 2px; font-weight: 600; font-size: 12.5px; line-height: 1.25; }
+.poster-sub { padding: 0 8px; font: 10px var(--mono); color: var(--dim); letter-spacing: .04em; }
+.poster-warn { margin: 4px 8px 0; font: 600 9.5px var(--mono); color: var(--crit); text-transform: uppercase; letter-spacing: .06em; }
+.poster-reward { margin: 4px 8px 8px; font-size: 11px; color: var(--warn); }
+.poster:not(:has(.poster-reward)) .poster-sub { padding-bottom: 8px; }
+.poster.compact .poster-name { padding-bottom: 6px; font-size: 11.5px; }
+.poster-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.a-posters .tile-body { max-height: 420px; overflow-y: auto; }
+.poster-modal { max-width: 860px; }
+.poster-modal .poster-kind { font: 700 12px var(--mono); letter-spacing: .2em; color: #0b0f14; background: var(--crit); padding: 2px 8px; margin-right: 6px; vertical-align: 2px; }
+.poster-modal.missing .poster-kind { background: var(--warn); }
+.poster-modal.info .poster-kind { background: var(--info); }
+.poster-full { display: grid; grid-template-columns: minmax(180px, 280px) 1fr; gap: 16px; padding: 12px 0; }
+.poster-img img { width: 100%; border-radius: 2px; border: 1px solid var(--line-2); }
+.poster-img i { display: grid; place-items: center; aspect-ratio: 4 / 5; border: 1px dashed var(--line-2); color: var(--dim); font-style: normal; }
+.poster-info { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.poster-alert { font: 700 11.5px var(--mono); letter-spacing: .08em; color: var(--crit); border: 1px solid rgba(var(--crit-rgb), .5); background: rgba(var(--crit-rgb), .08); padding: 6px 8px; }
+.poster-summary { margin: 0; white-space: pre-line; font-size: 13px; }
+.facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px 12px; }
+.fact { display: flex; flex-direction: column; }
+.fact span { font: 9.5px var(--mono); letter-spacing: .14em; color: var(--dim); text-transform: uppercase; }
+.fact b { font-weight: 500; font-size: 13px; }
+.poster-reward.big { margin: 0; font-size: 13px; color: var(--warn); border-left: 2px solid var(--warn); padding-left: 8px; }
+.poster-guidance { border-color: rgba(var(--warn-rgb), .3) !important; }
+.poster-modal .modal-foot { flex-wrap: wrap; padding: 12px 18px 16px; }
+@media (max-width: 640px) { .poster-full { grid-template-columns: 1fr; } }
+
+.list .callout .field-row { display: flex; flex-wrap: wrap; gap: 6px; }

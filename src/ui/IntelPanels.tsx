@@ -5,7 +5,6 @@ import { aqiLabel, gaugeSeverity, hourHistogram, quakeSeverity, shipTypeName, st
 import { getPack } from '../lib/packs';
 import type { LonLat } from '../lib/geo';
 import { fmtAgo } from './format';
-import { openExternal } from './popout';
 
 const focus = (center: LonLat, zoom = 15) => setShared({ focus: { at: Date.now(), center, zoom } });
 
@@ -85,29 +84,6 @@ export function Requests311() {
 }
 
 // ----------------------------------------------------------------- Wanted ---
-
-export function WantedList() {
-  const wanted = useStore((s) => s.wanted);
-  const feed = useStore((s) => s.feeds.wanted);
-  const pack = useStore((s) => getPack(s.packId));
-  if (!wanted.length) return <div className="list"><FeedNote feed={feed} /></div>;
-  return (
-    <div className="list">
-      <Source>FBI Wanted · {pack.intel.fbiOffice} field office · {wanted.length} notices</Source>
-      <div className="callout"><p>If you recognize someone, contact the FBI (tips.fbi.gov or 1-800-CALL-FBI). Do not approach. Many notices are for victims or missing persons, not suspects.</p></div>
-      {wanted.map((w) => (
-        <article key={w.id} className="wanted" onClick={() => void openExternal(w.url, w.title)}>
-          {w.image ? <img src={w.image} alt="" loading="lazy" referrerPolicy="no-referrer" /> : <div className="news-noimg">?</div>}
-          <div>
-            <div className="inc-title">{w.title}</div>
-            <div className="muted small-text">{w.subjects.join(' · ')}</div>
-            {w.reward && <div className="small-text warn">{w.reward.slice(0, 120)}</div>}
-          </div>
-        </article>
-      ))}
-    </div>
-  );
-}
 
 // ---------------------------------------------------------------- Hazards ---
 

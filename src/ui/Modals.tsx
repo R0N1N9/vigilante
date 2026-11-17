@@ -9,6 +9,7 @@ import { fmtTime } from './format';
 import QRCode from 'qrcode';
 import { fieldLink, inviteLink, MESHTASTIC_APP_URL, nativeLink, vigilLink } from '../lib/comms';
 import { openSystem } from './popout';
+import { PosterModal } from './Posters';
 
 function Modal({ title, children, wide = false }: { title: string; children: React.ReactNode; wide?: boolean }) {
   useEffect(() => {
@@ -441,6 +442,7 @@ function InviteModal() {
 export function Modals() {
   const modal = useStore((s) => s.modal);
   if (modal === 'invite') return <InviteModal />;
+  if (modal === 'poster') return <PosterModal />;
   if (modal === 'settings') return <SettingsModal />;
   if (modal === 'brief') return <BriefModal />;
   return null;
