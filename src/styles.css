@@ -750,8 +750,15 @@ button.link { background: none; border: 0; padding: 0; color: var(--accent); cur
 .field-card.share.on { border-color: var(--ok); box-shadow: 0 0 0 1px rgba(43,212,125,.3), 0 0 24px rgba(43,212,125,.12); }
 .field-btn { display: block; text-align: center; text-decoration: none; padding: 13px 16px; font: 600 15px var(--sans); border-radius: 8px; border: 1px solid var(--accent); color: var(--accent); background: rgba(var(--accent-rgb), .12); }
 .field-btn.go { border-color: var(--ok); color: #04130b; background: var(--ok); }
-.field-btn.stop { border-color: var(--crit); color: var(--crit); background: rgba(var(--crit-rgb),.1); }
 .field-btn:disabled { opacity: .45; }
+.field-invite summary { cursor: pointer; font-size: 14px; list-style-position: inside; }
+.field-invite[open] summary { margin-bottom: 4px; }
+.field-invite-body { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.field-qr { align-self: center; width: 240px; height: 240px; background: #fff; border-radius: 6px; overflow: hidden; }
+.field-qr img { display: block; width: 240px; height: 240px; image-rendering: pixelated; }
+.field-note { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--muted); }
+.field-leave { align-self: center; margin-top: 4px; padding: 8px 14px; background: none; border: none; color: var(--muted); font-size: 13px; text-decoration: underline; cursor: pointer; }
+.field-btn.stop { border-color: var(--crit); color: var(--crit); background: rgba(var(--crit-rgb),.1); }
 .live-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 10px var(--ok); animation: ledpulse 1.4s ease-in-out infinite; display: inline-block; }
 .fieldapp .hint { font-size: 12px; color: var(--dim); }
 .fieldapp .warn { color: var(--warn); font-size: 13px; }
