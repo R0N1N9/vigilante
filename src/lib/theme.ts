@@ -1,5 +1,5 @@
 /** App appearance: theme presets plus custom RGB colors and panel opacity. */
-export type ThemeId = 'tactical' | 'nightvision' | 'amber' | 'redlight' | 'steel' | 'custom';
+export type ThemeId = 'tactical' | 'greenred' | 'nightvision' | 'amber' | 'redlight' | 'steel' | 'custom';
 
 export interface Appearance {
   theme: ThemeId;
@@ -7,24 +7,30 @@ export interface Appearance {
   accent: string;
   bg: string;
   panel: string;
+  /** Warnings (amber by default) and critical alerts (red by default); 'serious' is blended between them. */
+  alert: string;
+  critical: string;
   /** 0.4 to 1: how solid panels, tiles and map overlays are. */
   panelOpacity: number;
   /** Grid lines and scanlines behind the dashboard. */
   texture: boolean;
 }
 
-export const THEMES: Record<Exclude<ThemeId, 'custom'>, { label: string; note: string; accent: string; bg: string; panel: string }> = {
-  tactical: { label: 'Tactical cyan', note: 'Default', accent: '#3dd6f5', bg: '#0b0f14', panel: '#0d131a' },
-  nightvision: { label: 'Night vision', note: 'Green phosphor', accent: '#39ff7a', bg: '#060b07', panel: '#0a120c' },
-  amber: { label: 'Amber CRT', note: 'Warm, easy on the eyes', accent: '#ffb020', bg: '#0d0a05', panel: '#15110a' },
-  redlight: { label: 'Red low-light', note: 'Keeps night vision in a dark vehicle', accent: '#ff4d4f', bg: '#0b0606', panel: '#140b0b' },
-  steel: { label: 'Steel', note: 'Muted blue-gray', accent: '#9ec9ff', bg: '#0a0d12', panel: '#10151d' },
+type Palette = { label: string; note: string; accent: string; bg: string; panel: string; alert: string; critical: string };
+
+export const THEMES: Record<Exclude<ThemeId, 'custom'>, Palette> = {
+  tactical: { label: 'Tactical cyan', note: 'Cyan with amber alerts (default)', accent: '#3dd6f5', bg: '#0b0f14', panel: '#0d131a', alert: '#ffb020', critical: '#ff4d4f' },
+  greenred: { label: 'Green & red', note: 'Ops green with red alerts', accent: '#2ee59d', bg: '#070d0a', panel: '#0b1410', alert: '#ff5c5c', critical: '#ff2a6d' },
+  nightvision: { label: 'Night vision', note: 'Green phosphor', accent: '#39ff7a', bg: '#060b07', panel: '#0a120c', alert: '#ffb020', critical: '#ff4d4f' },
+  amber: { label: 'Amber CRT', note: 'Warm, easy on the eyes', accent: '#ffb020', bg: '#0d0a05', panel: '#15110a', alert: '#ff7a45', critical: '#ff4d4f' },
+  redlight: { label: 'Red low-light', note: 'Keeps night vision in a dark vehicle', accent: '#ff4d4f', bg: '#0b0606', panel: '#140b0b', alert: '#ffb020', critical: '#ff2a9d' },
+  steel: { label: 'Steel', note: 'Muted blue-gray', accent: '#9ec9ff', bg: '#0a0d12', panel: '#10151d', alert: '#ffb020', critical: '#ff4d4f' },
 };
 
 export const DEFAULT_APPEARANCE: Appearance = { theme: 'tactical', ...pick(THEMES.tactical), panelOpacity: 0.92, texture: true };
 
-function pick(t: { accent: string; bg: string; panel: string }) {
-  return { accent: t.accent, bg: t.bg, panel: t.panel };
+function pick(t: Palette) {
+  return { accent: t.accent, bg: t.bg, panel: t.panel, alert: t.alert, critical: t.critical };
 }
 
 export function hexToRgb(hex: string): [number, number, number] {
@@ -55,6 +61,9 @@ export function themeVars(a: Appearance): Record<string, string> {
   const bg = hexToRgb(a.bg);
   const panel = hexToRgb(a.panel);
   const op = Math.max(0.4, Math.min(1, a.panelOpacity));
+  const warn = hexToRgb(a.alert ?? '#ffb020');
+  const crit = hexToRgb(a.critical ?? '#ff4d4f');
+  const serious = warn.map((v, i) => Math.round(v + (crit[i] - v) * 0.5)) as [number, number, number];
   return {
     '--accent': rgbToHex(...accent),
     '--accent-rgb': accent.join(', '),
@@ -67,6 +76,12 @@ export function themeVars(a: Appearance): Record<string, string> {
     '--line': mix(panel, accent, 0.1),
     '--line-2': mix(panel, accent, 0.17),
     '--texture': a.texture ? '1' : '0',
+    '--warn': rgbToHex(...warn),
+    '--warn-rgb': warn.join(', '),
+    '--crit': rgbToHex(...crit),
+    '--crit-rgb': crit.join(', '),
+    '--serious': rgbToHex(...serious),
+    '--serious-rgb': serious.join(', '),
   };
 }
 
