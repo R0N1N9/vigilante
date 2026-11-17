@@ -18,7 +18,7 @@ export const openPoster = (id: string) => setState({ modal: 'poster', posterId: 
 function PosterCard({ w, compact = false }: { w: Wanted; compact?: boolean }) {
   return (
     <button className={`poster ${w.kind} ${compact ? 'compact' : ''}`} onClick={() => openPoster(w.id)} title={`${w.label}: ${w.title}`}>
-      <span className="poster-band">{w.kind === 'wanted' && w.label !== 'WANTED' ? w.label.replace('WANTED · ', '') : w.label}</span>
+      <span className="poster-band">{w.kind === 'info' ? 'SEEKING INFO' : w.kind === 'wanted' && w.label !== 'WANTED' ? w.label.replace('WANTED · ', '') : w.label}</span>
       <span className="poster-photo">
         {w.image ? <img src={w.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={(e) => e.currentTarget.replaceWith(Object.assign(document.createElement('i'), { textContent: 'NO PHOTO' }))} /> : <i>NO PHOTO</i>}
       </span>
