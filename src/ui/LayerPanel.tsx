@@ -17,6 +17,8 @@ const ROWS: [keyof Layers, string, string][] = [
   ['tfr', 'FAA no-fly zones', '#FF4D4F'],
   ['weather', 'NWS alerts', '#FFB020'],
   ['traffic', 'Road incidents', '#FF7A45'],
+  ['transit', 'Transit disruptions', '#34D399'],
+  ['outages', 'Power outages (county)', '#FDE68A'],
   ['cameras', 'Traffic cameras', '#7DD3FC'],
   ['news', 'News (placed)', '#4C8DFF'],
   ['areas', 'Watch areas', '#3DD6F5'],

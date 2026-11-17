@@ -5,7 +5,7 @@ import { PACKS, getPack } from '../lib/packs';
 import { fmtAgo, fmtTime, tzAbbr } from './format';
 import { POPOUT_VIEWS, popOut, type View } from './popout';
 
-const FEED_LABEL: Record<FeedName, string> = { adsb: 'ADS-B', nws: 'NWS', tfr: 'FAA', traffic: 'ROADS', news: 'NEWS', drones: 'RID' };
+const FEED_LABEL: Record<FeedName, string> = { adsb: 'ADS-B', nws: 'NWS', tfr: 'FAA', traffic: 'ROADS', transit: 'TRANSIT', power: 'POWER', news: 'NEWS', drones: 'RID' };
 
 function FeedDot({ name, feed }: { name: FeedName; feed: Feed }) {
   const label = feed.status === 'live' || feed.status === 'stale' ? fmtAgo(feed.at) : feed.status === 'error' ? 'ERR' : feed.status === 'off' ? 'off' : '…';

@@ -12,6 +12,8 @@ A neighborhood situational-awareness console for your laptop. It watches the are
 - **FAA no-fly zones (TFRs)** from tfr.faa.gov, as red dashed outlines. Toggle them off in Layers.
 - **NWS weather alerts**, color-coded by severity
 - **Road incidents and closures** (Georgia 511 / COtrip), with routine roadwork hidden
+- **Transit disruptions:** RTD's official service alerts (Denver), pinned at the affected stops; police activity, medical emergencies and accidents are flagged. For MARTA (Atlanta), bus routes where several buses are 15+ minutes late, pinned where those buses are.
+- **Power outages** by county from the U.S. Department of Energy's ODIN program, shaded by customers out, plus one-click links to each utility's official outage map
 - **Traffic cameras**: click one for a snapshot that refreshes every few seconds
 - **News stories** that name a local neighborhood, pinned where they happened
 - Your **watch areas**
@@ -19,7 +21,7 @@ A neighborhood situational-awareness console for your laptop. It watches the are
 **In the side rail**
 - **Alerts:** **developing incident** cards. When signals from different sources line up in the same blocks within the same hour (for example a helicopter circling + a road closed for police activity + a news story), they merge into one card with a timeline. Below them: live alerts.
 - **News:** local safety stories from local TV and newspaper feeds plus Google News, de-duplicated and filtered to stories that name your area. A small **TV player** shows a station's latest clips, or its **live stream** when it's on air, and pops out into an always-on-top **mini window**.
-- **Roads:** current crashes and closures
+- **City:** Roads, Transit and Power sub-tabs
 - **Cams:** a **camera wall** of the four cameras nearest whatever you selected
 - **Air:** the aircraft list
 - **Drones:** Remote ID detections, plus a simulator
@@ -125,6 +127,8 @@ cd src-tauri && cargo test
 - Satellite: [USGS The National Map](https://www.usgs.gov/programs/national-geospatial-program/national-map) (public domain)
 - No-fly zones: [FAA TFR](https://tfr.faa.gov)
 - Roads and cameras: [Georgia 511](https://511ga.org), [COtrip / CDOT](https://www.cotrip.org)
+- Transit: [RTD GTFS and GTFS-Realtime](https://www.rtd-denver.com/open-records/open-spatial-information/real-time-feeds), [MARTA GTFS and GTFS-Realtime](https://itsmarta.com/app-developer-resources.aspx)
+- Power outages: [DOE ODIN (Oak Ridge National Laboratory)](https://ornl.opendatasoft.com/explore/dataset/odin-real-time-outages-county/)
 - News: station RSS feeds (Denver7, 9NEWS, FOX31, Denverite, CPR News, 11Alive, FOX 5 Atlanta, WSB-TV, Atlanta News First) and Google News search RSS. Headlines link to the original story.
 - Phone alerts: [ntfy](https://ntfy.sh)
 
@@ -132,6 +136,8 @@ cd src-tauri && cargo test
 
 - **Denver traffic is untested.** COtrip's incident format isn't public without a key, so the parser is deliberately tolerant. Denver cameras are blocked on finding COtrip's camera endpoint, which needs a key to look up. Atlanta (Georgia 511) follows 511's published format, and its camera snapshots were tested live.
 - **Live TV** relies on YouTube embeds. Stations only stream live during newscasts and breaking news; otherwise use *Latest*. If a desktop webview refuses to play the embed, use the **Mini ↗** window.
+- **Power outage coverage is partial.** ODIN only includes utilities that report to it. Around Denver that's United Power and CORE Electric, but not Xcel Energy, which serves most of the city. In Atlanta, Georgia Power and the EMCs don't report to it. Their own outage maps are one click away in the Power tab. Their internal map data feeds are undocumented, so the app doesn't use them.
+- **MARTA has no alerts feed**, so Atlanta transit disruptions are inferred from late buses. Rail isn't covered: MARTA's rail data needs a separate key.
 - **The brief and developing incidents only know what the app saw while it was running.** History is kept for 72 hours.
 - **News places** come from a built-in neighborhood list. Stories that only say "Denver" aren't pinned, to avoid false precision.
 - **"AGL" is approximate:** barometric altitude minus the city's elevation. Circling detection is a heuristic.

@@ -1,6 +1,6 @@
 import type { LonLat } from './geo';
 
-export type SignalSource = 'adsb' | 'nws' | 'traffic' | 'news' | 'tfr' | 'drone';
+export type SignalSource = 'adsb' | 'nws' | 'traffic' | 'news' | 'tfr' | 'drone' | 'transit' | 'power';
 export type Severity = 0 | 1 | 2 | 3 | 4;
 
 /**
@@ -27,4 +27,6 @@ export const SOURCE_LABEL: Record<SignalSource, string> = {
   news: 'News',
   tfr: 'No-fly zone',
   drone: 'Drone',
+  transit: 'Transit',
+  power: 'Power',
 };

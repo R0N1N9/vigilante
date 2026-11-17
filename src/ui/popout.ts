@@ -9,7 +9,7 @@ export const POPOUT_VIEWS: { view: Exclude<View, 'console'>; label: string; w: n
   { view: 'alerts', label: 'Alerts & log', w: 520, h: 860 },
   { view: 'cameras', label: 'Camera wall', w: 960, h: 720 },
   { view: 'news', label: 'News & live TV', w: 560, h: 860 },
-  { view: 'traffic', label: 'Roads', w: 520, h: 800 },
+  { view: 'traffic', label: 'Roads, transit & power', w: 520, h: 820 },
   { view: 'air', label: 'Aircraft', w: 520, h: 820 },
   { view: 'drones', label: 'Drones', w: 520, h: 720 },
 ];

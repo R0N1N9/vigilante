@@ -12,6 +12,8 @@ import { startNews } from './news';
 import { startNws } from './nws';
 import { startTfr } from './tfr';
 import { startTraffic } from './traffic';
+import { startTransit } from './transit';
+import { startPower } from './power';
 
 function startForPack(id: string) {
   clearTimers();
@@ -26,6 +28,8 @@ function startForPack(id: string) {
   startNws(gen);
   startTfr(gen);
   startTraffic(gen);
+  startTransit(gen);
+  startPower(gen);
   startNews(gen);
   recomputeClusters(false);
   publishData();

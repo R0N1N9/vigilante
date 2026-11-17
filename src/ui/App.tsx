@@ -1,3 +1,4 @@
+import { Component, type ReactNode } from 'react';
 import { setState, useStore, type RailTab } from '../data/store';
 import { MapView } from '../map/MapView';
 import { AircraftCard } from './AircraftCard';
@@ -12,7 +13,7 @@ import { LayerPanel } from './LayerPanel';
 import { Modals } from './Modals';
 import { NewsTab } from './NewsTab';
 import type { View } from './popout';
-import { TrafficTab } from './TrafficTab';
+import { InfraTab } from './InfraTab';
 
 function MapStage() {
   return (
@@ -29,7 +30,7 @@ function MapStage() {
 const TABS: { id: RailTab; label: string }[] = [
   { id: 'alerts', label: 'Alerts' },
   { id: 'news', label: 'News' },
-  { id: 'traffic', label: 'Roads' },
+  { id: 'traffic', label: 'City' },
   { id: 'cameras', label: 'Cams' },
   { id: 'air', label: 'Air' },
   { id: 'drones', label: 'Drones' },
@@ -38,9 +39,35 @@ const TABS: { id: RailTab; label: string }[] = [
 
 function Badge({ tab }: { tab: RailTab }) {
   const n = useStore((s) =>
-    tab === 'alerts' ? s.incidents.length + s.clusters.length : tab === 'traffic' ? s.traffic.filter((t) => t.severity >= 2).length : tab === 'drones' ? s.drones.length : tab === 'news' ? s.news.filter((x) => x.severity >= 2 && x.local).length : 0,
+    tab === 'alerts' ? s.incidents.length + s.clusters.length : tab === 'traffic' ? s.traffic.filter((t) => t.severity >= 2).length + s.transit.filter((t) => t.severity >= 2).length + s.outages.filter((o) => o.severity >= 1).length : tab === 'drones' ? s.drones.length : tab === 'news' ? s.news.filter((x) => x.severity >= 2 && x.local).length : 0,
   );
   return n ? <span className="badge">{n}</span> : null;
+}
+
+/** Keeps one broken panel from taking down the whole console. */
+class PanelBoundary extends Component<{ children: ReactNode; name: string }, { error: string | null }> {
+  state = { error: null as string | null };
+  static getDerivedStateFromError(e: unknown) {
+    return { error: String(e) };
+  }
+  componentDidUpdate(prev: { name: string }) {
+    if (prev.name !== this.props.name && this.state.error) this.setState({ error: null });
+  }
+  render() {
+    if (this.state.error)
+      return (
+        <div className="list">
+          <div className="callout">
+            <b>This panel hit an error.</b>
+            <p className="mono small-text">{this.state.error}</p>
+            <button className="btn small" onClick={() => this.setState({ error: null })}>
+              Retry
+            </button>
+          </div>
+        </div>
+      );
+    return this.props.children;
+  }
 }
 
 function TabBody({ tab }: { tab: RailTab }) {
@@ -50,7 +77,7 @@ function TabBody({ tab }: { tab: RailTab }) {
     case 'news':
       return <NewsTab />;
     case 'traffic':
-      return <TrafficTab />;
+      return <InfraTab />;
     case 'cameras':
       return <CamerasTab />;
     case 'air':
@@ -75,7 +102,9 @@ function Rail() {
         ))}
       </nav>
       <div className="tab-body">
-        <TabBody tab={tab} />
+        <PanelBoundary name={tab}>
+          <TabBody tab={tab} />
+        </PanelBoundary>
       </div>
     </aside>
   );
@@ -122,7 +151,7 @@ export function App({ view }: { view: View }) {
       )}
       {view === 'air' && <Solo title="AIRCRAFT"><AircraftList /></Solo>}
       {view === 'news' && <Solo title="NEWS & LIVE TV"><NewsTab /></Solo>}
-      {view === 'traffic' && <Solo title="ROADS"><TrafficTab /></Solo>}
+      {view === 'traffic' && <Solo title="ROADS · TRANSIT · POWER"><InfraTab /></Solo>}
       {view === 'cameras' && <Solo title="CAMERA WALL"><CamerasTab wall={6} /></Solo>}
       {view === 'drones' && <Solo title="DRONES"><DronesTab /></Solo>}
       {view === 'areas' && <Solo title="WATCH AREAS"><AreasTab /></Solo>}

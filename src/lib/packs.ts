@@ -45,6 +45,11 @@ export interface CityPack {
   news: { feeds: NewsFeed[]; googleQuery: string; localTerms: string[] };
   liveTv: LiveTv[];
   places: PlaceTuple[];
+  transit:
+    | { agency: 'RTD'; alertsUrl: string; staticUrl: string; infoUrl: string }
+    | { agency: 'MARTA'; tripUpdatesUrl: string; vehiclesUrl: string; staticUrl: string; infoUrl: string };
+  /** Outage counts come from DOE ODIN by state; utilities link to their own official outage maps. */
+  power: { state: string; utilities: { name: string; url: string }[] };
 }
 
 export const PACKS: CityPack[] = [denver as unknown as CityPack, atlanta as unknown as CityPack];

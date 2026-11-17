@@ -15,13 +15,16 @@ const fc = (features: GeoJSON.Feature[]): GeoJSON.FeatureCollection => ({ type: 
 const SEVERITY_FILL = ['match', ['get', 'severity'], 'Extreme', '#FF4D4F', 'Severe', '#FF7A45', 'Moderate', '#FFB020', 'Minor', '#4C8DFF', '#8FA3B8'] as unknown as maplibregl.ExpressionSpecification;
 const SEV_NUM = ['match', ['get', 'sev'], 4, '#FF4D4F', 3, '#FF7A45', 2, '#FFB020', 1, '#4C8DFF', '#8FA3B8'] as unknown as maplibregl.ExpressionSpecification;
 
-const SOURCES = ['aoi', 'areas', 'draw', 'weather', 'tfr', 'traffic-lines', 'traffic', 'cameras', 'news', 'clusters', 'trails', 'orbits', 'drone-links', 'drones', 'aircraft'];
+const SOURCES = ['aoi', 'outages', 'transit', 'areas', 'draw', 'weather', 'tfr', 'traffic-lines', 'traffic', 'cameras', 'news', 'clusters', 'trails', 'orbits', 'drone-links', 'drones', 'aircraft'];
 
 function addDataLayers(map: MlMap) {
   addIcons(map);
   for (const id of SOURCES) if (!map.getSource(id)) map.addSource(id, { type: 'geojson', data: EMPTY });
   const L = (layer: maplibregl.LayerSpecification) => map.addLayer(layer);
 
+  L({ id: 'outages-fill', type: 'fill', source: 'outages', paint: { 'fill-color': ['match', ['get', 'sev'], 3, '#FF7A45', 2, '#FFB020', 1, '#FDE68A', '#FDE68A'], 'fill-opacity': ['match', ['get', 'sev'], 3, 0.22, 2, 0.16, 1, 0.1, 0.05] } });
+  L({ id: 'outages-line', type: 'line', source: 'outages', paint: { 'line-color': '#FFB020', 'line-width': 1, 'line-opacity': 0.5 } });
+  L({ id: 'outages-label', type: 'symbol', source: 'outages', layout: { 'text-field': ['get', 'label'], 'text-font': LABEL_FONT, 'text-size': 11, 'symbol-placement': 'point' }, paint: { 'text-color': '#FFD58A', 'text-halo-color': '#0B0F14', 'text-halo-width': 1.6 } });
   L({ id: 'weather-fill', type: 'fill', source: 'weather', paint: { 'fill-color': SEVERITY_FILL, 'fill-opacity': 0.12 } });
   L({ id: 'weather-line', type: 'line', source: 'weather', paint: { 'line-color': SEVERITY_FILL, 'line-width': 1.2, 'line-opacity': 0.7 } });
   L({ id: 'tfr-fill', type: 'fill', source: 'tfr', paint: { 'fill-color': '#FF4D4F', 'fill-opacity': 0.08 } });
@@ -34,6 +37,7 @@ function addDataLayers(map: MlMap) {
   L({ id: 'traffic-lines', type: 'line', source: 'traffic-lines', layout: { 'line-cap': 'round' }, paint: { 'line-color': SEV_NUM, 'line-width': 4, 'line-opacity': 0.55 } });
   L({ id: 'cameras', type: 'symbol', source: 'cameras', minzoom: 10, layout: { 'icon-image': 'camera', 'icon-size': 0.7, 'icon-allow-overlap': true } });
   L({ id: 'traffic', type: 'symbol', source: 'traffic', layout: { 'icon-image': ['concat', 'traffic-', ['to-string', ['get', 'sev']]], 'icon-size': 0.8, 'icon-allow-overlap': true } });
+  L({ id: 'transit', type: 'symbol', source: 'transit', layout: { 'icon-image': ['concat', 'transit-', ['to-string', ['get', 'sev']]], 'icon-size': ['interpolate', ['linear'], ['zoom'], 9, 0.5, 13, 0.75], 'icon-allow-overlap': true } });
   L({ id: 'news', type: 'symbol', source: 'news', layout: { 'icon-image': ['concat', 'news-', ['to-string', ['get', 'sev']]], 'icon-size': 0.75, 'icon-allow-overlap': true } });
   L({ id: 'clusters', type: 'circle', source: 'clusters', paint: { 'circle-radius': 30, 'circle-color': 'rgba(255,77,79,0.06)', 'circle-stroke-color': SEV_NUM, 'circle-stroke-width': 2 } });
   L({ id: 'clusters-label', type: 'symbol', source: 'clusters', layout: { 'text-field': ['get', 'label'], 'text-font': LABEL_FONT, 'text-size': 11, 'text-offset': [0, 3.2], 'text-anchor': 'top' }, paint: { 'text-color': '#FFD1D1', 'text-halo-color': '#0B0F14', 'text-halo-width': 1.6 } });
@@ -83,6 +87,8 @@ function render(map: MlMap, s: State) {
   vis(['traffic', 'traffic-lines'], s.layers.traffic);
   vis(['cameras'], s.layers.cameras);
   vis(['news'], s.layers.news);
+  vis(['transit'], s.layers.transit);
+  vis(['outages-fill', 'outages-line', 'outages-label'], s.layers.outages);
   vis(['drones', 'drone-links'], s.layers.drones);
   vis(['areas-fill', 'areas-line', 'areas-label'], s.layers.areas);
 
@@ -93,6 +99,8 @@ function render(map: MlMap, s: State) {
   setData(map, 'traffic', fc(s.traffic.map((t) => ({ type: 'Feature', properties: { id: t.id, sev: t.severity }, geometry: { type: 'Point', coordinates: t.location } }))));
   setData(map, 'traffic-lines', fc(s.traffic.filter((t) => t.path).map((t) => ({ type: 'Feature', properties: { sev: t.severity }, geometry: { type: 'LineString', coordinates: t.path! } }))));
   setData(map, 'cameras', fc(s.cameras.map((c) => ({ type: 'Feature', properties: { id: c.id }, geometry: { type: 'Point', coordinates: c.location } }))));
+  setData(map, 'outages', fc(s.outages.filter((o) => o.geometry).map((o) => ({ type: 'Feature', properties: { id: o.id, sev: o.severity, label: `⚡ ${o.county}: ${o.customers.toLocaleString('en-US')} out` }, geometry: o.geometry! }))));
+  setData(map, 'transit', fc(s.transit.flatMap((t) => t.points.map((p) => ({ type: 'Feature', properties: { id: t.id, sev: t.severity }, geometry: { type: 'Point', coordinates: p } })))));
   setData(map, 'news', fc(s.news.filter((n) => n.location).map((n) => ({ type: 'Feature', properties: { id: n.id, sev: n.severity }, geometry: { type: 'Point', coordinates: n.location! } }))));
   setData(map, 'clusters', fc(s.clusters.map((c) => ({ type: 'Feature', properties: { id: c.id, sev: c.severity, label: `${c.title} · ${c.sources.length} sources` }, geometry: { type: 'Point', coordinates: c.center } }))));
 
@@ -160,7 +168,7 @@ function render(map: MlMap, s: State) {
   setData(map, 'draw', fc(drawF));
 }
 
-const CLICKABLE = ['aircraft', 'cameras', 'traffic', 'news', 'clusters', 'drones'];
+const CLICKABLE = ['aircraft', 'cameras', 'traffic', 'transit', 'news', 'clusters', 'drones', 'outages-fill'];
 
 export function MapView() {
   const el = useRef<HTMLDivElement>(null);
@@ -204,6 +212,12 @@ export function MapView() {
       else if (f.layer.id === 'traffic') {
         const t = s.traffic.find((x) => x.id === p.id);
         if (t) popup.setLngLat(t.location).setHTML(`<b>${esc(t.title)}</b><p>${esc(t.description)}</p>`).addTo(map);
+      } else if (f.layer.id === 'transit') {
+        const t = s.transit.find((x) => x.id === p.id);
+        if (t) popup.setLngLat(e.lngLat).setHTML(`<small>${esc(t.agency)}${t.cause ? ` · ${esc(t.cause.toUpperCase())}` : ''}${t.effect ? ` · ${esc(t.effect)}` : ''}</small><b>${esc(t.title)}</b><p>${esc(t.detail)}</p>`).addTo(map);
+      } else if (f.layer.id === 'outages-fill') {
+        const o = s.outages.find((x) => x.id === p.id);
+        if (o) popup.setLngLat(e.lngLat).setHTML(`<small>POWER OUTAGE · DOE ODIN</small><b>${esc(o.county)} County: ${o.customers.toLocaleString('en-US')} customers out</b><p>${esc(o.utilities.join(', '))}</p>`).addTo(map);
       } else if (f.layer.id === 'news') {
         const n = s.news.find((x) => x.id === p.id);
         if (n) popup.setLngLat(n.location!).setHTML(`<small>${esc(n.source)} · ${esc(n.place ?? '')}</small><b>${esc(n.title)}</b>`).addTo(map);

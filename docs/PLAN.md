@@ -1,6 +1,6 @@
 # Vigilante: Neighborhood Situational Awareness Console
 
-**Status:** Phase 1 built: aircraft, drones (Remote ID), FAA TFRs, NWS, roads/cameras, local news + TV, watch areas, developing incidents, morning brief and phone alerts for Denver/Atlanta. See the README.
+**Status:** Phase 1 built: aircraft, transit disruptions, power outages, drones (Remote ID), FAA TFRs, NWS, roads/cameras, local news + TV, watch areas, developing incidents, morning brief and phone alerts for Denver/Atlanta. See the README.
 **Target:** Desktop app for Windows, macOS and Linux laptops. Works on one screen and scales out to several monitors.
 **Inspiration:** [World Monitor](https://github.com/koala73/worldmonitor) (global OSINT dashboard), police CAD/dispatch consoles, and the tar1090 and MarineTraffic map UIs.
 
@@ -330,6 +330,7 @@ A city pack is a JSON file (`packs/denver.json`, `packs/atlanta.json`) listing t
 |---|---|---|
 | **0. Spike** | Tauri + MapLibre; Denver/Atlanta; live aircraft with helicopter/orbit/squawk detection; NWS alerts; pop-out windows | ✅ Done |
 | **1. Situational picture** | Watch areas (draw on map); FAA no-fly zones (toggleable); Georgia 511 / COtrip road incidents + **camera wall** (refreshing snapshots); local news (RSS + Google News, de-duplicated, place-matched) with a **TV player** (latest clips / live, mini window); **drone Remote ID** over Bluetooth + simulator; **developing-incident** correlation; **morning brief**; **phone alerts** via ntfy (thresholds, watch-area boost, quiet hours); signal history persisted 72 h | ✅ Done |
+| **1a. City infrastructure** | Transit disruptions (RTD alerts with stop locations; MARTA late-bus detection) and county power outages (DOE ODIN) on the map, in the City tab, the brief and phone alerts | ✅ Done |
 | **1b. Verify with keys** | Check COtrip's incident schema against a live response, add Denver cameras, check the Georgia 511 events format against live data | Needs your free keys |
 | **2. Radio** | **Web Radio panel** (Broadcastify pages), **line-in channel** for the Baofeng with Whisper transcripts + keyword alerts, OpenMHz connector | Next |
 | **3. Public safety data** | Denver crime (30/90-day heatmap), APD open data, 311, registry lookup panel (deep links), opt-in PulsePoint | |

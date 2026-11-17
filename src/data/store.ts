@@ -11,6 +11,8 @@ import { DEFAULT_SETTINGS, type Settings } from '../lib/settings';
 import type { Severity } from '../lib/signals';
 import type { Tfr } from '../lib/tfr';
 import type { Camera, TrafficEvent } from '../lib/traffic';
+import type { TransitDisruption } from '../lib/transit';
+import type { CountyOutage } from '../lib/outages';
 
 export type Basemap = 'dark' | 'satellite';
 export type FeedStatus = 'idle' | 'live' | 'stale' | 'error' | 'off';
@@ -59,7 +61,7 @@ export interface Feed {
   error?: string;
 }
 
-export type FeedName = 'adsb' | 'nws' | 'tfr' | 'traffic' | 'news' | 'drones';
+export type FeedName = 'adsb' | 'nws' | 'tfr' | 'traffic' | 'transit' | 'power' | 'news' | 'drones';
 
 /** Data produced by the leader window and mirrored to every pop-out. */
 export interface DataState {
@@ -72,6 +74,8 @@ export interface DataState {
   tfrs: Tfr[];
   traffic: TrafficEvent[];
   cameras: Camera[];
+  transit: TransitDisruption[];
+  outages: CountyOutage[];
   news: NewsItem[];
   drones: DroneTrack[];
   brief: Brief | null;
@@ -86,6 +90,8 @@ export interface Layers {
   aoi: boolean;
   tfr: boolean;
   traffic: boolean;
+  transit: boolean;
+  outages: boolean;
   cameras: boolean;
   news: boolean;
   drones: boolean;
@@ -153,10 +159,12 @@ export const EMPTY_DATA: Omit<DataState, 'log'> = {
   tfrs: [],
   traffic: [],
   cameras: [],
+  transit: [],
+  outages: [],
   news: [],
   drones: [],
   brief: null,
-  feeds: { adsb: idleFeed, nws: idleFeed, tfr: idleFeed, traffic: idleFeed, news: idleFeed, drones: { status: 'off', at: 0 } },
+  feeds: { adsb: idleFeed, nws: idleFeed, tfr: idleFeed, traffic: idleFeed, transit: idleFeed, power: idleFeed, news: idleFeed, drones: { status: 'off', at: 0 } },
 };
 
 let state: State = {
@@ -167,7 +175,7 @@ let state: State = {
   focus: null,
   ceilingAglFt: prefs.ceilingAglFt === undefined ? 10_000 : prefs.ceilingAglFt,
   hideGround: prefs.hideGround ?? true,
-  layers: { aircraft: true, trails: true, weather: true, aoi: true, tfr: true, traffic: true, cameras: true, news: true, drones: true, areas: true, ...(prefs.layers ?? {}) },
+  layers: { aircraft: true, trails: true, weather: true, aoi: true, tfr: true, traffic: true, transit: true, outages: true, cameras: true, news: true, drones: true, areas: true, ...(prefs.layers ?? {}) },
   muted: prefs.muted ?? false,
   settings: DEFAULT_SETTINGS,
   areas: [],

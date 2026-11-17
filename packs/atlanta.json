@@ -400,5 +400,25 @@
       -84.2669,
       33.7715
     ]
-  ]
+  ],
+  "transit": {
+    "agency": "MARTA",
+    "tripUpdatesUrl": "https://gtfs-rt.itsmarta.com/TMGTFSRealTimeWebService/tripupdate/tripupdates.pb",
+    "vehiclesUrl": "https://gtfs-rt.itsmarta.com/TMGTFSRealTimeWebService/vehicle/vehiclepositions.pb",
+    "staticUrl": "https://itsmarta.com/google_transit_feed/google_transit.zip",
+    "infoUrl": "https://itsmarta.com/"
+  },
+  "power": {
+    "state": "Georgia",
+    "utilities": [
+      {
+        "name": "Georgia Power",
+        "url": "https://outagemap.georgiapower.com/"
+      },
+      {
+        "name": "Georgia EMCs",
+        "url": "https://www.georgiaemc.com/page/outages"
+      }
+    ]
+  }
 }

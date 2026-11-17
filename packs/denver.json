@@ -407,5 +407,28 @@
       -104.969,
       39.5539
     ]
-  ]
+  ],
+  "transit": {
+    "agency": "RTD",
+    "alertsUrl": "https://www.rtd-denver.com/files/gtfs-rt/Alerts.pb",
+    "staticUrl": "https://www.rtd-denver.com/files/gtfs/google_transit.zip",
+    "infoUrl": "https://www.rtd-denver.com/service-alerts"
+  },
+  "power": {
+    "state": "Colorado",
+    "utilities": [
+      {
+        "name": "Xcel Energy",
+        "url": "https://www.outagemap-xcelenergy.com/outagemap/?state=CO"
+      },
+      {
+        "name": "United Power",
+        "url": "https://www.unitedpower.com"
+      },
+      {
+        "name": "CORE Electric Cooperative",
+        "url": "https://core.coop"
+      }
+    ]
+  }
 }

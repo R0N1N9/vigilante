@@ -104,6 +104,8 @@ const TAGS: Record<Signal['source'], string> = {
   news: 'newspaper',
   tfr: 'no_entry_sign',
   drone: 'flying_saucer',
+  transit: 'bus',
+  power: 'electric_plug',
 };
 
 /**

@@ -19,10 +19,16 @@ function devProxy(): Plugin {
         res.end('host not allowed');
         return;
       }
-      const r = await ufetch(target, {
+      let r = await ufetch(target, {
         dispatcher,
+        redirect: 'manual',
         headers: { 'User-Agent': 'Vigilante/0.1 (dev)', Accept: 'application/geo+json, application/json, application/rss+xml, application/xml, */*' },
       });
+      for (let hop = 0; hop < 5 && r.status >= 300 && r.status < 400 && r.headers.get('location'); hop++) {
+        const next = new URL(r.headers.get('location')!, target);
+        if (next.protocol !== 'https:' || !allowed.has(next.hostname)) break;
+        r = await ufetch(next, { dispatcher, redirect: 'manual', headers: { 'User-Agent': 'Vigilante/0.1 (dev)' } });
+      }
       res.statusCode = r.status;
       res.setHeader('Content-Type', r.headers.get('content-type') ?? 'application/json');
       res.end(Buffer.from(await r.arrayBuffer()));

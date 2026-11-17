@@ -11,6 +11,7 @@ export const CLASS_COLORS = {
 
 export const DRONE_COLOR = '#C084FC';
 export const CAMERA_COLOR = '#7DD3FC';
+export const TRANSIT_COLOR = '#34D399';
 export const SEVERITY_COLORS = ['#8FA3B8', '#4C8DFF', '#FFB020', '#FF7A45', '#FF4D4F'];
 
 const SIZE = 64; // drawn at 2x, displayed at 32px
@@ -128,6 +129,26 @@ function traffic(color: string) {
   });
 }
 
+function transit(color: string) {
+  return canvas((g) => {
+    g.fillStyle = 'rgba(11,15,20,0.92)';
+    g.strokeStyle = color;
+    g.lineWidth = 4;
+    g.beginPath();
+    g.roundRect(-13, -15, 26, 26, 6);
+    g.fill();
+    g.stroke();
+    g.fillStyle = color;
+    g.fillRect(-8, -9, 16, 8); // windshield
+    g.beginPath();
+    g.arc(-6, 6, 2.6, 0, Math.PI * 2);
+    g.arc(6, 6, 2.6, 0, Math.PI * 2);
+    g.fill();
+    g.fillRect(-9, 12, 4, 5);
+    g.fillRect(5, 12, 4, 5);
+  });
+}
+
 function news(color: string) {
   return canvas((g) => {
     g.fillStyle = color;
@@ -155,5 +176,6 @@ export function addIcons(map: MlMap) {
   SEVERITY_COLORS.forEach((c, i) => {
     add(`traffic-${i}`, () => traffic(c));
     add(`news-${i}`, () => news(c));
+    add(`transit-${i}`, () => transit(i < 1 ? TRANSIT_COLOR : c));
   });
 }

@@ -72,6 +72,12 @@ export function buildBrief(args: {
   const news = by('news').sort((a, b) => b.severity - a.severity || b.at - a.at);
   if (news.length) sections.push({ heading: 'In the news', items: news.slice(0, 6).map((n) => `${n.title}${n.detail ? ` (${n.detail})` : ''}`) });
 
+  const transit = by('transit');
+  if (transit.length) sections.push({ heading: 'Transit', items: transit.slice(0, 5).map((t) => `${t.title}${where(t) ? ` ${where(t)}` : ''}: ${t.detail}`) });
+
+  const power = by('power');
+  if (power.length) sections.push({ heading: 'Power', items: power.slice(0, 5).map((p) => `${p.detail} (${timeOf(p.at, tz)})`) });
+
   const tfrs = by('tfr');
   if (tfrs.length) sections.push({ heading: 'No-fly zones', items: tfrs.map((t) => `${t.title}`) });
 
@@ -82,6 +88,8 @@ export function buildBrief(args: {
     clusters.length && plural(clusters.length, 'developing incident'),
     orbits.length && plural(orbits.length, 'circling aircraft'),
     traffic.length && plural(traffic.length, 'road incident'),
+    transit.length && plural(transit.length, 'transit disruption'),
+    power.length && plural(power.length, 'power outage report'),
     wx.length && plural(wx.length, 'weather alert'),
     news.length && plural(news.length, 'local safety story'),
   ].filter(Boolean) as string[];

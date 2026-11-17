@@ -32,11 +32,15 @@ fn allowed_hosts() -> &'static Vec<String> {
     })
 }
 
+fn host_allowed(url: &reqwest::Url) -> bool {
+    let host = url.host_str().unwrap_or_default();
+    url.scheme() == "https" && allowed_hosts().iter().any(|h| h == host)
+}
+
 fn check_url(url: &str) -> Result<reqwest::Url, String> {
     let parsed = reqwest::Url::parse(url).map_err(|e| format!("bad url: {e}"))?;
-    let host = parsed.host_str().unwrap_or_default();
-    if parsed.scheme() != "https" || !allowed_hosts().iter().any(|h| h == host) {
-        return Err(format!("host not allowed: {host}"));
+    if !host_allowed(&parsed) {
+        return Err(format!("host not allowed: {}", parsed.host_str().unwrap_or_default()));
     }
     Ok(parsed)
 }
@@ -57,6 +61,19 @@ async fn http_get(url: String, client: tauri::State<'_, reqwest::Client>) -> Res
         return Err(format!("HTTP {status}"));
     }
     Ok(body)
+}
+
+/// GET an allow-listed HTTPS URL and return raw bytes (GTFS-Realtime protobuf, GTFS zip files).
+#[tauri::command]
+async fn http_get_bytes(url: String, client: tauri::State<'_, reqwest::Client>) -> Result<tauri::ipc::Response, String> {
+    let parsed = check_url(&url)?;
+    let resp = client.get(parsed).send().await.map_err(|e| format!("request failed: {e}"))?;
+    let status = resp.status();
+    if !status.is_success() {
+        return Err(format!("HTTP {status}"));
+    }
+    let bytes = resp.bytes().await.map_err(|e| format!("read failed: {e}"))?;
+    Ok(tauri::ipc::Response::new(bytes.to_vec()))
 }
 
 /// Send a phone notification through an ntfy server (https://ntfy.sh or self-hosted).
@@ -128,7 +145,15 @@ pub fn run() {
     let client = reqwest::Client::builder()
         .user_agent(USER_AGENT)
         .connect_timeout(Duration::from_secs(5))
-        .timeout(Duration::from_secs(20))
+        .timeout(Duration::from_secs(60))
+        // Follow redirects only to other allow-listed hosts (data portals often redirect to a CDN).
+        .redirect(reqwest::redirect::Policy::custom(|attempt| {
+            if attempt.previous().len() >= 5 || !host_allowed(attempt.url()) {
+                attempt.stop()
+            } else {
+                attempt.follow()
+            }
+        }))
         .build()
         .expect("failed to build HTTP client");
 
@@ -138,6 +163,7 @@ pub fn run() {
         .manage(drones::DroneScanner::default())
         .invoke_handler(tauri::generate_handler![
             http_get,
+            http_get_bytes,
             ntfy_send,
             store_read,
             store_write,
