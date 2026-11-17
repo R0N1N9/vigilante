@@ -9,6 +9,8 @@ import { getPack } from '../lib/packs';
 import { openExternal, openRadio } from '../ui/popout';
 import { addIcons, CLASS_COLORS, DRONE_COLOR, RADIO_COLOR } from './icons';
 import { addTerrain, setTerrainOptions } from './terrain';
+import { shipTypeName, stormSeverity } from '../lib/intel';
+import { describeFeature, radarTiles } from './popups';
 import { LABEL_FONT, styleFor, tuneDarkStyle } from './styles';
 
 const EMPTY: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
@@ -17,7 +19,7 @@ const fc = (features: GeoJSON.Feature[]): GeoJSON.FeatureCollection => ({ type: 
 const SEVERITY_FILL = ['match', ['get', 'severity'], 'Extreme', '#FF4D4F', 'Severe', '#FF7A45', 'Moderate', '#FFB020', 'Minor', '#4C8DFF', '#8FA3B8'] as unknown as maplibregl.ExpressionSpecification;
 const SEV_NUM = ['match', ['get', 'sev'], 4, '#FF4D4F', 3, '#FF7A45', 2, '#FFB020', 1, '#4C8DFF', '#8FA3B8'] as unknown as maplibregl.ExpressionSpecification;
 
-const SOURCES = ['aoi', 'outages', 'radio', 'transit', 'areas', 'draw', 'weather', 'tfr', 'traffic-lines', 'traffic', 'cameras', 'fires', 'clusters', 'trails', 'orbits', 'drone-links', 'drones', 'aircraft'];
+const SOURCES = ['aoi', 'crime', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'outages', 'radio', 'transit', 'areas', 'draw', 'weather', 'tfr', 'traffic-lines', 'traffic', 'cameras', 'fires', 'clusters', 'trails', 'orbits', 'drone-links', 'drones', 'aircraft'];
 
 function addDataLayers(map: MlMap) {
   addIcons(map);
@@ -28,6 +30,18 @@ function addDataLayers(map: MlMap) {
   L({ id: 'outages-fill', type: 'fill', source: 'outages', paint: { 'fill-color': ['match', ['get', 'sev'], 3, '#FF7A45', 2, '#FFB020', 1, '#FDE68A', '#FDE68A'], 'fill-opacity': ['match', ['get', 'sev'], 3, 0.22, 2, 0.16, 1, 0.1, 0.05] } });
   L({ id: 'outages-line', type: 'line', source: 'outages', paint: { 'line-color': '#FFB020', 'line-width': 1, 'line-opacity': 0.5 } });
   L({ id: 'outages-label', type: 'symbol', source: 'outages', layout: { 'text-field': ['get', 'label'], 'text-font': LABEL_FONT, 'text-size': 11, 'symbol-placement': 'point' }, paint: { 'text-color': '#FFD58A', 'text-halo-color': '#0B0F14', 'text-halo-width': 1.6 } });
+  if (!map.getSource('radar'))
+    map.addSource('radar', { type: 'raster', tiles: [radarTiles()], tileSize: 256, attribution: 'Radar: Iowa Environmental Mesonet / NWS NEXRAD' });
+  L({ id: 'radar', type: 'raster', source: 'radar', paint: { 'raster-opacity': 0.55, 'raster-fade-duration': 0 } });
+  L({ id: 'crime-heat', type: 'heatmap', source: 'crime', maxzoom: 14, paint: { 'heatmap-weight': ['interpolate', ['linear'], ['get', 'sev'], 0, 0.25, 3, 1], 'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 9, 0.6, 13, 1.4], 'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 9, 10, 13, 22], 'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 12, 0.55, 14, 0], 'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(0,0,0,0)', 0.2, 'rgba(76,141,255,0.35)', 0.5, 'rgba(255,176,32,0.55)', 0.8, 'rgba(255,122,69,0.7)', 1, 'rgba(255,77,79,0.85)'] } });
+  L({ id: 'crime-pts', type: 'circle', source: 'crime', minzoom: 12, paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 12, 3, 16, 6], 'circle-color': SEV_NUM, 'circle-stroke-color': '#0B0F14', 'circle-stroke-width': 1, 'circle-opacity': 0.9 } });
+  L({ id: 's311', type: 'circle', source: 's311', minzoom: 11, paint: { 'circle-radius': 3.5, 'circle-color': '#A3E635', 'circle-opacity': 0.7, 'circle-stroke-color': '#0B0F14', 'circle-stroke-width': 1 } });
+  L({ id: 'hotspots', type: 'circle', source: 'hotspots', paint: { 'circle-radius': ['interpolate', ['linear'], ['get', 'frp'], 0, 4, 50, 9], 'circle-color': '#FF3D00', 'circle-opacity': 0.75, 'circle-blur': 0.4, 'circle-stroke-color': '#FFD08A', 'circle-stroke-width': 1 } });
+  L({ id: 'quakes', type: 'circle', source: 'quakes', paint: { 'circle-radius': ['interpolate', ['linear'], ['get', 'mag'], 1.5, 4, 5, 18], 'circle-color': 'rgba(192,132,252,0.25)', 'circle-stroke-color': '#C084FC', 'circle-stroke-width': 1.5 } });
+  L({ id: 'quakes-label', type: 'symbol', source: 'quakes', layout: { 'text-field': ['concat', 'M', ['to-string', ['get', 'mag']]], 'text-font': LABEL_FONT, 'text-size': 10 }, paint: { 'text-color': '#E9D5FF', 'text-halo-color': '#0B0F14', 'text-halo-width': 1.3 } });
+  L({ id: 'gauges', type: 'circle', source: 'gauges', paint: { 'circle-radius': ['match', ['get', 'cat'], 'no_flooding', 3.5, 'unknown', 3, 6], 'circle-color': ['match', ['get', 'cat'], 'action', '#FFD84D', 'minor', '#FFB020', 'moderate', '#FF4D4F', 'major', '#C026D3', '#38BDF8'], 'circle-opacity': ['match', ['get', 'cat'], 'no_flooding', 0.5, 'unknown', 0.3, 1], 'circle-stroke-color': '#0B0F14', 'circle-stroke-width': 1 } });
+  L({ id: 'storms', type: 'symbol', source: 'storms', layout: { 'text-field': ['get', 'glyph'], 'text-font': LABEL_FONT, 'text-size': 15, 'text-allow-overlap': true }, paint: { 'text-color': SEV_NUM, 'text-halo-color': '#0B0F14', 'text-halo-width': 1.6 } });
+  L({ id: 'ships', type: 'symbol', source: 'ships', layout: { 'text-field': '▲', 'text-rotate': ['get', 'rot'], 'text-rotation-alignment': 'map', 'text-font': LABEL_FONT, 'text-size': 13, 'text-allow-overlap': true }, paint: { 'text-color': ['match', ['get', 'kind'], 'Law enforcement', '#4C8DFF', 'Search & rescue', '#FF4D4F', 'Military', '#4C8DFF', 'Tanker', '#FFB020', 'Cargo', '#8FA3B8', 'Passenger', '#34D399', '#7DD3FC'], 'text-halo-color': '#0B0F14', 'text-halo-width': 1.4 } });
   L({ id: 'radio-fill', type: 'fill', source: 'radio', paint: { 'fill-color': RADIO_COLOR, 'fill-opacity': 0.04 } });
   L({ id: 'radio-line', type: 'line', source: 'radio', paint: { 'line-color': RADIO_COLOR, 'line-width': 1.2, 'line-opacity': 0.55, 'line-dasharray': [1, 2] } });
   L({ id: 'radio-label', type: 'symbol', source: 'radio', layout: { 'text-field': ['concat', '◉ ', ['get', 'name']], 'text-font': LABEL_FONT, 'text-size': 10.5, 'symbol-placement': 'point' }, paint: { 'text-color': RADIO_COLOR, 'text-halo-color': '#0B0F14', 'text-halo-width': 1.6 } });
@@ -97,6 +111,22 @@ function render(map: MlMap, s: State) {
   vis(['cameras'], s.layers.cameras);
   vis(['news', 'news-clusters', 'news-cluster-count'], s.layers.news);
   vis(['fires'], s.layers.fires);
+  vis(['radar'], s.layers.radar);
+  vis(['crime-heat', 'crime-pts'], s.layers.crime);
+  vis(['s311'], s.layers.s311);
+  vis(['hotspots'], s.layers.hotspots);
+  vis(['quakes', 'quakes-label'], s.layers.quakes);
+  vis(['gauges'], s.layers.floods);
+  vis(['storms'], s.layers.storms);
+  vis(['ships'], s.layers.ships);
+  const pt = (id: string, at: LonLat, props: Record<string, unknown> = {}): GeoJSON.Feature => ({ type: 'Feature', properties: { id, ...props }, geometry: { type: 'Point', coordinates: at } });
+  setData(map, 'crime', fc(s.crimes.map((x) => pt(x.id, x.location, { sev: x.severity }))));
+  setData(map, 's311', fc(s.requests311.map((x) => pt(x.id, x.location))));
+  setData(map, 'hotspots', fc(s.hotspots.map((x) => pt(x.id, x.location, { frp: x.frp }))));
+  setData(map, 'quakes', fc(s.quakes.map((x) => pt(x.id, x.location, { mag: Math.round(x.mag * 10) / 10 }))));
+  setData(map, 'gauges', fc(s.gauges.map((x) => pt(x.id, x.location, { cat: x.category }))));
+  setData(map, 'storms', fc(s.storms.map((x) => pt(x.id, x.location, { sev: stormSeverity(x), glyph: /tornado|funnel/i.test(x.type) ? '🌪' : /hail/i.test(x.type) ? '◆' : /flood|rain/i.test(x.type) ? '≈' : /snow|ice/i.test(x.type) ? '❄' : '⚡' }))));
+  setData(map, 'ships', fc(s.ships.map((x) => pt(x.mmsi, x.location, { rot: x.heading ?? x.cog ?? 0, kind: shipTypeName(x.type) }))));
   vis(['radio-fill', 'radio-line', 'radio-label'], s.layers.radio);
   vis(['transit'], s.layers.transit);
   vis(['outages-fill', 'outages-line', 'outages-label'], s.layers.outages);
@@ -109,7 +139,7 @@ function render(map: MlMap, s: State) {
   setData(map, 'areas', fc(s.areas.filter((a) => a.packId === s.packId && a.polygon.length >= 3).map((a) => ({ type: 'Feature', properties: { name: a.name, color: a.color }, geometry: { type: 'Polygon', coordinates: [[...a.polygon, a.polygon[0]]] } }))));
   setData(map, 'traffic', fc(s.traffic.map((t) => ({ type: 'Feature', properties: { id: t.id, sev: t.severity }, geometry: { type: 'Point', coordinates: t.location } }))));
   setData(map, 'traffic-lines', fc(s.traffic.filter((t) => t.path).map((t) => ({ type: 'Feature', properties: { sev: t.severity }, geometry: { type: 'LineString', coordinates: t.path! } }))));
-  setData(map, 'cameras', fc([...s.cameras, ...s.webcams].map((c) => ({ type: 'Feature', properties: { id: c.id, icon: c.provider === 'windy' ? 'webcam' : 'camera' }, geometry: { type: 'Point', coordinates: c.location } }))));
+  setData(map, 'cameras', fc([...s.cameras, ...s.webcams].map((c) => ({ type: 'Feature', properties: { id: c.id, icon: c.provider === 'usgs' ? 'webcam' : 'camera' }, geometry: { type: 'Point', coordinates: c.location } }))));
   setData(map, 'outages', fc(s.outages.filter((o) => o.geometry).map((o) => ({ type: 'Feature', properties: { id: o.id, sev: o.severity, label: `⚡ ${o.county}: ${o.customers.toLocaleString('en-US')} out` }, geometry: o.geometry! }))));
   setData(map, 'transit', fc(s.transit.flatMap((t) => t.points.map((p) => ({ type: 'Feature', properties: { id: t.id, sev: t.severity }, geometry: { type: 'Point', coordinates: p } })))));
   setData(map, 'newspins', fc(s.news.filter((n) => n.pin && n.local).map((n) => ({ type: 'Feature', properties: { id: n.id, sev: n.severity, precision: n.precision }, geometry: { type: 'Point', coordinates: n.pin! } }))));
@@ -181,7 +211,7 @@ function render(map: MlMap, s: State) {
   setData(map, 'draw', fc(drawF));
 }
 
-const CLICKABLE = ['aircraft', 'cameras', 'fires', 'traffic', 'transit', 'news', 'news-clusters', 'clusters', 'drones', 'outages-fill', 'radio-fill'];
+const CLICKABLE = ['aircraft', 'crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'cameras', 'fires', 'traffic', 'transit', 'news', 'news-clusters', 'clusters', 'drones', 'outages-fill', 'radio-fill'];
 
 export function MapView() {
   const el = useRef<HTMLDivElement>(null);
@@ -254,6 +284,9 @@ export function MapView() {
             .setLngLat(x.location)
             .setHTML(`<small>${x.kind === 'prescribed' ? 'PRESCRIBED BURN' : 'WILDFIRE'} · NIFC</small><b>${esc(x.name)}</b><p>${x.acres != null ? `${Math.round(x.acres).toLocaleString('en-US')} acres` : 'Size unknown'}${x.containedPct != null ? ` · ${x.containedPct}% contained` : ''}${x.county ? ` · ${esc(x.county)} County` : ''}</p>${x.cause ? `<p>Cause: ${esc(x.cause)}</p>` : ''}`)
             .addTo(map);
+      } else if (['crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships'].includes(f.layer.id)) {
+        const html = describeFeature(f.layer.id, String(p.id), s, esc);
+        if (html) popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
       } else if (f.layer.id === 'radio-fill') {
         const feed = getPack(s.packId).radioFeeds[Number(p.idx)];
         if (feed) void openRadio(feed);
@@ -291,6 +324,8 @@ export function MapView() {
       map.on('mouseleave', l, () => (map.getCanvas().style.cursor = getState().drawing ? 'crosshair' : ''));
     }
 
+    // Refresh radar every 5 minutes (the tile URL carries a time-bucket to bust caches).
+    const radarTimer = window.setInterval(() => getState().layers.radar && (map.getSource('radar') as maplibregl.RasterTileSource | undefined)?.setTiles([radarTiles()]), 5 * 60_000);
     let raf = 0;
     const pulse = (t: number) => {
       if (ready && map.getLayer('orbit-ring')) {
@@ -319,6 +354,7 @@ export function MapView() {
       if (s.focus && s.focus !== prev.focus) map.flyTo({ center: s.focus.center, zoom: s.focus.zoom ?? Math.max(map.getZoom(), 12), speed: 1.6 });
       if (s.drawing !== prev.drawing) map.getCanvas().style.cursor = s.drawing ? 'crosshair' : '';
       if (ready && s.settings.map !== prev.settings.map) setTerrainOptions(map, terrainOpts());
+      if (ready && s.layers.radar && !prev.layers.radar) (map.getSource('radar') as maplibregl.RasterTileSource | undefined)?.setTiles([radarTiles()]);
       prev = s;
       if (ready) render(map, s);
     });
@@ -329,6 +365,7 @@ export function MapView() {
       unsub();
       ro.disconnect();
       cancelAnimationFrame(raf);
+      window.clearInterval(radarTimer);
       popup.remove();
       map.remove();
     };

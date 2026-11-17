@@ -19,7 +19,7 @@ export function CameraTile({ cam, big = false }: { cam: Camera; big?: boolean })
       {err ? <div className="cam-err">Camera offline</div> : <img key={tick} src={src} alt={cam.name} referrerPolicy="no-referrer" onError={() => setErr(true)} onLoad={() => setErr(false)} />}
       <figcaption>
         <span className="cam-live">● LIVE</span> {cam.name}
-        {cam.provider === 'windy' && <span className="cam-credit"> · Windy.com</span>}
+        {cam.provider === 'usgs' && <span className="cam-credit"> · USGS</span>}
       </figcaption>
     </figure>
   );
@@ -59,13 +59,13 @@ export function CamerasTab({ wall = 4 }: { wall?: number }) {
         <div className="callout">
           {pack.traffic.provider === 'cotrip' ? (
             <>
-              <b>Add camera sources in Settings.</b>
-              <p>Public webcams (skylines, streets, weather) come from Windy with a free key. CDOT traffic cameras need a COtrip key.</p>
+              <b>No active cameras nearby yet.</b>
+              <p>USGS river cameras load automatically (no key). Traffic cameras can be added with an optional Georgia 511 key.</p>
             </>
           ) : feed.status === 'off' ? (
             <>
-              <b>Add a free Georgia 511 key (traffic cameras) or Windy key (public webcams).</b>
-              <p>Snapshots refresh every few seconds and the wall follows whatever incident you select.</p>
+              <b>Loading USGS river cameras…</b>
+              <p>Traffic cameras can be added with an optional Georgia 511 key in Settings.</p>
             </>
           ) : (
             <b>Loading cameras…</b>

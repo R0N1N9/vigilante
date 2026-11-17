@@ -23,7 +23,7 @@ export interface Camera {
   imageUrl: string;
   roadway: string;
   direction: string;
-  provider: 'ga511' | 'cotrip' | 'windy';
+  provider: 'ga511' | 'cotrip' | 'usgs';
   /** For webcams: the provider's page (attribution / full player). */
   pageUrl?: string;
 }

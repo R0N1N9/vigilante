@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { fireSeverity, parseWfigs, wfigsQuery } from '../src/lib/fires';
-import { parseWindy } from '../src/lib/webcams';
 
 const denver: [number, number] = [-104.9903, 39.7392];
 const fire = (id: string, type: string, lon: number, lat: number, acres: number | null, contained: number | null) => ({
@@ -28,9 +27,3 @@ describe('NIFC wildfires', () => {
   });
 });
 
-describe('Windy webcams', () => {
-  it('maps v3 webcams to cameras', () => {
-    const c = parseWindy({ webcams: [{ webcamId: 123, title: 'Denver skyline', status: 'active', location: { latitude: 39.75, longitude: -104.99, city: 'Denver' }, images: { current: { preview: 'https://imgproxy.windy.com/x.jpg' } }, urls: { detail: 'https://www.windy.com/webcams/123' } }, { webcamId: 9, status: 'inactive', location: { latitude: 1, longitude: 1 } }] });
-    expect(c).toEqual([{ id: 'windy:123', name: 'Denver skyline', location: [-104.99, 39.75], imageUrl: 'https://imgproxy.windy.com/x.jpg', roadway: 'Denver', direction: '', provider: 'windy', pageUrl: 'https://www.windy.com/webcams/123' }]);
-  });
-});

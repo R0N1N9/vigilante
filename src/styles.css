@@ -397,3 +397,16 @@ pre.cmd { background: #070a0e; border: 1px solid var(--line); border-radius: 2px
 /* Rail tabs: never hide a tab. Wrap onto a second row when space runs out. */
 .rail .tabs { flex-wrap: wrap; overflow: visible; row-gap: 0; }
 .rail .tabs button { flex: 1 0 auto; min-width: 52px; padding: 9px 4px 8px; }
+
+/* Intel panels */
+.hist { display: flex; align-items: flex-end; gap: 2px; height: 42px; padding: 4px 2px 0; border-bottom: 1px solid var(--line); }
+.hist i { flex: 1; background: linear-gradient(180deg, #FF7A45, rgba(255,122,69,.35)); border-radius: 1px 1px 0 0; min-height: 1px; }
+.hist-axis { display: flex; justify-content: space-between; font-size: 9px; color: var(--dim); padding: 2px 0 0; }
+.wanted { display: flex; gap: 10px; padding: 8px 4px; border-bottom: 1px solid var(--line); cursor: pointer; }
+.wanted img, .wanted .news-noimg { width: 52px; height: 64px; object-fit: cover; border-radius: 3px; flex-shrink: 0; background: var(--panel-2); }
+.wanted:hover .inc-title { color: var(--accent); }
+.aqi { display: flex; align-items: center; gap: 14px; padding: 12px; border: 1px solid; border-radius: var(--r); background: var(--panel-2); }
+.aqi b { font: 600 32px var(--mono); }
+.airports { padding: 6px 10px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; }
+.ok { color: var(--ok); }
+.subtabs { flex-wrap: wrap; }

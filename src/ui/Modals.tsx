@@ -40,18 +40,19 @@ function SettingsModal() {
   return (
     <Modal title="Settings">
       <section>
-        <h3>Traffic data keys (free)</h3>
+        <h3>Optional keys</h3>
+        <p className="muted small-text">Everything else works without keys. These three have no keyless equivalent, so they're optional.</p>
         <label className="field">
-          <span>Georgia 511 key (Atlanta incidents + cameras)</span>
+          <span>Georgia 511 key (Atlanta road incidents + traffic cameras)</span>
           <input type="password" value={s.keys.ga511} onChange={(e) => set('keys', { ga511: e.target.value.trim() })} placeholder="from 511ga.org → Developers" />
         </label>
         <label className="field">
-          <span>COtrip key (Denver incidents)</span>
+          <span>COtrip key (Denver road incidents)</span>
           <input type="password" value={s.keys.cotrip} onChange={(e) => set('keys', { cotrip: e.target.value.trim() })} placeholder="from manage-api.cotrip.org" />
         </label>
         <label className="field">
-          <span>Windy webcams key (public skyline/street webcams)</span>
-          <input type="password" value={s.keys.windy} onChange={(e) => set('keys', { windy: e.target.value.trim() })} placeholder="from api.windy.com → Webcams API" />
+          <span>AISstream.io key (live ships, coastal areas only)</span>
+          <input type="password" value={s.keys.ais} onChange={(e) => set('keys', { ais: e.target.value.trim() })} placeholder="from aisstream.io (sign in with GitHub)" />
         </label>
         <p className="muted small-text">Keys are stored in a settings file on this computer.</p>
       </section>

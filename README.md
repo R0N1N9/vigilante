@@ -6,6 +6,20 @@ A neighborhood situational-awareness console for your laptop. It watches the are
 
 ## What it does
 
+**Keyless intel sources (no sign-ups)**
+| Source | What you get |
+|---|---|
+| Denver Police / Atlanta Police open data | Crime reports for the last 7 days: heatmap, points up close, firearm flag, time-of-day chart |
+| Denver 311 | Service requests for the last 3 days (Atlanta doesn't publish 311 openly) |
+| NASA FIRMS | Satellite heat detections (VIIRS + MODIS) for the last 24 h; flags detections with no known fire nearby |
+| NEXRAD radar (Iowa Environmental Mesonet) | Live weather radar overlay, refreshed every 5 min |
+| USGS | Earthquakes within 300 km; ~1,400 river cameras nationwide (the camera wall) |
+| NOAA NWPS | River gauges and flood stages |
+| NWS local storm reports (IEM) | Spotter reports: hail, wind damage, flooding, tornadoes |
+| Open-Meteo | Current air quality (US AQI) |
+| FAA NAS status | Ground stops and delays at local airports |
+| FBI Wanted | Notices for the local field office |
+
 **On the map** (every layer can be switched off in the Layers panel)
 - **Tactical topographic basemap:** dark vector map with terrain relief, contour lines in feet, an optional **3D terrain** view, and a satellite option. Uses free AWS terrain tiles. A coordinate and zoom readout follows the cursor.
 - **Aircraft** within 25 nm (adsb.lol), with trails. Helicopters (amber), military (blue), low aircraft (white) and **emergency squawks** (red) are highlighted, aircraft **circling** a spot are flagged, and an altitude filter hides airliners at cruise.
@@ -80,8 +94,7 @@ Then open http://localhost:5173. Pop-outs open as browser popups.
 ## Using it
 
 ### First-time setup (Settings ⚙)
-1. **Webcams (free):** get a Windy Webcams API key at [api.windy.com](https://api.windy.com/webcams) for public skyline, street and weather cams in the camera wall and on the map.
-1. **Traffic keys (free).** For Atlanta, create an account at [511ga.org](https://511ga.org), then request a developer key under *Developers*. For Denver, sign up at [manage-api.cotrip.org](https://manage-api.cotrip.org). Paste the keys into Settings.
+1. **Optional keys.** Everything works without keys. Three extras have no keyless equivalent: Georgia 511 (Atlanta road incidents and traffic cameras, [511ga.org](https://511ga.org) → Developers), COtrip (Denver road incidents, [manage-api.cotrip.org](https://manage-api.cotrip.org)) and AISstream.io (live ships near coasts, [aisstream.io](https://aisstream.io)). Paste them into Settings → Optional keys.
 2. **Phone alerts.** Install **ntfy** ([iOS](https://apps.apple.com/app/ntfy/id1625396347) / [Android](https://play.google.com/store/apps/details?id=io.heckel.ntfy)), tick *Send alerts to my phone*, subscribe to the topic shown in Settings from the ntfy app, then press *Send a test notification*. The topic works like a password, so keep it random.
 3. **Morning brief.** Choose a time and how many hours it covers. Leave the app running overnight so it has something to report.
 
@@ -149,7 +162,9 @@ cd src-tauri && cargo test
 - Power outages: [DOE ODIN (Oak Ridge National Laboratory)](https://ornl.opendatasoft.com/explore/dataset/odin-real-time-outages-county/)
 - Wildfires: [NIFC WFIGS current incident locations](https://data-nifc.opendata.arcgis.com/)
 - Terrain: [AWS Terrain Tiles (Terrarium)](https://registry.opendata.aws/terrain-tiles/), contours via [maplibre-contour](https://github.com/onthegomap/maplibre-contour)
-- Webcams: [Windy.com](https://www.windy.com/webcams) (attribution shown on each cam)
+- Crime and 311: [Denver Open Data](https://opendata-geospatialdenver.hub.arcgis.com/), [Atlanta Police open data](https://opendata.atlantapd.org/)
+- Satellite fire: [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) · Radar: [Iowa Environmental Mesonet](https://mesonet.agron.iastate.edu/) · Earthquakes and river cameras: [USGS](https://www.usgs.gov/) · River gauges: [NOAA NWPS](https://water.noaa.gov/) · Air quality: [Open-Meteo](https://open-meteo.com/) · Airports: [FAA NAS Status](https://nasstatus.faa.gov/) · Wanted: [FBI](https://www.fbi.gov/wanted)
+- Ships (optional key): [AISstream.io](https://aisstream.io)
 - Scanner radio: [Broadcastify](https://www.broadcastify.com) (played through their own web player)
 - News: station RSS feeds (Denver7, 9NEWS, FOX31, Denverite, CPR News, 11Alive, FOX 5 Atlanta, WSB-TV, Atlanta News First) and Google News search RSS. Headlines link to the original story.
 - Phone alerts: [ntfy](https://ntfy.sh)
@@ -161,7 +176,8 @@ cd src-tauri && cargo test
 - **Power outage coverage is partial.** ODIN only includes utilities that report to it. Around Denver that's United Power and CORE Electric, but not Xcel Energy, which serves most of the city. In Atlanta, Georgia Power and the EMCs don't report to it. Their own outage maps are one click away in the Power tab. Their internal map data feeds are undocumented, so the app doesn't use them.
 - **Radio plays through Broadcastify's own player**, not a raw stream URL, to stay within their terms. The feed list is curated per city, and coverage circles are approximate.
 - **Live fire-department dispatch** (structure fires and medical calls) isn't published as open data in Denver or Atlanta. Wildfires come from NIFC; structure fires and rescues come from local news and the radio.
-- **Windy webcams are untested** without a key; the parser follows Windy's v3 documentation.
+- **Neither city publishes live 911 calls openly.** Crime data is filed reports, typically 1–2 days behind. Atlanta's old dispatch layer stopped updating in 2026 and exposed caller names and phone numbers, so it isn't used.
+- **Ships (AIS) are untested** without a key, and only matter near coasts or large lakes.
 - **MARTA has no alerts feed**, so Atlanta transit disruptions are inferred from late buses. Rail isn't covered: MARTA's rail data needs a separate key.
 - **The brief and developing incidents only know what the app saw while it was running.** History is kept for 72 hours.
 - **News places** come from a built-in neighborhood list. Stories that only say "Denver" aren't pinned, to avoid false precision.

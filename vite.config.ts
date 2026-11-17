@@ -33,7 +33,6 @@ function devProxy(): Plugin {
         headers: {
           'User-Agent': 'Vigilante/0.1 (dev)',
           Accept: 'application/geo+json, application/json, application/rss+xml, application/xml, */*',
-          ...(typeof req.headers['x-windy-api-key'] === 'string' ? { 'x-windy-api-key': req.headers['x-windy-api-key'] } : {}),
         },
       });
       for (let hop = 0; hop < 5 && r.status >= 300 && r.status < 400 && r.headers.get('location'); hop++) {

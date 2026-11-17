@@ -15,6 +15,7 @@ import type { Camera, TrafficEvent } from '../lib/traffic';
 import type { TransitDisruption } from '../lib/transit';
 import type { CountyOutage } from '../lib/outages';
 import type { FireIncident } from '../lib/fires';
+import type { AirportDelay, AirQuality, Crime, Gauge, Hotspot, Quake, ServiceRequest, Ship, StormReport, Wanted } from '../lib/intel';
 
 export type Basemap = 'dark' | 'satellite';
 
@@ -22,7 +23,7 @@ export type FeedStatus = 'idle' | 'live' | 'stale' | 'error' | 'off';
 
 export interface Incident {
   id: string;
-  kind: 'orbit' | 'squawk' | 'weather' | 'tfr' | 'drone' | 'fire';
+  kind: 'orbit' | 'squawk' | 'weather' | 'tfr' | 'drone' | 'fire' | 'quake' | 'flood' | 'storm' | 'air' | 'airport' | 'hotspot';
   severity: Severity;
   title: string;
   detail: string;
@@ -64,7 +65,9 @@ export interface Feed {
   error?: string;
 }
 
-export type FeedName = 'adsb' | 'nws' | 'tfr' | 'traffic' | 'transit' | 'power' | 'fire' | 'webcams' | 'news' | 'drones';
+export type FeedName =
+  | 'adsb' | 'nws' | 'tfr' | 'traffic' | 'transit' | 'power' | 'fire' | 'firms' | 'crime' | 's311' | 'quakes' | 'floods' | 'air'
+  | 'airports' | 'storms' | 'wanted' | 'cams' | 'ships' | 'news' | 'drones';
 
 /** Data produced by the leader window and mirrored to every pop-out. */
 export interface DataState {
@@ -81,6 +84,16 @@ export interface DataState {
   outages: CountyOutage[];
   fires: FireIncident[];
   webcams: Camera[];
+  crimes: Crime[];
+  requests311: ServiceRequest[];
+  hotspots: Hotspot[];
+  quakes: Quake[];
+  wanted: Wanted[];
+  gauges: Gauge[];
+  air: AirQuality | null;
+  airportDelays: AirportDelay[];
+  storms: StormReport[];
+  ships: Ship[];
   news: NewsItem[];
   drones: DroneTrack[];
   brief: Brief | null;
@@ -99,6 +112,14 @@ export interface Layers {
   outages: boolean;
   fires: boolean;
   radio: boolean;
+  crime: boolean;
+  s311: boolean;
+  hotspots: boolean;
+  radar: boolean;
+  quakes: boolean;
+  floods: boolean;
+  storms: boolean;
+  ships: boolean;
   cameras: boolean;
   news: boolean;
   drones: boolean;
@@ -122,7 +143,7 @@ export interface SharedUi {
   requests: { brief?: number; pushTest?: number; droneSim?: number };
 }
 
-export type RailTab = 'alerts' | 'sky' | 'news' | 'radio' | 'traffic' | 'cameras' | 'areas';
+export type RailTab = 'alerts' | 'sky' | 'news' | 'radio' | 'traffic' | 'hazards' | 'cameras' | 'areas';
 
 /** Per-window choices. */
 export interface LocalUi {
@@ -172,10 +193,20 @@ export const EMPTY_DATA: Omit<DataState, 'log'> = {
   outages: [],
   fires: [],
   webcams: [],
+  crimes: [],
+  requests311: [],
+  hotspots: [],
+  quakes: [],
+  wanted: [],
+  gauges: [],
+  air: null,
+  airportDelays: [],
+  storms: [],
+  ships: [],
   news: [],
   drones: [],
   brief: null,
-  feeds: { adsb: idleFeed, nws: idleFeed, tfr: idleFeed, traffic: idleFeed, transit: idleFeed, power: idleFeed, fire: idleFeed, webcams: { status: 'off', at: 0 }, news: idleFeed, drones: { status: 'off', at: 0 } },
+  feeds: { adsb: idleFeed, nws: idleFeed, tfr: idleFeed, traffic: idleFeed, transit: idleFeed, power: idleFeed, fire: idleFeed, firms: idleFeed, crime: idleFeed, s311: idleFeed, quakes: idleFeed, floods: idleFeed, air: idleFeed, airports: idleFeed, storms: idleFeed, wanted: idleFeed, cams: idleFeed, ships: { status: 'off', at: 0 }, news: idleFeed, drones: { status: 'off', at: 0 } },
 };
 
 let state: State = {
@@ -186,7 +217,7 @@ let state: State = {
   focus: null,
   ceilingAglFt: prefs.ceilingAglFt === undefined ? 10_000 : prefs.ceilingAglFt,
   hideGround: prefs.hideGround ?? true,
-  layers: { aircraft: true, trails: true, weather: true, aoi: true, tfr: true, traffic: true, transit: true, outages: true, fires: true, radio: true, cameras: true, news: true, drones: true, areas: true, ...(prefs.layers ?? {}) },
+  layers: { aircraft: true, trails: true, weather: true, aoi: true, tfr: true, traffic: true, transit: true, outages: true, fires: true, radio: true, crime: true, s311: false, hotspots: true, radar: false, quakes: true, floods: true, storms: true, ships: true, cameras: true, news: true, drones: true, areas: true, ...(prefs.layers ?? {}) },
   muted: prefs.muted ?? false,
   settings: DEFAULT_SETTINGS,
   areas: [],

@@ -23,7 +23,15 @@
     "itsmarta.com",
     "ornl.opendatasoft.com",
     "services3.arcgis.com",
-    "api.windy.com",
-    "nominatim.openstreetmap.org"
+    "nominatim.openstreetmap.org",
+    "services1.arcgis.com",
+    "earthquake.usgs.gov",
+    "api.fbi.gov",
+    "firms.modaps.eosdis.nasa.gov",
+    "api.water.noaa.gov",
+    "air-quality-api.open-meteo.com",
+    "nasstatus.faa.gov",
+    "mesonet.agron.iastate.edu",
+    "api.waterdata.usgs.gov"
   ]
 }

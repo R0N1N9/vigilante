@@ -107,6 +107,12 @@ const TAGS: Record<Signal['source'], string> = {
   transit: 'bus',
   power: 'electric_plug',
   fire: 'fire',
+  crime: 'police_car',
+  quake: 'warning',
+  flood: 'ocean',
+  storm: 'thunder_cloud_and_rain',
+  air: 'mask',
+  hotspot: 'fire',
 };
 
 /**

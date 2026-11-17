@@ -8,6 +8,7 @@
 
 mod drones;
 mod wifi_rid;
+mod ais;
 
 use std::sync::OnceLock;
 use std::time::Duration;
@@ -47,7 +48,7 @@ fn check_url(url: &str) -> Result<reqwest::Url, String> {
 }
 
 /// Request headers the UI may set (API keys for services that require them in a header).
-const ALLOWED_HEADERS: &[&str] = &["x-windy-api-key"];
+const ALLOWED_HEADERS: &[&str] = &[];
 
 /// GET an allow-listed HTTPS URL and return the body as text.
 #[tauri::command]
@@ -178,6 +179,7 @@ pub fn run() {
         .manage(client)
         .manage(drones::DroneScanner::default())
         .manage(wifi_rid::WifiScanner::default())
+        .manage(ais::AisStream::default())
         .invoke_handler(tauri::generate_handler![
             http_get,
             http_get_bytes,
@@ -187,7 +189,9 @@ pub fn run() {
             drones::drones_start,
             drones::drones_stop,
             wifi_rid::wifi_rid_start,
-            wifi_rid::wifi_rid_stop
+            wifi_rid::wifi_rid_stop,
+            ais::ais_start,
+            ais::ais_stop
         ])
         .on_window_event(|window, event| {
             // Closing the main console closes the whole app, pop-outs included.

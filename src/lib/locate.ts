@@ -122,6 +122,7 @@ export async function buildPack(g: GeoResult): Promise<CityPack> {
           localTerms: [[city, lon, lat], ...(g.county ? [[g.county, lon, lat] as [string, number, number]] : [])],
         },
     liveTv: base?.liveTv ?? [],
+    intel: base?.intel ?? { crime: null, s311: null, fbiOffice: null, airports: [] },
     places: base?.places ?? [],
     transit: base?.transit ?? null,
     power: { state: g.state || base?.power.state || '', utilities: base?.power.utilities ?? [] },

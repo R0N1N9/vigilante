@@ -5,6 +5,7 @@ import { getPack } from '../lib/packs';
 import { fmtAgo } from './format';
 import { openExternal } from './popout';
 import { TrafficTab } from './TrafficTab';
+import { CrimeList, Requests311, WantedList } from './IntelPanels';
 
 function TransitList() {
   const transit = useStore((s) => s.transit);
@@ -162,26 +163,28 @@ function FireList() {
   );
 }
 
-type Section = 'roads' | 'transit' | 'power' | 'fire';
+type Section = 'crime' | 's311' | 'roads' | 'transit' | 'power' | 'fire' | 'wanted';
 
 export function InfraTab() {
-  const [section, setSection] = useState<Section>('roads');
+  const [section, setSection] = useState<Section>('crime');
   const roads = useStore((s) => s.traffic.filter((t) => t.severity >= 2).length);
   const transit = useStore((s) => s.transit.filter((t) => t.severity >= 1).length);
   const power = useStore((s) => s.outages.length);
   const fire = useStore((s) => s.fires.filter((f) => f.severity >= 1).length);
-  const counts: Record<Section, number> = { roads, transit, power, fire };
+  const crime = useStore((s) => s.crimes.filter((c) => c.severity >= 2 && Date.now() - c.at < 2 * 86_400_000).length);
+  const counts: Record<Section, number> = { crime, s311: 0, roads, transit, power, fire, wanted: 0 };
+  const LABEL: Record<Section, string> = { crime: 'Crime', s311: '311', roads: 'Roads', transit: 'Transit', power: 'Power', fire: 'Fire', wanted: 'Wanted' };
   return (
     <>
       <div className="subtabs seg small">
-        {(['roads', 'transit', 'power', 'fire'] as Section[]).map((k) => (
+        {(Object.keys(LABEL) as Section[]).map((k) => (
           <button key={k} className={section === k ? 'on' : ''} onClick={() => setSection(k)}>
-            {k === 'roads' ? 'Roads' : k === 'transit' ? 'Transit' : k === 'power' ? 'Power' : 'Fire'}
+            {LABEL[k]}
             {counts[k] ? ` · ${counts[k]}` : ''}
           </button>
         ))}
       </div>
-      {section === 'roads' ? <TrafficTab /> : section === 'transit' ? <TransitList /> : section === 'power' ? <PowerList /> : <FireList />}
+      {section === 'crime' ? <CrimeList /> : section === 's311' ? <Requests311 /> : section === 'wanted' ? <WantedList /> : section === 'roads' ? <TrafficTab /> : section === 'transit' ? <TransitList /> : section === 'power' ? <PowerList /> : <FireList />}
     </>
   );
 }

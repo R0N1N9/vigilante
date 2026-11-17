@@ -78,6 +78,12 @@ export function buildBrief(args: {
   const power = by('power');
   if (power.length) sections.push({ heading: 'Power', items: power.slice(0, 5).map((p) => `${p.detail} (${timeOf(p.at, tz)})`) });
 
+  const crime = by('crime').sort((x, y) => y.severity - x.severity || y.at - x.at);
+  if (crime.length) sections.push({ heading: 'Crime reports', items: crime.slice(0, 6).map((c) => `${c.title}: ${c.detail}`) });
+
+  const hazards = [...by('storm'), ...by('quake'), ...by('flood'), ...by('air'), ...by('hotspot')].sort((x, y) => y.severity - x.severity);
+  if (hazards.length) sections.push({ heading: 'Hazards', items: hazards.slice(0, 6).map((h) => `${h.title}${h.detail ? ` (${h.detail})` : ''}`) });
+
   const tfrs = by('tfr');
   if (tfrs.length) sections.push({ heading: 'No-fly zones', items: tfrs.map((t) => `${t.title}`) });
 
@@ -92,6 +98,8 @@ export function buildBrief(args: {
     power.length && plural(power.length, 'power outage report'),
     wx.length && plural(wx.length, 'weather alert'),
     news.length && plural(news.length, 'local safety story'),
+    crime.length && plural(crime.length, 'violent crime report'),
+    hazards.length && plural(hazards.length, 'hazard report'),
   ].filter(Boolean) as string[];
   const headline = parts.length ? `${args.packName}: ${parts.join(', ')}.` : `${args.packName}: quiet. Nothing notable in this period.`;
 

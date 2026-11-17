@@ -8,6 +8,7 @@ import { CamerasTab, CameraViewer } from './Cameras';
 import { CommandBar } from './CommandBar';
 import { RadioTab } from './RadioTab';
 import { SkyTab } from './SkyTab';
+import { HazardsTab } from './IntelPanels';
 import { EventLog } from './EventLog';
 import { LayerPanel } from './LayerPanel';
 import { Modals } from './Modals';
@@ -32,6 +33,7 @@ const TABS: { id: RailTab; label: string }[] = [
   { id: 'news', label: 'News' },
   { id: 'radio', label: 'Radio' },
   { id: 'traffic', label: 'City' },
+  { id: 'hazards', label: 'Hazards' },
   { id: 'cameras', label: 'Cams' },
   { id: 'sky', label: 'Sky' },
   { id: 'areas', label: 'Areas' },
@@ -39,7 +41,7 @@ const TABS: { id: RailTab; label: string }[] = [
 
 function Badge({ tab }: { tab: RailTab }) {
   const n = useStore((s) =>
-    tab === 'alerts' ? s.incidents.length + s.clusters.length : tab === 'traffic' ? s.traffic.filter((t) => t.severity >= 2).length + s.transit.filter((t) => t.severity >= 2).length + s.outages.filter((o) => o.severity >= 1).length + s.fires.filter((f) => f.severity >= 1).length : tab === 'sky' ? s.drones.length : tab === 'news' ? s.news.filter((x) => x.severity >= 2 && x.local).length : 0,
+    tab === 'alerts' ? s.incidents.length + s.clusters.length : tab === 'traffic' ? s.traffic.filter((t) => t.severity >= 2).length + s.transit.filter((t) => t.severity >= 2).length + s.outages.filter((o) => o.severity >= 1).length + s.fires.filter((f) => f.severity >= 1).length : tab === 'hazards' ? s.incidents.filter((i) => ['quake', 'flood', 'storm', 'air'].includes(i.kind)).length : tab === 'sky' ? s.drones.length : tab === 'news' ? s.news.filter((x) => x.severity >= 2 && x.local).length : 0,
   );
   return n ? <span className="badge">{n}</span> : null;
 }
@@ -84,6 +86,8 @@ function TabBody({ tab }: { tab: RailTab }) {
       return <SkyTab />;
     case 'radio':
       return <RadioTab />;
+    case 'hazards':
+      return <HazardsTab />;
     case 'areas':
       return <AreasTab />;
   }

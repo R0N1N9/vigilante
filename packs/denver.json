@@ -514,5 +514,15 @@
         "url": "https://core.coop"
       }
     ]
+  },
+  "intel": {
+    "crime": "denver",
+    "s311": "denver",
+    "fbiOffice": "denver",
+    "airports": [
+      "DEN",
+      "APA",
+      "BJC"
+    ]
   }
 }
