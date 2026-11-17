@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { CHECKIN_TAG, FIELD_CODES, vigilLink, ntfyPublishBody, ntfyStreamUrl, ntfyToMessage, parseInvite, spotUrl, type ChatMessage, type NtfyChannel, type NtfyEvent } from '../lib/comms';
+import QRCode from 'qrcode';
+import { CHECKIN_TAG, FIELD_CODES, fieldLink, newNtfyChannel, vigilLink, ntfyPublishBody, ntfyStreamUrl, ntfyToMessage, parseInvite, spotUrl, type ChatMessage, type NtfyChannel, type NtfyEvent } from '../lib/comms';
 import { cleanProfile, openPosition, posTopic, sealPosition, type PositionReport, type Profile } from '../lib/poscrypt';
 import { distanceM, type LonLat } from '../lib/geo';
 import { ACK_LABEL, directionsLinks, isFor, openOps, opsTopic, sealOps, type AckState, type OpsMessage } from '../lib/waypoints';
@@ -62,6 +63,113 @@ const DURATIONS = [
   { h: 12, label: '12 hours' },
 ];
 
+/** Join with any invite (link, VG1 code, vigil:// link) or start a new team. Works on iPhone and Android: no install. */
+function NoTeam({ onJoin, callsign }: { onJoin: (ch: NtfyChannel, callsign: string) => void; callsign: string }) {
+  const [code, setCode] = useState('');
+  const [name, setName] = useState('');
+  const [call, setCall] = useState(callsign);
+  const [err, setErr] = useState('');
+  const join = () => {
+    const c = parseInvite(code);
+    if (!c) return setErr("That isn't a team invite. Paste the whole link or the VG1… code.");
+    if (c.kind !== 'ntfy') return setErr('That is a Meshtastic radio channel: join it in the Meshtastic app.');
+    if (!call.trim()) return setErr('Enter your callsign first.');
+    onJoin(c, call.trim());
+  };
+  const create = () => {
+    if (!name.trim() || !call.trim()) return setErr('Enter a team name and your callsign.');
+    onJoin(newNtfyChannel({ name: name.trim().slice(0, 60) }), call.trim());
+  };
+  return (
+    <>
+      <div className="field-card">
+        <label>
+          <span>Your callsign (how your team sees you)</span>
+          <input value={call} onChange={(e) => setCall(e.target.value.slice(0, 32))} placeholder="e.g. Unit 7" />
+        </label>
+      </div>
+      <div className="field-card">
+        <h2>Join a team</h2>
+        <p>Paste the invite link or code someone sent you, or open their link or QR code directly.</p>
+        <label>
+          <span>Invite link or code</span>
+          <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="https://…#join=VG1.… or VG1.…" />
+        </label>
+        <button className="field-btn go" onClick={join} disabled={!code.trim()}>
+          Join team
+        </button>
+      </div>
+      <div className="field-card">
+        <h2>Or create a team</h2>
+        <p>Makes a new private team channel, the same kind Vigilance makes. Invite people with a QR code or link next. Locations shared in it are end-to-end encrypted.</p>
+        <label>
+          <span>Team name</span>
+          <input value={name} onChange={(e) => setName(e.target.value.slice(0, 60))} placeholder="e.g. Night shift" />
+        </label>
+        <button className="field-btn" onClick={create} disabled={!name.trim()}>
+          Create team
+        </button>
+      </div>
+      {err && <p className="warn">{err}</p>}
+      <p className="field-note">
+        Works in any phone browser, iPhone or Android, with nothing to install. To keep it like an app: Safari → Share → <b>Add to Home Screen</b> (iPhone), or the
+        browser menu → <b>Add to Home screen</b> (Android).
+      </p>
+    </>
+  );
+}
+
+/** Invite people: QR code of the phone link, the system share sheet, and copy. */
+function InviteCard({ ch, callsign, open }: { ch: NtfyChannel; callsign: string; open: boolean }) {
+  const [src, setSrc] = useState('');
+  const [copied, setCopied] = useState(false);
+  const link = fieldLink(ch);
+  useEffect(() => {
+    if (!open) return;
+    let live = true;
+    void QRCode.toDataURL(link, { margin: 2, width: 240, errorCorrectionLevel: link.length > 120 ? 'L' : 'M', color: { dark: '#000000', light: '#ffffff' } }).then(
+      (u) => live && setSrc(u),
+    );
+    return () => {
+      live = false;
+    };
+  }, [link, open]);
+  const text = `${callsign ? `${callsign} invited you` : "You're invited"} to the "${ch.name}" team on Vigilance.\n\nOpen on your phone (iPhone or Android, nothing to install): ${link}\n\nHave the Vigil app? ${vigilLink(ch)}\n\nThis link works like a key: please don't forward it.`;
+  const share = async () => {
+    try {
+      if (navigator.share) await navigator.share({ title: `Join "${ch.name}" on Vigilance`, text });
+      else {
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+      }
+    } catch {
+      /* cancelled */
+    }
+  };
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      prompt('Copy this link:', link);
+    }
+  };
+  return (
+    <div className="field-invite-body">
+      <p>Anyone who scans this with their phone camera, or opens the link, joins <b>{ch.name}</b> here (iPhone or Android) or in the Vigil app. Vigilance on a laptop can join with it too.</p>
+      <div className="field-qr">{src ? <img src={src} alt={`QR code to join ${ch.name}`} width={240} height={240} /> : null}</div>
+      <button className="field-btn go" onClick={() => void share()}>
+        Share invite
+      </button>
+      <button className="field-btn" onClick={() => void copy()}>
+        {copied ? 'Copied' : 'Copy link'}
+      </button>
+      <p className="warn">This invite works like a key: anyone with it can read the chat and the team's shared locations. Send it only to people you trust.</p>
+    </div>
+  );
+}
+
 function FieldMark() {
   return <BrandMark className="field-mark" />;
 }
@@ -107,6 +215,7 @@ export function FieldApp() {
   const [ping, setPing] = useState(0);
   const [wps, setWps] = useState<Map<string, Extract<OpsMessage, { type: 'wp' }>>>(new Map());
   const [myAcks, setMyAcks] = useState<Record<string, AckState>>({});
+  const [inviteOpen, setInviteOpen] = useState(false);
   const sentAt = useRef(0);
   const sentWhere = useRef<LonLat | null>(null);
   const wake = useRef<WakeLockSentinel | null>(null);
@@ -363,10 +472,7 @@ export function FieldApp() {
             )}
           </div>
         ) : (
-          <div className="field-card">
-            <h2>No team channel yet</h2>
-            <p>Open this page from your team's invite link or QR code.</p>
-          </div>
+          <NoTeam callsign={saved.callsign} onJoin={(c, call) => update({ channel: c, callsign: call })} />
         )}
       </div>
     );
@@ -384,6 +490,13 @@ export function FieldApp() {
       <a className="vigil-open" href={vigilLink(ch)}>
         Have the <b>Vigil</b> app? Open this team in Vigil →
       </a>
+
+      <details className="field-card field-invite" onToggle={(e) => setInviteOpen((e.target as HTMLDetailsElement).open)}>
+        <summary>
+          <b>Invite people</b> · QR code or link
+        </summary>
+        <InviteCard ch={ch} callsign={saved.callsign} open={inviteOpen} />
+      </details>
 
       <div className="field-card">
         <label>
@@ -579,6 +692,16 @@ export function FieldApp() {
           Send
         </button>
       </form>
+      <button
+        className="field-leave"
+        onClick={() => {
+          if (!confirm(`Leave ${ch.name}? This removes the team from this phone. You'll need an invite to rejoin.`)) return;
+          if (sharing) stop();
+          update({ channel: null });
+        }}
+      >
+        Leave team
+      </button>
     </div>
   );
 }
