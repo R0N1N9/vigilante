@@ -176,7 +176,7 @@ Paste one tag where the console should appear. It inserts a responsive, sandboxe
 |---|---|---|
 | `data-view` | `dashboard`, `map` | `dashboard` |
 | `data-city` | `denver`, `atlanta`, or `lat,lon` (e.g. `39.7392,-104.9903`) | the visitor's last choice, else Denver |
-| `data-theme` | `tactical`, `nightvision`, `amber`, `redlight`, `steel` | `tactical` |
+| `data-theme` | `tactical`, `greenred`, `nightvision`, `amber`, `redlight`, `steel` | `tactical` |
 | `data-height` | a CSS height: `640`, `640px`, `70vh` | `620px` |
 | `data-target` | a CSS selector to fill instead of inserting after the tag | |
 
@@ -235,7 +235,7 @@ Radio → ▶ plays a feed in a small in-app player window (Broadcastify's free 
 - **Brief (☀)** shows the latest situation brief, and **Refresh** rebuilds it.
 - **Pop out ▾** opens any panel in its own window. Closing the main window closes them all.
 - **Speaker icon** mutes or unmutes alert tones (it turns amber with a slash when muted).
-- **Appearance** (Settings → Appearance): theme presets (Tactical cyan, Night vision, Amber CRT, Red low-light, Steel) or your own RGB accent, panel and background colors, plus panel opacity and the grid texture. Changes apply instantly in every window.
+- **Appearance** (Settings → Appearance): theme presets (Tactical cyan, Green & red, Night vision, Amber CRT, Red low-light, Steel) or your own RGB accent, alert, panel and background colors, plus panel opacity and the grid texture. Changes apply instantly in every window.
 
 ## Project layout
 

@@ -81,7 +81,7 @@ function PowerList() {
       </div>
       {outages.map((o) => (
         <article key={o.id} className={`incident sev-${o.severity}`}>
-          <div className="inc-icon" style={{ color: '#FFB020' }}>
+          <div className="inc-icon" style={{ color: 'var(--warn)' }}>
             ⚡
           </div>
           <div className="inc-body">
