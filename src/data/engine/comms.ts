@@ -6,6 +6,7 @@ import { isTauri } from '../../lib/http';
 import { openPosition, posTopic } from '../../lib/poscrypt';
 import { fieldCodeOf, FIELD_CODES } from '../../lib/comms';
 import type { MonitorHit } from '../../lib/monitors';
+import type { LonLat } from '../../lib/geo';
 import type { Severity, Signal } from '../../lib/signals';
 import { setShared } from '../bus';
 import { alertTone } from '../sound';
@@ -47,7 +48,8 @@ function upsertMember(m: TeamMember) {
   const now = Date.now();
   const prev = getState().team.find((x) => x.id === m.id);
   if (prev && prev.at > m.at) return; // out-of-order (history replay)
-  const trail = m.source === 'ntfy' ? undefined : [...(prev?.trail ?? []), m.location].slice(-TRAIL_MAX);
+  // No location (presence only) or a fresh start after going dark: no trail.
+  const trail = m.source === 'ntfy' || !m.location ? undefined : [...(prev?.dark ? [] : (prev?.trail ?? [])), m.location].slice(-TRAIL_MAX);
   const team = [{ ...m, trail }, ...getState().team.filter((x) => x.id !== m.id && now - x.at < TEAM_TTL_MS)];
   setShared({ team });
 }
@@ -111,7 +113,31 @@ function connectPositions(ch: NtfyChannel) {
       if (r.s === 'off') return removeMember(id);
       if (Date.now() - r.t > TEAM_TTL_MS) return;
       removeMember(`ntfy:${ch.id}:${r.n}`);
-      upsertMember({ id, name: r.n, channelId: ch.id, at: r.t, location: [r.lon, r.lat], source: 'phone', accuracyM: r.acc, speedMs: r.spd, heading: r.hdg, battery: r.bat });
+      if (r.s === 'dark') {
+        // Stealth: forget where they were, keep only that they went dark.
+        const team = getState().team.filter((x) => x.id !== id);
+        setShared({ team: [{ id, name: r.n, channelId: ch.id, at: r.t, location: null, source: 'phone', app: r.app, dark: true }, ...team] });
+        return;
+      }
+      const location: LonLat | null = r.lat != null && r.lon != null ? [r.lon, r.lat] : null;
+      upsertMember({
+        id,
+        name: r.n,
+        channelId: ch.id,
+        at: r.t,
+        location,
+        source: 'phone',
+        accuracyM: r.acc,
+        speedMs: r.spd,
+        heading: r.hdg,
+        battery: r.bat,
+        charging: r.chg,
+        activity: r.act,
+        heartRate: r.hr,
+        env: r.env,
+        app: r.app,
+        perm: r.perm ?? ['loc'],
+      });
     });
   };
   posStreams.set(ch.id, { es, key });
@@ -153,7 +179,7 @@ function connectNtfy(ch: NtfyChannel) {
 
 async function sendNtfy(ch: NtfyChannel, m: ChatMessage) {
   const s = getState();
-  const body = ntfyPublishBody(ch, s.settings.team.callsign || 'Vigilance', m.text, s.settings.team.installId, m.spot, m.url);
+  const body = ntfyPublishBody(ch, s.settings.team.callsign || 'Vigilance', m.text, s.settings.team.installId, m.spot, m.url, m.tags);
   const res = await fetch(`${ch.server.replace(/\/$/, '')}/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...(ch.token ? { Authorization: `Bearer ${ch.token}` } : {}) },

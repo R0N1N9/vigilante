@@ -77,6 +77,8 @@ Built for people who keep watch over a place: physical security and asset protec
 
   Locations are **encrypted end to end** (AES-256-GCM) with a key that travels only inside the invite, so the ntfy server sees only scrambled data. Sharing is always opt-in, stops on a timer or with **Stop sharing**, and disappears from the console when stopped.
 
+  **Vigil app (Android):** Vigil phones join the same way: scan the phone QR code in Vigil, or tap **Open this team in Vigil** on the check-in page (`vigil://join?code=…`). Each person picks what to share: **location, battery, motion, heart rate, environment sensors**. The console shows only those categories and discards anything else. Someone can be on the roster with location switched off. **Go dark** (stealth) wipes their marker and trail from the console at once and lists them as DARK. The console's **📍 Request check-in** asks every phone for a fresh update: phones that are sharing answer right away, and the others ask their owner first. The wire format, encryption and test vectors for Vigil are in [`docs/TEAM_PROTOCOL.md`](docs/TEAM_PROTOCOL.md).
+
   Phone browsers pause location when the page is in the background, so the page keeps the screen awake while sharing. For all-day background tracking, use a Meshtastic radio (or, later, the Android app).
 - **Share to team:** ⇪ buttons on alerts, developing incidents, monitor hits and the aircraft card, plus **right-click the map → Share this spot**. Messages with a spot get a "Show on map" button; spots from teammates also appear as team positions.
 - **Auto-post:** each channel can also post new reports at or above a chosen level, so the whole team sees serious alerts.

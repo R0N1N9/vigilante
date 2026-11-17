@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { FIELD_CODES, ntfyPublishBody, ntfyStreamUrl, ntfyToMessage, parseInvite, spotUrl, type ChatMessage, type NtfyChannel, type NtfyEvent } from '../lib/comms';
+import { CHECKIN_TAG, FIELD_CODES, vigilLink, ntfyPublishBody, ntfyStreamUrl, ntfyToMessage, parseInvite, spotUrl, type ChatMessage, type NtfyChannel, type NtfyEvent } from '../lib/comms';
 import { openPosition, posTopic, sealPosition, type PositionReport } from '../lib/poscrypt';
 import { distanceM, type LonLat } from '../lib/geo';
 
@@ -94,6 +94,7 @@ export function FieldApp() {
   const [sent, setSent] = useState(0);
   const [err, setErr] = useState('');
   const [text, setText] = useState('');
+  const [ping, setPing] = useState(0);
   const sentAt = useRef(0);
   const sentWhere = useRef<LonLat | null>(null);
   const wake = useRef<WakeLockSentinel | null>(null);
@@ -109,6 +110,7 @@ export function FieldApp() {
       try {
         const m = ntfyToMessage(JSON.parse(e.data) as NtfyEvent, ch.id, saved.deviceId);
         if (m) setChat((c) => (c.some((x) => x.id === m.id) ? c : [...c, m].slice(-150)));
+        if (m && !m.mine && m.tags?.includes(CHECKIN_TAG) && Date.now() - m.at < 5 * 60_000) setPing(m.at);
       } catch {
         /* keepalive */
       }
@@ -126,6 +128,7 @@ export function FieldApp() {
         if (ev.event !== 'message' || !ev.message) return;
         void openPosition(ch.posKey, ev.message).then((r) => {
           if (!r || r.id === saved.deviceId) return;
+          if (r.s === 'on' && r.lat == null) return; // presence only: nothing to place
           setTeam((t) => {
             const n = new Map(t);
             if (r.s === 'off') n.delete(r.id);
@@ -140,7 +143,7 @@ export function FieldApp() {
     return () => es.close();
   }, [ch?.topic, ch?.posKey, saved.deviceId]);
 
-  const report = async (pos: GeolocationPosition, state: 'on' | 'off' = 'on') => {
+  const report = async (pos: GeolocationPosition | null, state: 'on' | 'off' | 'dark' = 'on') => {
     if (!ch?.posKey) return;
     let bat: number | undefined;
     try {
@@ -149,22 +152,29 @@ export function FieldApp() {
     } catch {
       /* not supported */
     }
+    const loc = pos && state === 'on';
     const r: PositionReport = {
       v: 1,
       id: saved.deviceId,
       n: saved.callsign || 'Phone',
-      lat: pos.coords.latitude,
-      lon: pos.coords.longitude,
-      acc: Math.round(pos.coords.accuracy),
-      ...(pos.coords.speed != null ? { spd: +pos.coords.speed.toFixed(1) } : {}),
-      ...(pos.coords.heading != null && !Number.isNaN(pos.coords.heading) ? { hdg: Math.round(pos.coords.heading) } : {}),
-      ...(bat != null ? { bat } : {}),
+      app: 'field',
+      perm: [...(loc ? (['loc'] as const) : []), ...(bat != null ? (['bat'] as const) : [])],
+      ...(loc
+        ? {
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude,
+            acc: Math.round(pos.coords.accuracy),
+            ...(pos.coords.speed != null ? { spd: +pos.coords.speed.toFixed(1) } : {}),
+            ...(pos.coords.heading != null && !Number.isNaN(pos.coords.heading) ? { hdg: Math.round(pos.coords.heading) } : {}),
+          }
+        : {}),
+      ...(bat != null && state === 'on' ? { bat } : {}),
       t: Date.now(),
       s: state,
     };
     await publish(ch, { topic: posTopic(ch.topic), message: await sealPosition(ch.posKey, r), tags: ['vigilance-pos'] });
     sentAt.current = Date.now();
-    sentWhere.current = [r.lon, r.lat];
+    if (r.lat != null && r.lon != null) sentWhere.current = [r.lon, r.lat];
     setLastSent(Date.now());
     setSent((n) => n + 1);
   };
@@ -212,6 +222,31 @@ export function FieldApp() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sharing]);
+
+  // Console asked for a check-in: answer right away if sharing; otherwise ask the person.
+  useEffect(() => {
+    if (!ping) return;
+    if (sharing && fixRef.current) {
+      void report(fixRef.current).catch(() => {});
+      setPing(0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ping]);
+  const answerOnce = async () => {
+    setPing(0);
+    try {
+      const p = await new Promise<GeolocationPosition>((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: true, timeout: 15000 }));
+      fixRef.current = p;
+      setFix(p);
+      await report(p);
+    } catch (e) {
+      setErr(`Couldn't send location: ${String(e instanceof Error ? e.message : e)}`);
+    }
+  };
+  const goDark = () => {
+    setSharing(false);
+    void report(null, 'dark').catch(() => {});
+  };
 
   const start = () => {
     if (!saved.callsign.trim()) {
@@ -290,6 +325,10 @@ export function FieldApp() {
         <em className={connected ? 'ok' : ''}>● {ch.name}</em>
       </header>
 
+      <a className="vigil-open" href={vigilLink(ch)}>
+        Have the <b>Vigil</b> app? Open this team in Vigil →
+      </a>
+
       <div className="field-card">
         <label>
           <span>Your callsign</span>
@@ -330,10 +369,28 @@ export function FieldApp() {
             <button className="field-btn stop" onClick={stop}>
               Stop sharing
             </button>
+            <button className="field-btn dark" onClick={goDark} title="Hide yourself from the team map immediately; the console keeps no last position">
+              ◌ Go dark
+            </button>
           </>
         )}
         {err && <p className="warn">{err}</p>}
       </div>
+
+      {ping > 0 && !sharing && (
+        <div className="field-card ping">
+          <h2>📍 Check-in requested</h2>
+          <p>The console asked the team for a location update. Sending is up to you.</p>
+          <div className="row">
+            <button className="field-btn go" onClick={() => void answerOnce()}>
+              Send my location once
+            </button>
+            <button className="field-btn" onClick={() => setPing(0)}>
+              Ignore
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="field-quick">
         <button className="q sos" onClick={() => void quick('sos')}>
@@ -353,16 +410,25 @@ export function FieldApp() {
       {team.size > 0 && (
         <div className="field-card">
           <h3>Team on the map</h3>
-          {[...team.values()].map((r) => (
-            <div key={r.id} className="field-mate">
-              <b>{r.n}</b>
-              <span>{me ? fmtDist(distanceM(me, [r.lon, r.lat])) : ''}</span>
-              <span>{fmtAge(r.t)} ago</span>
-              <a href={spotUrl({ lat: r.lat, lon: r.lon })} target="_blank" rel="noreferrer">
-                Map ↗
-              </a>
-            </div>
-          ))}
+          {[...team.values()].map((r) =>
+            r.s === 'dark' || r.lat == null || r.lon == null ? (
+              <div key={r.id} className="field-mate">
+                <b>{r.n}</b>
+                <span>dark</span>
+                <span>{fmtAge(r.t)} ago</span>
+                <span />
+              </div>
+            ) : (
+              <div key={r.id} className="field-mate">
+                <b>{r.n}</b>
+                <span>{me ? fmtDist(distanceM(me, [r.lon, r.lat])) : ''}</span>
+                <span>{fmtAge(r.t)} ago</span>
+                <a href={spotUrl({ lat: r.lat, lon: r.lon })} target="_blank" rel="noreferrer">
+                  Map ↗
+                </a>
+              </div>
+            ),
+          )}
         </div>
       )}
 

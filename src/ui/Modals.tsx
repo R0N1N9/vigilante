@@ -9,7 +9,7 @@ import type { Severity } from '../lib/signals';
 import { fmtTime } from './format';
 import { AboutModal } from './AboutModal';
 import QRCode from 'qrcode';
-import { fieldLink, inviteLink, MESHTASTIC_APP_URL, nativeLink } from '../lib/comms';
+import { fieldLink, inviteLink, MESHTASTIC_APP_URL, nativeLink, vigilLink } from '../lib/comms';
 import { openSystem } from './popout';
 
 export function Modal({ title, children, wide = false }: { title: string; children: React.ReactNode; wide?: boolean }) {
@@ -384,6 +384,15 @@ function InviteModal() {
                 <input readOnly value={field} onFocus={(e) => e.target.select()} />
                 <button className="btn small" onClick={() => void copy(field, 'field')}>
                   {copied === 'field' ? 'Copied' : 'Copy'}
+                </button>
+              </div>
+              <p className="small-text muted">
+                <b>Vigil app:</b> scan the same code from inside Vigil, or tap “Open this team in Vigil” on the check-in page. Vigil lets each person choose what to share (location, battery, motion, heart rate, sensors) and go dark at any time.
+              </p>
+              <div className="copy-row">
+                <input readOnly value={vigilLink(ch, withToken)} onFocus={(e) => e.target.select()} />
+                <button className="btn small" onClick={() => void copy(vigilLink(ch, withToken), 'vigil')}>
+                  {copied === 'vigil' ? 'Copied' : 'Copy'}
                 </button>
               </div>
             </div>

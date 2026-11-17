@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { distanceM } from '../lib/geo';
+import { CHECKIN_REQUEST, CHECKIN_TAG, type TeamMember } from '../lib/comms';
+import { SHARE_LABEL, type ShareCategory } from '../lib/poscrypt';
+import { postToChannel } from '../data/engine/comms';
+import { getState } from '../data/store';
 import { setShared } from '../data/bus';
 import { setState, useStore } from '../data/store';
 import { isEmbed } from '../lib/embed';
@@ -340,47 +344,89 @@ function CrimeTrendTile() {
 
 const SRC_ICON: Record<string, string> = { phone: '▣', mesh: '◇', ntfy: '◆' };
 
+const ACT_LABEL: Record<string, string> = { still: 'still', walking: 'walking', running: 'running', cycling: 'cycling', driving: 'driving' };
+
+function memberKind(m: TeamMember) {
+  if (m.source === 'mesh') return 'RADIO';
+  if (m.source === 'ntfy') return 'SHARED SPOT';
+  return m.app === 'vigil' ? 'VIGIL' : 'PHONE';
+}
+
 function TeamTile() {
   const team = useStore((x) => x.team);
   const channels = useStore((x) => x.channels);
   const pack = useStore((x) => getPack(x.packId));
   const [now, setNow] = useState(Date.now());
+  const [asked, setAsked] = useState(0);
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 15_000);
     return () => clearInterval(t);
   }, []);
-  const rows = [...team].sort((a, b) => b.at - a.at);
-  const online = rows.filter((m) => now - m.at < 5 * 60_000).length;
+  const rows = [...team].sort((a, b) => Number(!!a.dark) - Number(!!b.dark) || b.at - a.at);
+  const online = rows.filter((m) => !m.dark && now - m.at < 5 * 60_000).length;
   const age = (t: number) => {
-    const s = Math.round((now - t) / 1000);
+    const s = Math.max(0, Math.round((Math.max(now, Date.now()) - t) / 1000));
     return s < 60 ? `${s}s` : s < 3600 ? `${Math.round(s / 60)}m` : `${Math.round(s / 3600)}h`;
   };
+  const ntfyChannels = channels.filter((c) => c.kind === 'ntfy' && c.enabled);
+  const requestCheckin = () => {
+    for (const c of ntfyChannels) postToChannel(c.id, `${CHECKIN_REQUEST} from ${getState().settings.team.callsign || 'the console'}`, { tags: [CHECKIN_TAG] });
+    setAsked(Date.now());
+  };
   return (
-    <Tile code="10" title="TEAM" led={online ? 'ok' : 'idle'} right={`${online} ONLINE`} className="a-team">
+    <Tile
+      code="10"
+      title="TEAM"
+      led={online ? 'ok' : 'idle'}
+      right={
+        <>
+          {online} ONLINE
+          {ntfyChannels.length > 0 && (
+            <button className="btn small" onClick={requestCheckin} disabled={now - asked < 30_000} title="Ask every phone for a fresh position. Each phone answers only if its owner allows it.">
+              {now - asked < 30_000 ? 'Requested' : '📍 Request check-in'}
+            </button>
+          )}
+        </>
+      }
+      className="a-team"
+    >
       {rows.length ? (
         <table className="roster">
           <tbody>
             {rows.map((m) => {
               const stale = now - m.at > 5 * 60_000;
               const ch = channels.find((c) => c.id === m.channelId);
+              const extras = [m.activity && m.activity !== 'unknown' ? ACT_LABEL[m.activity] ?? m.activity : '', m.heartRate ? `♥ ${m.heartRate}` : '', m.env?.db != null ? `${Math.round(m.env.db)} dB` : ''].filter(Boolean).join(' · ');
               return (
-                <tr key={m.id} className={`act ${stale ? 'stale' : ''}`} onClick={() => locate(m.location, 16, m.name)} title="Show on map">
-                  <td className={`src ${m.source}`}>{SRC_ICON[m.source]}</td>
+                <tr key={m.id} className={`${m.location ? 'act' : ''} ${stale ? 'stale' : ''} ${m.dark ? 'dark' : ''}`} onClick={() => m.location && locate(m.location, 16, m.name)} title={m.dark ? 'Went dark (stealth): no location is kept' : m.location ? 'Show on map' : 'Sharing presence without location'}>
+                  <td className={`src ${m.source} ${m.app ?? ''}`}>{m.dark ? '◌' : SRC_ICON[m.source]}</td>
                   <td className="nm">
                     {m.name}
-                    <small>{m.source === 'phone' ? 'PHONE' : m.source === 'mesh' ? 'RADIO' : 'SHARED SPOT'}{ch ? ` · ${ch.name.toUpperCase()}` : ''}</small>
+                    <small>
+                      {memberKind(m)}
+                      {ch ? ` · ${ch.name.toUpperCase()}` : ''}
+                      {m.perm && !m.dark ? ` · SHARING ${m.perm.map((p) => SHARE_LABEL[p as ShareCategory] ?? p).join(', ').toUpperCase()}` : ''}
+                    </small>
                   </td>
-                  <td className="r">{fmtDistNm(distanceM(m.location, pack.center))}</td>
-                  <td className="r">{m.speedMs != null && m.speedMs > 0.5 ? `${Math.round(m.speedMs * 2.237)} mph` : m.accuracyM != null ? `±${m.accuracyM} m` : ''}</td>
-                  <td className="r">{m.battery != null ? `${m.battery}%` : ''}</td>
-                  <td className={`r ${stale ? 'muted' : 'ok'}`}>{age(m.at)}</td>
+                  {m.dark ? (
+                    <td className="r dark-tag" colSpan={3}>
+                      DARK
+                    </td>
+                  ) : (
+                    <>
+                      <td className="r">{m.location ? fmtDistNm(distanceM(m.location, pack.center)) : 'no location'}</td>
+                      <td className="r">{extras || (m.speedMs != null && m.speedMs > 0.5 ? `${Math.round(m.speedMs * 2.237)} mph` : m.accuracyM != null ? `±${m.accuracyM} m` : '')}</td>
+                      <td className="r">{m.battery != null ? `${m.charging ? '⚡' : ''}${m.battery}%` : ''}</td>
+                    </>
+                  )}
+                  <td className={`r ${stale || m.dark ? 'muted' : 'ok'}`}>{age(m.at)}</td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       ) : (
-        <div className="empty">{channels.length ? 'No one is sharing a location yet. Send teammates the phone check-in QR from Team → Channels → Invite.' : 'Create a team channel in the Team tab, then invite phones to check in.'}</div>
+        <div className="empty">{channels.length ? 'No one is sharing yet. Send teammates the phone check-in QR from Team → Channels → Invite (works for phone browsers and the Vigil app).' : 'Create a team channel in the Team tab, then invite phones to check in.'}</div>
       )}
     </Tile>
   );
@@ -447,8 +493,8 @@ function SitrepBar() {
     const a = x.aircraft.find((y) => y.kind === 'heli');
     return a ? `${a.lon},${a.lat}` : '';
   });
-  const teamOnline = useStore((x) => x.team.filter((m) => Date.now() - m.at < 5 * 60_000).length);
-  const teamFirst = useStore((x) => x.team[0]?.location ?? null);
+  const teamOnline = useStore((x) => x.team.filter((m) => !m.dark && Date.now() - m.at < 5 * 60_000).length);
+  const teamFirst = useStore((x) => x.team.find((m) => m.location && !m.dark)?.location ?? null);
   const kpi = (label: string, value: React.ReactNode, tone = '', go?: () => void) => (
     <button className={`kpi ${tone}${go ? ' act' : ''}`} onClick={go} disabled={!go}>
       <b>{value}</b>

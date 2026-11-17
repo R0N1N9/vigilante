@@ -143,8 +143,8 @@ function render(map: MlMap, s: State) {
   setData(map, 'weather', fc(s.alerts.filter((a) => a.geometry).map((a) => ({ type: 'Feature', properties: { id: a.id, severity: a.severity }, geometry: a.geometry! }))));
   setData(map, 'tfr', fc(s.tfrs.map((t) => ({ type: 'Feature', properties: { id: t.id }, geometry: t.geometry }))));
   const TEAM_COLOR = { phone: '#2BD47D', mesh: '#FBBF24', ntfy: '#3DD6F5' } as const;
-  setData(map, 'team', fc(s.team.map((m) => ({ type: 'Feature', properties: { id: m.id, name: m.name, color: TEAM_COLOR[m.source], stale: Date.now() - m.at > 10 * 60_000 }, geometry: { type: 'Point', coordinates: m.location } }))));
-  setData(map, 'team-trails', fc(s.team.filter((m) => (m.trail?.length ?? 0) > 1).map((m) => ({ type: 'Feature', properties: { color: TEAM_COLOR[m.source] }, geometry: { type: 'LineString', coordinates: m.trail! } }))));
+  setData(map, 'team', fc(s.team.filter((m): m is typeof m & { location: LonLat } => !!m.location && !m.dark).map((m) => ({ type: 'Feature', properties: { id: m.id, name: m.name, color: TEAM_COLOR[m.source], stale: Date.now() - m.at > 10 * 60_000 }, geometry: { type: 'Point', coordinates: m.location } }))));
+  setData(map, 'team-trails', fc(s.team.filter((m) => !m.dark && (m.trail?.length ?? 0) > 1).map((m) => ({ type: 'Feature', properties: { color: TEAM_COLOR[m.source] }, geometry: { type: 'LineString', coordinates: m.trail! } }))));
   setData(map, 'monitors', fc(s.monitors.filter((m) => m.kind === 'proximity' && m.center).map((m) => ({ type: 'Feature', properties: { id: m.id, name: m.name, on: m.enabled }, geometry: { type: 'LineString', coordinates: circleRing(m.center!, m.radiusM, 96) } }))));
   setData(map, 'areas', fc(s.areas.filter((a) => a.packId === s.packId && a.polygon.length >= 3).map((a) => ({ type: 'Feature', properties: { name: a.name, color: a.color }, geometry: { type: 'Polygon', coordinates: [[...a.polygon, a.polygon[0]]] } }))));
   setData(map, 'traffic', fc(s.traffic.map((t) => ({ type: 'Feature', properties: { id: t.id, sev: t.severity }, geometry: { type: 'Point', coordinates: t.location } }))));

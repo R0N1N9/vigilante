@@ -57,6 +57,8 @@ export interface ChatMessage {
   url?: string;
   status?: 'sending' | 'sent' | 'failed';
   error?: string;
+  /** Extra ntfy tags to send (e.g. the check-in request tag). */
+  tags?: string[];
   /** Id on the transport (ntfy message id or mesh packet id), for de-duplication. */
   remoteId?: string;
 }
@@ -66,7 +68,8 @@ export interface TeamMember {
   name: string;
   channelId: string;
   at: number;
-  location: LonLat;
+  /** null when the person shares presence but not location, or went dark. */
+  location: LonLat | null;
   /** mesh: Meshtastic radio · phone: live check-in page · ntfy: a spot someone shared in chat. */
   source: 'mesh' | 'ntfy' | 'phone';
   accuracyM?: number;
@@ -75,6 +78,15 @@ export interface TeamMember {
   battery?: number;
   /** Recent positions, oldest first (live sources only). */
   trail?: LonLat[];
+  /** Phone app ('field' web page or 'vigil'), what it's sharing, and its extra sensors. */
+  app?: string;
+  perm?: string[];
+  charging?: boolean;
+  activity?: string;
+  heartRate?: number;
+  env?: { lux?: number; hpa?: number; db?: number };
+  /** Stealth: the person hid themselves; no location is kept. */
+  dark?: boolean;
 }
 
 export interface MeshRadioSettings {
@@ -136,10 +148,18 @@ export const fieldLink = (ch: NtfyChannel, includeToken = true) => `${WEB_APP_UR
 /** Quick status codes phones send; the console turns SOS and backup requests into alerts that need acknowledging. */
 export const FIELD_CODES = {
   sos: { text: '🚨 EMERGENCY', severity: 4 as Severity },
+  fall: { text: '🚨 FALL DETECTED', severity: 4 as Severity },
   backup: { text: '⚠ NEED BACKUP', severity: 3 as Severity },
   onscene: { text: '✓ ON SCENE', severity: 0 as Severity },
   clear: { text: '✓ ALL CLEAR', severity: 0 as Severity },
 };
+
+/** Console → phones: please send a fresh report. Phones answer only if their owner allows it. */
+export const CHECKIN_REQUEST = '📍 CHECK-IN REQUEST';
+export const CHECKIN_TAG = 'vigilance-ping';
+
+/** Deep link that opens the invite in the Vigil Android app. */
+export const vigilLink = (ch: TeamChannel, includeToken = true) => `vigil://join?code=${inviteCode(ch, includeToken)}`;
 
 export function fieldCodeOf(text: string): keyof typeof FIELD_CODES | null {
   for (const [k, v] of Object.entries(FIELD_CODES)) if (text.startsWith(v.text)) return k as keyof typeof FIELD_CODES;
@@ -248,17 +268,18 @@ export function ntfyToMessage(e: NtfyEvent, channelId: string, installId: string
     spot,
     url: e.click,
     status: 'sent',
+    ...(e.tags?.length ? { tags: e.tags } : {}),
   };
 }
 
 /** JSON body for publishing to ntfy (POST to the server root). */
-export function ntfyPublishBody(ch: NtfyChannel, from: string, text: string, installId: string, spot?: SharedSpot, url?: string) {
+export function ntfyPublishBody(ch: NtfyChannel, from: string, text: string, installId: string, spot?: SharedSpot, url?: string, extraTags: string[] = []) {
   const click = url ?? (spot ? spotUrl(spot) : undefined);
   return {
     topic: ch.topic,
     title: from,
     message: text,
-    tags: ['vigilance', installTag(installId)],
+    tags: ['vigilance', installTag(installId), ...extraTags],
     ...(click ? { click, actions: [{ action: 'view', label: spot ? 'Map' : 'Open', url: click }] } : {}),
   };
 }
