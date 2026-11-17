@@ -76,7 +76,17 @@ function removeMember(id: string) {
 }
 
 /** SOS / backup calls from phones become alerts that sit in the inbox until acknowledged. */
+/** Vigil sends "📍 SOS LOCATION — name" with a map link when the SOS went out before a GPS fix. */
+const SOS_LOCATION = '📍 SOS LOCATION';
+
 function raiseFieldAlert(m: ChatMessage) {
+  if (m.text.startsWith(SOS_LOCATION) && m.spot && !m.mine) {
+    // Attach the late location to that sender's open SOS alert instead of raising a new one.
+    const s = getState();
+    const hit = s.hits.find((h) => h.monitorId === 'team-field' && !h.acked && !h.location && h.title.endsWith(`: ${m.from}`));
+    if (hit) setShared({ hits: s.hits.map((h) => (h.id === hit.id ? { ...h, location: [m.spot!.lon, m.spot!.lat], detail: `${h.detail} · location received` } : h)) });
+    return;
+  }
   const code = fieldCodeOf(m.text);
   if (!code || FIELD_CODES[code].severity < 3 || m.mine || Date.now() - m.at > 30 * 60_000) return;
   const s = getState();
@@ -258,7 +268,7 @@ function connectNtfy(ch: NtfyChannel) {
 
 async function sendNtfy(ch: NtfyChannel, m: ChatMessage) {
   const s = getState();
-  const body = ntfyPublishBody(ch, s.settings.team.callsign || 'Vigilance', m.text, s.settings.team.installId, m.spot, m.url, m.tags);
+  const body = ntfyPublishBody(ch, s.settings.team.callsign || 'Vigilance', m.text, s.settings.team.installId, m.spot, m.url, m.tags, true);
   const res = await fetch(`${ch.server.replace(/\/$/, '')}/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...(ch.token ? { Authorization: `Bearer ${ch.token}` } : {}) },

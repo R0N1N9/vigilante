@@ -275,13 +275,14 @@ export function ntfyToMessage(e: NtfyEvent, channelId: string, installId: string
 }
 
 /** JSON body for publishing to ntfy (POST to the server root). */
-export function ntfyPublishBody(ch: NtfyChannel, from: string, text: string, installId: string, spot?: SharedSpot, url?: string, extraTags: string[] = []) {
+export function ntfyPublishBody(ch: NtfyChannel, from: string, text: string, installId: string, spot?: SharedSpot, url?: string, extraTags: string[] = [], console = false) {
   const click = url ?? (spot ? spotUrl(spot) : undefined);
   return {
     topic: ch.topic,
     title: from,
     message: text,
-    tags: ['vigilance', installTag(installId), ...extraTags],
+    // 'vigilance-console' marks the control center, so phones never mistake it for a teammate (and vice versa).
+    tags: ['vigilance', installTag(installId), ...(console ? ['vigilance-console'] : []), ...extraTags],
     ...(click ? { click, actions: [{ action: 'view', label: spot ? 'Map' : 'Open', url: click }] } : {}),
   };
 }

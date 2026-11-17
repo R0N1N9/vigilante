@@ -65,3 +65,11 @@ describe('spots and messages', () => {
     expect(ntfyStreamUrl({ ...ch, token: 'tk_1' }, '24h')).toMatch(/\/t\/sse\?since=24h&auth=[A-Za-z0-9_-]+$/);
   });
 });
+
+describe('console tag', () => {
+  it('marks console messages so phones can tell them apart', () => {
+    const ch = newNtfyChannel({ topic: 't' });
+    expect(ntfyPublishBody(ch, 'Ops', 'hi', 'lap1', undefined, undefined, [], true).tags).toContain('vigilance-console');
+    expect(ntfyPublishBody(ch, 'Unit 7', 'hi', 'ph').tags).not.toContain('vigilance-console');
+  });
+});
