@@ -902,6 +902,15 @@ button.link { background: none; border: 0; padding: 0; color: var(--accent); cur
 .field-profile[open] { display: flex; flex-direction: column; gap: 8px; }
 .field-profile .check-row { flex-direction: row; align-items: center; gap: 8px; font-size: 13px; }
 
+/* Line icons */
+.ico { display: inline-block; vertical-align: -2px; flex-shrink: 0; }
+.ico.inline { margin: 0 3px 0 1px; vertical-align: -2px; }
+.btn .ico, button .ico { margin-right: 5px; }
+.btn.icon-only .ico, .icon-btn .ico { margin-right: 0; }
+.ico.crit { color: var(--crit); } .ico.warn { color: var(--warn); } .ico.ok { color: var(--ok); } .ico.accent { color: var(--accent); }
+.field-quick .q { display: inline-flex; align-items: center; justify-content: center; gap: 2px; }
+.inc-icon .ico { display: block; }
+
 
 
 /* ---------- Get the app (About) ---------- */

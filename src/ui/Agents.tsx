@@ -9,6 +9,7 @@ import { SHARE_LABEL, type ShareCategory } from '../lib/poscrypt';
 import { agentStatus, ageText, STATUS_LABEL, teamBounds, type AgentStatus } from '../lib/team';
 import { openSystem } from './popout';
 import { shareToTeam } from './TeamTab';
+import { Icon, RichText } from './Icon';
 
 const useNow = (ms = 10_000) => {
   const [now, setNow] = useState(Date.now());
@@ -97,7 +98,7 @@ function telemetry(m: TeamMember, center: LonLat) {
     accuracy: m.accuracyM != null ? `±${m.accuracyM} m` : '',
     speed: m.speedMs != null ? `${Math.round(m.speedMs * 2.237)} mph` : '',
     heading: m.heading != null ? `${m.heading}°` : '',
-    battery: m.battery != null ? `${m.charging ? '⚡ ' : ''}${m.battery}%` : '',
+    battery: m.battery != null ? `${m.battery}%${m.charging ? ' · charging' : ''}` : '',
     activity: m.activity && m.activity !== 'unknown' ? m.activity : '',
     heart: m.heartRate ? `${m.heartRate} bpm` : '',
     light: m.env?.lux != null ? `${Math.round(m.env.lux)} lux` : '',
@@ -191,7 +192,7 @@ export function AgentModal() {
                 {m.profile?.phone && (
                   <>
                     <button className="btn small" onClick={() => void openSystem(`tel:${m.profile!.phone!.replace(/[^+0-9]/g, '')}`)}>
-                      ✆ Call {m.profile.phone}
+                      <Icon name="phone" />Call {m.profile.phone}
                     </button>
                     <button className="btn small" onClick={() => void openSystem(`sms:${m.profile!.phone!.replace(/[^+0-9]/g, '')}`)}>
                       Text
@@ -200,7 +201,7 @@ export function AgentModal() {
                 )}
                 {m.profile?.email && (
                   <button className="btn small" onClick={() => void openSystem(`mailto:${m.profile!.email}`)}>
-                    ✉ {m.profile.email}
+                    <Icon name="mail" />{m.profile.email}
                   </button>
                 )}
               </div>
@@ -242,7 +243,7 @@ export function AgentModal() {
                 close();
               }}
             >
-              ◎ Show on map
+              <Icon name="target" />Show on map
             </button>
           )}
           <button
@@ -256,7 +257,7 @@ export function AgentModal() {
           </button>
           {ch?.kind === 'ntfy' && (
             <button className="btn small primary" onClick={() => postToChannel(ch.id, `${CHECKIN_REQUEST} for ${m.name} from ${getState().settings.team.callsign || 'the console'}`, { tags: [CHECKIN_TAG] })}>
-              📍 Request check-in
+              <Icon name="pin" className="crit" />Request check-in
             </button>
           )}
         </div>
@@ -300,11 +301,11 @@ export function TeamView({ map }: { map: React.ReactNode }) {
         </div>
         <div className="tv-actions">
           <button className="btn small" onClick={highlightTeam} disabled={!team.some((m) => m.location && !m.dark)}>
-            ◎ Show all on map
+            <Icon name="target" />Show all on map
           </button>
           {ntfy && (
             <button className="btn small" onClick={() => postToChannel(ntfy.id, `${CHECKIN_REQUEST} from ${getState().settings.team.callsign || 'the console'}`, { tags: [CHECKIN_TAG] })}>
-              📍 Request check-in
+              <Icon name="pin" className="crit" />Request check-in
             </button>
           )}
           {ntfy && (
@@ -326,7 +327,7 @@ export function TeamView({ map }: { map: React.ReactNode }) {
             <div className="tv-alerts">
               {alerts.map((h) => (
                 <button key={h.id} className={`sit sev-${h.severity}`} onClick={() => h.location && setShared({ focus: { at: Date.now(), center: h.location, zoom: 16, label: h.title } })}>
-                  <b>{h.title}</b>
+                  <b><RichText text={h.title} /></b>
                   <small>{ageText(now - h.at)} ago · acknowledge in Alerts</small>
                 </button>
               ))}
@@ -342,7 +343,7 @@ export function TeamView({ map }: { map: React.ReactNode }) {
             <div className="tv-chat-head mono">RECENT TEAM CHAT</div>
             {chat.slice(-6).map((c) => (
               <div key={c.id} className="tv-msg">
-                <b>{c.mine ? 'You' : c.from}</b> {c.text}
+                <b>{c.mine ? 'You' : c.from}</b> <RichText text={c.text} />
               </div>
             ))}
             {!chat.length && <div className="muted small-text">No messages yet.</div>}

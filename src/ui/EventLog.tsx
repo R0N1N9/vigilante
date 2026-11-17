@@ -1,6 +1,7 @@
 import { useStore } from '../data/store';
 import { getPack } from '../lib/packs';
 import { fmtTime } from './format';
+import { RichText } from './Icon';
 
 /** Dispatch-style running log. `strip` renders a single-line ticker for the console footer. */
 export function EventLog({ strip = false }: { strip?: boolean }) {
@@ -13,7 +14,7 @@ export function EventLog({ strip = false }: { strip?: boolean }) {
         <div className="ticker-items">
           {log.slice(0, 8).map((e) => (
             <span key={e.id} className={`sev-${e.severity}`}>
-              <b>{fmtTime(e.at, tz, true)}</b> {e.text}
+              <b>{fmtTime(e.at, tz, true)}</b> <RichText text={e.text} />
             </span>
           ))}
         </div>
@@ -29,7 +30,10 @@ export function EventLog({ strip = false }: { strip?: boolean }) {
       <div className="list log mono">
         {log.map((e) => (
           <div key={e.id} className={`log-row sev-${e.severity}`}>
-            <b>{fmtTime(e.at, tz, true)}</b> <span>{e.text}</span>
+            <b>{fmtTime(e.at, tz, true)}</b>{' '}
+            <span>
+              <RichText text={e.text} />
+            </span>
           </div>
         ))}
       </div>

@@ -8,6 +8,7 @@ import { fmtAgo, fmtTime, tzAbbr } from './format';
 import { POPOUT_VIEWS, popOut, type View } from './popout';
 import { BrandMark } from './BrandMark';
 import { AgentsChip, OnlineIndicator } from './Agents';
+import { Icon } from './Icon';
 
 const FEED_LABEL: Record<FeedName, string> = {
   adsb: 'Aircraft (ADS-B)',
@@ -86,7 +87,7 @@ function PopoutMenu() {
   return (
     <div className="menu" ref={ref}>
       <button className="icon-btn" onClick={() => setOpen(!open)} aria-expanded={open} title="Pop out a panel to another window or monitor">
-        ⧉
+        <Icon name="popout" size={15} />
       </button>
       {open && (
         <div className="menu-list right">
@@ -167,7 +168,7 @@ export function CommandBar({ view, embed = false }: { view: View; embed?: boolea
         <OnlineIndicator />
         {!embed && (
           <button className="btn" onClick={() => setState({ modal: 'brief' })} title="Situation brief">
-            ☀ <span className="hide-sm">Brief</span>
+            <Icon name="sun" /> <span className="hide-sm">Brief</span>
           </button>
         )}
         <button className={`icon-btn ${muted ? 'muted' : ''}`} onClick={() => setShared({ muted: !muted })} title={muted ? 'Alert tones off. Click to turn on' : 'Alert tones on. Click to mute'} aria-pressed={muted} aria-label="Alert tones">

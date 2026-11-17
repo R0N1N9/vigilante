@@ -8,6 +8,7 @@ import { SOURCE_LABEL, type Severity, type SignalSource } from '../lib/signals';
 import { fmtAgo } from './format';
 import { openExternal } from './popout';
 import { ShareButton } from './TeamTab';
+import { Icon, RichText } from './Icon';
 
 const SEV = ['Info', 'Low', 'Warning', 'Serious', 'Critical'];
 const list = (t: string) => t.split(/[,\n]/).map((x) => x.trim()).filter(Boolean);
@@ -53,7 +54,7 @@ function Editor({ m }: { m: Monitor }) {
         <>
           <div className="field-row">
             <button className={`btn small ${picking ? 'on' : ''}`} onClick={() => setState({ pickPoint: picking ? null : m.id, mainView: 'map' })}>
-              {picking ? 'Click the map…' : '◎ Pick on map'}
+              {picking ? 'Click the map…' : <><Icon name="target" />Pick on map</>}
             </button>
             <button className="btn small" disabled={!focus} onClick={() => focus && u({ center: focus.center })} title="Use the last spot you selected">
               Use selected spot
@@ -273,11 +274,13 @@ export function HitsInbox() {
       <div className="inc-icon">◉</div>
       <div className="inc-body">
         <div className="inc-title">
-          {h.title}
+          <span>
+            <RichText text={h.title} />
+          </span>
           <span className="mono muted">{fmtAgo(h.at)}</span>
         </div>
         <div className="inc-detail">
-          <span className="tag">{h.monitorName}</span> {h.detail}
+          <span className="tag">{h.monitorName}</span> <RichText text={h.detail} />
           {h.escalations > 0 && <span className="mono warn"> · re-sent {h.escalations}×</span>}
         </div>
         <div className="hit-actions">
@@ -290,7 +293,7 @@ export function HitsInbox() {
                 ack(new Set([h.id]));
               }}
             >
-              ✓ Acknowledge
+              <Icon name="check" />Acknowledge
             </button>
           )}
           {h.url && (

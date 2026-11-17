@@ -3,6 +3,7 @@ import { setShared } from '../data/bus';
 import { getState, useStore } from '../data/store';
 import { buildPack, deviceLocation, reverseGeocode, searchPlaces, type GeoResult } from '../lib/locate';
 import { getPack, PACKS } from '../lib/packs';
+import { Icon } from './Icon';
 
 /** Current watch location + search, device location and saved places. */
 export function LocationPicker() {
@@ -73,7 +74,7 @@ export function LocationPicker() {
   return (
     <div className="menu loc" ref={ref}>
       <button className="loc-btn" onClick={() => setOpen(!open)} title="Change the watched location">
-        <span className="loc-dot">◎</span>
+        <span className="loc-dot"><Icon name="target" size={13} /></span>
         <span className="loc-name">
           {pack.name}
           <small>{pack.region}</small>
@@ -95,7 +96,7 @@ export function LocationPicker() {
             </button>
           </form>
           <button className="loc-row mine" onClick={() => void useMine()} disabled={!!busy}>
-            ⌖ Use my location
+            <Icon name="locate" /> Use my location
           </button>
           {busy && <div className="loc-note">{busy}</div>}
           {error && <div className="loc-note err">{error}</div>}

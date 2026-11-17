@@ -11,6 +11,7 @@ import type { Severity } from '../lib/signals';
 import { fmtTime } from './format';
 import { getPack } from '../lib/packs';
 import { openExternal } from './popout';
+import { Icon, RichText } from './Icon';
 
 const saveChannels = (channels: TeamChannel[]) => setShared({ channels });
 const updateChannel = (id: string, patch: Partial<TeamChannel>) => saveChannels(getState().channels.map((c) => (c.id === id ? ({ ...c, ...patch } as TeamChannel) : c)));
@@ -51,12 +52,14 @@ function Message({ m, channel, showChannel, tz }: { m: ChatMessage; channel?: Te
           </span>
         )}
       </div>
-      <div className="msg-text">{m.text}</div>
+      <div className="msg-text">
+        <RichText text={m.text} />
+      </div>
       {(m.spot || m.url) && (
         <div className="msg-card">
           {m.spot && (
             <button className="btn small" onClick={() => setShared({ focus: { at: Date.now(), center: [m.spot!.lon, m.spot!.lat], zoom: 16, label: m.spot!.label ?? m.from } })}>
-              ◎ Show on map
+              <Icon name="target" />Show on map
             </button>
           )}
           {m.url && (
@@ -107,7 +110,11 @@ function Composer({ channels, active }: { channels: TeamChannel[]; active: strin
     <div className="composer">
       {(spot || url) && (
         <div className="attach">
-          {spot && <span>◎ {spot.label ?? `${spot.lat.toFixed(4)}, ${spot.lon.toFixed(4)}`}</span>}
+          {spot && (
+            <span>
+              <Icon name="pin" size={12} /> {spot.label ?? `${spot.lat.toFixed(4)}, ${spot.lon.toFixed(4)}`}
+            </span>
+          )}
           {url && <span className="url">↗ {url.replace(/^https?:\/\//, '').slice(0, 40)}</span>}
           <button
             className="x"
@@ -130,7 +137,7 @@ function Composer({ channels, active }: { channels: TeamChannel[]; active: strin
           ))}
         </select>
         <button className="btn small" title="Attach the spot last selected on the map or dashboard" disabled={!focus} onClick={() => focus && setSpot({ lat: focus.center[1], lon: focus.center[0], label: focus.label })}>
-          ◎ Spot
+          <Icon name="target" />Spot
         </button>
         <button
           className="btn small"
@@ -148,7 +155,7 @@ function Composer({ channels, active }: { channels: TeamChannel[]; active: strin
             }
           }}
         >
-          {busy ? '…' : '📍 Me'}
+          {busy ? '…' : <><Icon name="pin" />Me</>}
         </button>
       </div>
       <div className="composer-row">
@@ -455,7 +462,7 @@ export function ShareButton({ text, at, url, label }: { text: string; at?: [numb
         shareToTeam(text, at ? { lat: at[1], lon: at[0], label } : undefined, url);
       }}
     >
-      ⇪ Team
+      <Icon name="share" size={12} />Team
     </button>
   );
 }

@@ -4,6 +4,7 @@ import { useStore } from '../data/store';
 import { isTauri } from '../lib/http';
 import { UA_TYPES } from '../lib/odid';
 import { fmtAgo } from './format';
+import { Icon } from './Icon';
 
 function WifiReceiver() {
   const settings = useStore((s) => s.settings);
@@ -79,7 +80,7 @@ export function DronesTab() {
       {drones.map((d) => (
         <article key={d.id} className="incident sev-1" onClick={() => d.location && setShared({ focus: { at: Date.now(), center: d.location, zoom: 16 } })}>
           <div className="inc-icon" style={{ color: '#C084FC' }}>
-            ✣
+            <Icon name="drone" size={16} />
           </div>
           <div className="inc-body">
             <div className="inc-title">

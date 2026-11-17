@@ -41,7 +41,7 @@ function addDataLayers(map: MlMap) {
   L({ id: 'quakes', type: 'circle', source: 'quakes', paint: { 'circle-radius': ['interpolate', ['linear'], ['get', 'mag'], 1.5, 4, 5, 18], 'circle-color': 'rgba(192,132,252,0.25)', 'circle-stroke-color': '#C084FC', 'circle-stroke-width': 1.5 } });
   L({ id: 'quakes-label', type: 'symbol', source: 'quakes', layout: { 'text-field': ['concat', 'M', ['to-string', ['get', 'mag']]], 'text-font': LABEL_FONT, 'text-size': 10 }, paint: { 'text-color': '#E9D5FF', 'text-halo-color': '#0B0F14', 'text-halo-width': 1.3 } });
   L({ id: 'gauges', type: 'circle', source: 'gauges', paint: { 'circle-radius': ['match', ['get', 'cat'], 'no_flooding', 3.5, 'unknown', 3, 6], 'circle-color': ['match', ['get', 'cat'], 'action', '#FFD84D', 'minor', '#FFB020', 'moderate', '#FF4D4F', 'major', '#C026D3', '#38BDF8'], 'circle-opacity': ['match', ['get', 'cat'], 'no_flooding', 0.5, 'unknown', 0.3, 1], 'circle-stroke-color': '#0B0F14', 'circle-stroke-width': 1 } });
-  L({ id: 'storms', type: 'symbol', source: 'storms', layout: { 'text-field': ['get', 'glyph'], 'text-font': LABEL_FONT, 'text-size': 15, 'text-allow-overlap': true }, paint: { 'text-color': SEV_NUM, 'text-halo-color': '#0B0F14', 'text-halo-width': 1.6 } });
+  L({ id: 'storms', type: 'symbol', source: 'storms', layout: { 'text-field': ['get', 'glyph'], 'text-font': LABEL_FONT, 'text-size': 10, 'text-letter-spacing': 0.12, 'text-allow-overlap': true }, paint: { 'text-color': SEV_NUM, 'text-halo-color': '#0B0F14', 'text-halo-width': 1.6 } });
   L({ id: 'ships', type: 'symbol', source: 'ships', layout: { 'text-field': '▲', 'text-rotate': ['get', 'rot'], 'text-rotation-alignment': 'map', 'text-font': LABEL_FONT, 'text-size': 13, 'text-allow-overlap': true }, paint: { 'text-color': ['match', ['get', 'kind'], 'Law enforcement', '#4C8DFF', 'Search & rescue', '#FF4D4F', 'Military', '#4C8DFF', 'Tanker', '#FFB020', 'Cargo', '#8FA3B8', 'Passenger', '#34D399', '#7DD3FC'], 'text-halo-color': '#0B0F14', 'text-halo-width': 1.4 } });
   L({ id: 'radio-fill', type: 'fill', source: 'radio', paint: { 'fill-color': RADIO_COLOR, 'fill-opacity': 0.04 } });
   L({ id: 'radio-line', type: 'line', source: 'radio', paint: { 'line-color': RADIO_COLOR, 'line-width': 1.2, 'line-opacity': 0.55, 'line-dasharray': [1, 2] } });
@@ -132,7 +132,7 @@ function render(map: MlMap, s: State) {
   setData(map, 'hotspots', fc(s.hotspots.map((x) => pt(x.id, x.location, { frp: x.frp }))));
   setData(map, 'quakes', fc(s.quakes.map((x) => pt(x.id, x.location, { mag: Math.round(x.mag * 10) / 10 }))));
   setData(map, 'gauges', fc(s.gauges.map((x) => pt(x.id, x.location, { cat: x.category }))));
-  setData(map, 'storms', fc(s.storms.map((x) => pt(x.id, x.location, { sev: stormSeverity(x), glyph: /tornado|funnel/i.test(x.type) ? '🌪' : /hail/i.test(x.type) ? '◆' : /flood|rain/i.test(x.type) ? '≈' : /snow|ice/i.test(x.type) ? '❄' : '⚡' }))));
+  setData(map, 'storms', fc(s.storms.map((x) => pt(x.id, x.location, { sev: stormSeverity(x), glyph: /tornado|funnel/i.test(x.type) ? 'TOR' : /hail/i.test(x.type) ? 'HAIL' : /flood|rain/i.test(x.type) ? 'FLD' : /snow|ice/i.test(x.type) ? 'SNOW' : 'WIND' }))));
   setData(map, 'ships', fc(s.ships.map((x) => pt(x.mmsi, x.location, { rot: x.heading ?? x.cog ?? 0, kind: shipTypeName(x.type) }))));
   vis(['radio-fill', 'radio-line', 'radio-label'], s.layers.radio);
   vis(['transit'], s.layers.transit);
@@ -152,7 +152,7 @@ function render(map: MlMap, s: State) {
   setData(map, 'traffic', fc(s.traffic.map((t) => ({ type: 'Feature', properties: { id: t.id, sev: t.severity }, geometry: { type: 'Point', coordinates: t.location } }))));
   setData(map, 'traffic-lines', fc(s.traffic.filter((t) => t.path).map((t) => ({ type: 'Feature', properties: { sev: t.severity }, geometry: { type: 'LineString', coordinates: t.path! } }))));
   setData(map, 'cameras', fc([...s.cameras, ...s.webcams].map((c) => ({ type: 'Feature', properties: { id: c.id, icon: c.provider === 'usgs' ? 'webcam' : 'camera' }, geometry: { type: 'Point', coordinates: c.location } }))));
-  setData(map, 'outages', fc(s.outages.filter((o) => o.geometry).map((o) => ({ type: 'Feature', properties: { id: o.id, sev: o.severity, label: `⚡ ${o.county}: ${o.customers.toLocaleString('en-US')} out` }, geometry: o.geometry! }))));
+  setData(map, 'outages', fc(s.outages.filter((o) => o.geometry).map((o) => ({ type: 'Feature', properties: { id: o.id, sev: o.severity, label: `${o.county}: ${o.customers.toLocaleString('en-US')} out` }, geometry: o.geometry! }))));
   setData(map, 'transit', fc(s.transit.flatMap((t) => t.points.map((p) => ({ type: 'Feature', properties: { id: t.id, sev: t.severity }, geometry: { type: 'Point', coordinates: p } })))));
   setData(map, 'newspins', fc(s.news.filter((n) => n.pin && n.local).map((n) => ({ type: 'Feature', properties: { id: n.id, sev: n.severity, precision: n.precision }, geometry: { type: 'Point', coordinates: n.pin! } }))));
   setData(map, 'fires', fc(s.fires.map((f) => ({ type: 'Feature', properties: { id: f.id, icon: f.kind === 'prescribed' ? 'fire-rx' : `fire-${f.severity}`, acres: f.acres ?? 0, label: `${f.name}${f.acres ? ` · ${Math.round(f.acres).toLocaleString('en-US')} ac` : ''}` }, geometry: { type: 'Point', coordinates: f.location } }))));
@@ -331,7 +331,7 @@ export function MapView() {
       el.innerHTML = `<small>${spot.lat.toFixed(5)}, ${spot.lon.toFixed(5)}</small>`;
       const btn = document.createElement('button');
       btn.className = 'btn small';
-      btn.textContent = '⇪ Share this spot with the team';
+      btn.textContent = 'Share this spot with the team';
       btn.onclick = () => {
         popup.remove();
         setState({ teamDraft: { text: '', spot: { ...spot, label: 'Shared spot' } }, tab: 'team' });

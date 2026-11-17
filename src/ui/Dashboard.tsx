@@ -22,6 +22,7 @@ import { AircraftCard } from './AircraftCard';
 import { CameraViewer } from './Cameras';
 import { CRIME_MAP_URL } from '../lib/insights';
 import type { LonLat } from '../lib/geo';
+import { Icon, RichText } from './Icon';
 
 /** Fly the locator (and any map window) to a spot, mark it, and open a related page if there is one. */
 function locate(center: LonLat | null | undefined, zoom: number | undefined, label: string, opt: { url?: string; title?: string; hex?: string } = {}) {
@@ -32,7 +33,7 @@ function locate(center: LonLat | null | undefined, zoom: number | undefined, lab
 function LocatorTile() {
   const focus = useStore((x) => x.focus);
   return (
-    <Tile code="00" title="TACTICAL LOCATOR" led={focus ? 'warn' : 'ok'} right={focus?.label ? `◎ ${focus.label.toUpperCase().slice(0, 40)}` : 'CLICK ANY ITEM TO LOCATE'} className="a-map">
+    <Tile code="00" title="TACTICAL LOCATOR" led={focus ? 'warn' : 'ok'} right={focus?.label ? <><Icon name="target" size={12} /> {focus.label.toUpperCase().slice(0, 40)}</> : 'CLICK ANY ITEM TO LOCATE'} className="a-map">
       <div className="stage locator">
         <MapView />
         <AircraftCard />
@@ -174,13 +175,14 @@ function InsightsTile() {
       right={
         // Web: AI only with the visitor's own key (Settings); embeds have no Settings, so no button.
         (hasKey || !isWeb()) && !isEmbed() && <button className="btn small" disabled={ai?.loading} onClick={() => (hasKey ? setShared({ requests: { ...requests, ai: Date.now() } }) : setState({ modal: 'settings' }))} title={hasKey ? 'Ask Claude for a briefing from the current data' : 'Add a Claude API key in Settings to enable AI briefings'}>
-          {ai?.loading ? 'Thinking…' : hasKey ? '✦ AI briefing' : '✦ Enable AI'}
+          <Icon name="spark" />
+          {ai?.loading ? 'Thinking…' : hasKey ? 'AI briefing' : 'Enable AI'}
         </button>
       }
     >
       {ai && (ai.text || ai.error) && (
         <div className={`ai ${ai.error ? 'err' : ''}`}>
-          <div className="ai-head">✦ AI BRIEFING{ai.at ? ` · ${fmtAgo(ai.at).toUpperCase()} AGO` : ''} · CLAUDE</div>
+          <div className="ai-head"><Icon name="spark" size={12} /> AI BRIEFING{ai.at ? ` · ${fmtAgo(ai.at).toUpperCase()} AGO` : ''} · CLAUDE</div>
           {ai.error ? <p>{ai.error}</p> : <pre>{ai.text}</pre>}
         </div>
       )}
@@ -189,7 +191,7 @@ function InsightsTile() {
           <li key={k} className={`sev-${i.severity}${i.at || i.url ? ' act' : ''}`} onClick={() => locate(i.at, i.zoom, i.label ?? i.source, { url: i.url, hex: i.hex })} title={i.at || i.url ? `${i.at ? 'Show on map' : ''}${i.at && i.url ? ' and ' : ''}${i.url ? 'open the source' : ''}` : undefined}>
             <span className="isrc">{i.source}</span>
             <span>{i.text}</span>
-            {(i.at || i.url) && <span className="go">{i.at ? '◎' : ''}{i.url ? '↗' : ''}</span>}
+            {(i.at || i.url) && <span className="go">{i.at && <Icon name="target" size={12} />}{i.url && <Icon name="external" size={12} />}</span>}
           </li>
         ))}
       </ul>
@@ -258,7 +260,9 @@ function AlertsTile() {
       <div className="sit-list">
         {hits.map((h) => (
           <button key={h.id} className={`sit hit sev-${h.severity}`} onClick={() => locate(h.location, 14, h.monitorName, { url: h.url, hex: h.hex })}>
-            <span className="tag">◉ {h.monitorName.toUpperCase()}</span> <b>{h.title}</b>
+            <span className="tag">{h.monitorName.toUpperCase()}</span> <b>
+              <RichText text={h.title} />
+            </b>
             <small>{h.detail}</small>
           </button>
         ))}
@@ -386,7 +390,7 @@ function TeamTile() {
           {online} ONLINE
           {ntfyChannels.length > 0 && (
             <button className="btn small" onClick={requestCheckin} disabled={now - asked < 30_000} title="Ask every phone for a fresh position. Each phone answers only if its owner allows it.">
-              {now - asked < 30_000 ? 'Requested' : '📍 Request check-in'}
+              {now - asked < 30_000 ? 'Requested' : <><Icon name="pin" className="crit" />Request check-in</>}
             </button>
           )}
         </>
@@ -399,10 +403,10 @@ function TeamTile() {
             {rows.map((m) => {
               const stale = now - m.at > 5 * 60_000;
               const ch = channels.find((c) => c.id === m.channelId);
-              const extras = [m.activity && m.activity !== 'unknown' ? ACT_LABEL[m.activity] ?? m.activity : '', m.heartRate ? `♥ ${m.heartRate}` : '', m.env?.db != null ? `${Math.round(m.env.db)} dB` : ''].filter(Boolean).join(' · ');
+              const extras = [m.activity && m.activity !== 'unknown' ? ACT_LABEL[m.activity] ?? m.activity : '', m.heartRate ? `HR ${m.heartRate}` : '', m.env?.db != null ? `${Math.round(m.env.db)} dB` : ''].filter(Boolean).join(' · ');
               return (
                 <tr key={m.id} className={`act ${stale ? 'stale' : ''} ${m.dark ? 'dark' : ''}`} onClick={() => openAgent(m.id)} title="Profile and telemetry">
-                  <td className={`src ${m.source} ${m.app ?? ''}`}>{m.dark ? '◌' : SRC_ICON[m.source]}</td>
+                  <td className={`src ${m.source} ${m.app ?? ''}`}>{m.dark ? <Icon name="eyeoff" size={13} /> : SRC_ICON[m.source]}</td>
                   <td className="nm">
                     {m.name}
                     <small>
@@ -419,7 +423,7 @@ function TeamTile() {
                     <>
                       <td className="r">{m.location ? fmtDistNm(distanceM(m.location, pack.center)) : 'no location'}</td>
                       <td className="r">{extras || (m.speedMs != null && m.speedMs > 0.5 ? `${Math.round(m.speedMs * 2.237)} mph` : m.accuracyM != null ? `±${m.accuracyM} m` : '')}</td>
-                      <td className="r">{m.battery != null ? `${m.charging ? '⚡' : ''}${m.battery}%` : ''}</td>
+                      <td className="r">{m.battery != null ? <>{m.charging && <Icon name="bolt" size={11} />}{m.battery}%</> : ''}</td>
                     </>
                   )}
                   <td className={`r ${stale || m.dark ? 'muted' : 'ok'}`}>{age(m.at)}</td>

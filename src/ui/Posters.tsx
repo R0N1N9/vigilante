@@ -5,6 +5,7 @@ import type { PosterKind, Wanted } from '../lib/intel';
 import { openExternal } from './popout';
 import { shareToTeam } from './TeamTab';
 import { fmtAgo } from './format';
+import { Icon } from './Icon';
 
 /** Official places to report and to search for more missing people. */
 const FBI_TIPS = 'https://tips.fbi.gov/';
@@ -26,7 +27,11 @@ function PosterCard({ w, compact = false }: { w: Wanted; compact?: boolean }) {
       {!compact && (
         <>
           <span className="poster-sub">{w.kind === 'missing' ? w.summary.replace(/\s+/g, ' ').slice(0, 60) : w.subjects[0] ?? ''}</span>
-          {w.warning && <span className="poster-warn">⚠ {w.warning.toLowerCase()}</span>}
+          {w.warning && (
+            <span className="poster-warn">
+              <Icon name="warning" size={11} /> {w.warning.toLowerCase()}
+            </span>
+          )}
           {w.reward && <span className="poster-reward">{w.reward.replace(/^(The FBI is offering a reward of )?/i, '').slice(0, 70)}</span>}
         </>
       )}
@@ -140,7 +145,11 @@ export function PosterModal() {
               {w.imageLarge || w.image ? <img src={(w.imageLarge ?? w.image)!} alt={w.title} referrerPolicy="no-referrer" onError={(e) => e.currentTarget.replaceWith(Object.assign(document.createElement('i'), { textContent: 'Photo unavailable' }))} /> : <i>No photo</i>}
             </div>
             <div className="poster-info">
-              {w.warning && <div className="poster-alert">⚠ {w.warning}</div>}
+              {w.warning && (
+                <div className="poster-alert">
+                  <Icon name="warning" size={13} /> {w.warning}
+                </div>
+              )}
               {w.summary && <p className="poster-summary">{w.summary}</p>}
               <div className="facts">
                 <Fact k="Sex" v={w.sex} />
@@ -178,7 +187,7 @@ export function PosterModal() {
         </div>
         <div className="modal-foot">
           <button className="btn small" onClick={() => shareToTeam(`${w.label}: ${w.title}${w.warning ? ` (${w.warning.toLowerCase()})` : ''}. FBI poster: ${w.url}`, undefined, w.url)}>
-            ⇪ Share to team
+            <Icon name="share" />Share to team
           </button>
           {w.pdf && (
             <button className="btn small" onClick={() => void openExternal(w.pdf!, `Poster: ${w.title}`)}>

@@ -2,6 +2,7 @@ import { setShared } from '../data/bus';
 import { setState, useStore } from '../data/store';
 import { getPack } from '../lib/packs';
 import { fmtAgo } from './format';
+import { Icon } from './Icon';
 
 export function TrafficTab() {
   const events = useStore((s) => s.traffic);
@@ -38,7 +39,7 @@ export function TrafficTab() {
       </div>
       {shown.map((e) => (
         <article key={e.id} className={`incident sev-${e.severity}`} onClick={() => setShared({ focus: { at: Date.now(), center: e.location, zoom: 14 } })}>
-          <div className="inc-icon">{e.fullClosure ? '⛔' : '▲'}</div>
+          <div className="inc-icon"><Icon name={e.fullClosure ? 'noentry' : 'warning'} size={16} /></div>
           <div className="inc-body">
             <div className="inc-title">
               {e.title}
