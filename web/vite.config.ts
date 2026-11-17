@@ -6,6 +6,7 @@
  * Env: VITE_PROXY_URL (the deployed web/proxy Worker), VITE_BASE (e.g. /vigilante/ on GitHub Pages).
  */
 import react from '@vitejs/plugin-react';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import { devProxy } from '../scripts/dev-proxy.ts';
@@ -26,6 +27,31 @@ function webHeaders(): Plugin {
   };
 }
 
+/**
+ * Phone install (manifest + icons) shared with the desktop page: copied from the repo's public/
+ * with fixed names, so the manifest's relative start_url/scope and icon paths work under any base.
+ */
+const PWA_FILES = ['manifest.webmanifest', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png'];
+const PWA_TYPES: Record<string, string> = { webmanifest: 'application/manifest+json', png: 'image/png' };
+
+function pwaFiles(): Plugin {
+  const read = (f: string) => readFileSync(new URL(`../public/${f}`, import.meta.url));
+  return {
+    name: 'vigilante-web-pwa',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const f = PWA_FILES.find((n) => (req.url ?? '').split('?')[0].endsWith(`/${n}`));
+        if (!f) return next();
+        res.setHeader('Content-Type', PWA_TYPES[f.split('.').pop()!]);
+        res.end(read(f));
+      });
+    },
+    generateBundle() {
+      for (const f of PWA_FILES) this.emitFile({ type: 'asset', fileName: f, source: read(f) });
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const env = { ...loadEnv(mode, repo, 'VITE_'), ...process.env };
   const base = env.VITE_BASE || '/';
@@ -36,7 +62,7 @@ export default defineConfig(({ mode }) => {
     envPrefix: ['VITE_'],
     publicDir: 'public',
     define: { 'import.meta.env.VITE_WEB': JSON.stringify('1') },
-    plugins: [react(), devProxy(), webHeaders()],
+    plugins: [react(), devProxy(), webHeaders(), pwaFiles()],
     clearScreen: false,
     server: { port: 5180, strictPort: true, fs: { allow: [repo] } },
     preview: { port: 4180, strictPort: true, headers: securityHeaders() },
