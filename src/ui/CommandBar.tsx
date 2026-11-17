@@ -1,17 +1,46 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { setShared } from '../data/bus';
-import { setState, useStore, type FeedStatus } from '../data/store';
+import { setState, useStore, type Feed, type FeedName } from '../data/store';
 import { PACKS, getPack } from '../lib/packs';
 import { fmtAgo, fmtTime, tzAbbr } from './format';
-import { popOut, type View } from './popout';
+import { POPOUT_VIEWS, popOut, type View } from './popout';
 
-function Feed({ name, status, at, error }: { name: string; status: FeedStatus; at: number; error?: string }) {
-  const label = status === 'live' || status === 'stale' ? fmtAgo(at) : status === 'error' ? 'ERR' : '…';
+const FEED_LABEL: Record<FeedName, string> = { adsb: 'ADS-B', nws: 'NWS', tfr: 'FAA', traffic: 'ROADS', news: 'NEWS', drones: 'RID' };
+
+function FeedDot({ name, feed }: { name: FeedName; feed: Feed }) {
+  const label = feed.status === 'live' || feed.status === 'stale' ? fmtAgo(feed.at) : feed.status === 'error' ? 'ERR' : feed.status === 'off' ? 'off' : '…';
   return (
-    <span className={`feed feed-${status}`} title={`${name}: ${status}${error ? ` (${error})` : ''}`}>
+    <span className={`feed feed-${feed.status}`} title={`${FEED_LABEL[name]}: ${feed.status}${feed.error ? ` (${feed.error})` : ''}`}>
       <i />
-      {name} <b>{label}</b>
+      {FEED_LABEL[name]} <b>{label}</b>
     </span>
+  );
+}
+
+function PopoutMenu() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const close = (e: MouseEvent) => !ref.current?.contains(e.target as Node) && setOpen(false);
+    window.addEventListener('mousedown', close);
+    return () => window.removeEventListener('mousedown', close);
+  }, []);
+  return (
+    <div className="menu" ref={ref}>
+      <button className="btn" onClick={() => setOpen(!open)} aria-expanded={open}>
+        Pop out ▾
+      </button>
+      {open && (
+        <div className="menu-list">
+          <div className="menu-hint">Opens a window you can drag to another monitor</div>
+          {POPOUT_VIEWS.map((v) => (
+            <button key={v.view} onClick={() => { setOpen(false); void popOut(v.view); }}>
+              {v.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -21,16 +50,15 @@ export function CommandBar({ view }: { view: View }) {
   const basemap = useStore((s) => s.basemap);
   const muted = useStore((s) => s.muted);
   const incidents = useStore((s) => s.incidents);
-  const aircraft = useStore((s) => s.aircraft);
+  const clusters = useStore((s) => s.clusters);
   const pack = getPack(packId);
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
-
-  const top = incidents.reduce((m, i) => Math.max(m, i.severity), 0);
-  const helis = aircraft.filter((a) => a.kind === 'heli').length;
+  const top = Math.max(0, ...incidents.map((i) => i.severity), ...clusters.map((c) => c.severity));
+  const count = incidents.length + clusters.length;
 
   return (
     <header className="cmdbar">
@@ -40,7 +68,6 @@ export function CommandBar({ view }: { view: View }) {
         </svg>
         VIGILANTE
       </div>
-
       <div className="seg" role="tablist" aria-label="City">
         {PACKS.map((p) => (
           <button key={p.id} role="tab" aria-selected={p.id === packId} className={p.id === packId ? 'on' : ''} onClick={() => setShared({ packId: p.id })}>
@@ -48,52 +75,35 @@ export function CommandBar({ view }: { view: View }) {
           </button>
         ))}
       </div>
-
       <div className="clock mono">
         {fmtTime(now, pack.timezone, true)}
         <small>{tzAbbr(now, pack.timezone)}</small>
       </div>
-
-      <div className="stats mono">
-        <span title="Aircraft in area">✈ {aircraft.length}</span>
-        <span title="Helicopters in area" className={helis ? 'warn' : ''}>
-          ◎ {helis}
-        </span>
-        <span className={`alerts-chip sev-${top}`} title="Active incidents">
-          {incidents.length} ALERT{incidents.length === 1 ? '' : 'S'}
-        </span>
-      </div>
-
+      <button className={`alerts-chip mono sev-${top}`} title="Active alerts and developing incidents" onClick={() => setState({ tab: 'alerts' })}>
+        {count} ALERT{count === 1 ? '' : 'S'}
+      </button>
       <div className="feeds mono">
-        <Feed name="ADS-B" {...feeds.adsb} />
-        <Feed name="NWS" {...feeds.nws} />
+        {(Object.keys(FEED_LABEL) as FeedName[]).map((k) => (
+          <FeedDot key={k} name={k} feed={feeds[k]} />
+        ))}
       </div>
-
       <div className="spacer" />
-
-      {view !== 'air' && view !== 'alerts' && (
+      {(view === 'console' || view === 'map') && (
         <div className="seg" aria-label="Basemap">
-          <button className={basemap === 'dark' ? 'on' : ''} onClick={() => setState({ basemap: 'dark' })}>
-            Dark
-          </button>
-          <button className={basemap === 'satellite' ? 'on' : ''} onClick={() => setState({ basemap: 'satellite' })}>
-            Satellite
-          </button>
+          <button className={basemap === 'dark' ? 'on' : ''} onClick={() => setState({ basemap: 'dark' })}>Dark</button>
+          <button className={basemap === 'satellite' ? 'on' : ''} onClick={() => setState({ basemap: 'satellite' })}>Satellite</button>
         </div>
       )}
-
+      <button className="btn" onClick={() => setState({ modal: 'brief' })} title="Situation brief">
+        ☀ Brief
+      </button>
       <button className="icon-btn" onClick={() => setShared({ muted: !muted })} title={muted ? 'Unmute alert tones' : 'Mute alert tones'}>
         {muted ? '🔇' : '🔔'}
       </button>
-
-      {view === 'console' && (
-        <div className="popouts">
-          <span>Pop out</span>
-          <button onClick={() => void popOut('map')}>Map</button>
-          <button onClick={() => void popOut('air')}>Aircraft</button>
-          <button onClick={() => void popOut('alerts')}>Alerts</button>
-        </div>
-      )}
+      <button className="icon-btn" onClick={() => setState({ modal: 'settings' })} title="Settings">
+        ⚙
+      </button>
+      {view === 'console' && <PopoutMenu />}
     </header>
   );
 }

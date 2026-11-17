@@ -21,7 +21,7 @@ export function EventLog({ strip = false }: { strip?: boolean }) {
     );
   }
   return (
-    <section className="panel grow">
+    <section className="panel grow log-panel">
       <div className="panel-head">
         <h2>EVENT LOG</h2>
         <span className="count mono">{log.length}</span>

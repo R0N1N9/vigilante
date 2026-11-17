@@ -1,6 +1,6 @@
 # Vigilante: Neighborhood Situational Awareness Console
 
-**Status:** Phase 0 spike built (live aircraft + NWS alerts, Denver/Atlanta, pop-out windows). See the README.
+**Status:** Phase 1 built: aircraft, drones (Remote ID), FAA TFRs, NWS, roads/cameras, local news + TV, watch areas, developing incidents, morning brief and phone alerts for Denver/Atlanta. See the README.
 **Target:** Desktop app for Windows, macOS and Linux laptops. Works on one screen and scales out to several monitors.
 **Inspiration:** [World Monitor](https://github.com/koala73/worldmonitor) (global OSINT dashboard), police CAD/dispatch consoles, and the tar1090 and MarineTraffic map UIs.
 
@@ -326,17 +326,17 @@ A city pack is a JSON file (`packs/denver.json`, `packs/atlanta.json`) listing t
 
 ## 11. Roadmap
 
-| Phase | Scope | Outcome |
+| Phase | Scope | Status |
 |---|---|---|
-| **0. Spike** (1 wk) | Tauri + MapLibre + deck.gl; **Denver** AOI; dark basemap + USGS satellite toggle; **live aircraft** (adsb.lol) with helicopter and orbit highlighting; NWS alerts; pop the map out to a second window | First demo, using only free sources that need no key |
-| **1. Core** (2–3 wk) | AOI editor, **city packs** (Denver + Atlanta), Event store, panel/workspace system, layout profiles per monitor setup, theme | Console shell |
-| **2. Map layers** (2 wk) | Denver crime (30/90-day heatmap), Georgia 511 + COtrip incidents and cameras, USGS, FIRMS, AirNow | Rich map |
-| **3. News** (2 wk) | RSS / Google News / GDELT / Reddit / Bluesky, gazetteer geocoding, dedupe, search | Local news wall |
-| **4. Radio** (2–3 wk) | **Web Radio panel** (Broadcastify), **line-in channel** for the Baofeng with Whisper transcripts and keyword alerts, OpenMHz connector | Scanner console |
-| **5. Public safety** (2 wk) | APD open data, 311, registry lookup panel, opt-in PulsePoint | Neighborhood picture |
-| **6. Fusion** (3 wk) | Correlator, Developing Incident cards, alert rules, desktop and ntfy alerts, replay, optional cloud-AI daily brief | The differentiator |
-| **7. Watch group** | PocketBase sync, shared incident log, member roles, shared city packs | Multi-user |
-| **8. Polish** | Command palette, sounds, red-light mode, installers + auto-update, optional Google Maps provider | v1.0 |
+| **0. Spike** | Tauri + MapLibre; Denver/Atlanta; live aircraft with helicopter/orbit/squawk detection; NWS alerts; pop-out windows | ✅ Done |
+| **1. Situational picture** | Watch areas (draw on map); FAA no-fly zones (toggleable); Georgia 511 / COtrip road incidents + **camera wall** (refreshing snapshots); local news (RSS + Google News, de-duplicated, place-matched) with a **TV player** (latest clips / live, mini window); **drone Remote ID** over Bluetooth + simulator; **developing-incident** correlation; **morning brief**; **phone alerts** via ntfy (thresholds, watch-area boost, quiet hours); signal history persisted 72 h | ✅ Done |
+| **1b. Verify with keys** | Check COtrip's incident schema against a live response, add Denver cameras, check the Georgia 511 events format against live data | Needs your free keys |
+| **2. Radio** | **Web Radio panel** (Broadcastify pages), **line-in channel** for the Baofeng with Whisper transcripts + keyword alerts, OpenMHz connector | Next |
+| **3. Public safety data** | Denver crime (30/90-day heatmap), APD open data, 311, registry lookup panel (deep links), opt-in PulsePoint | |
+| **4. Better drone coverage** | ESP32 Remote ID receiver over USB serial (adds Wi-Fi-only drones such as many DJI models) | |
+| **5. AI layer (optional, cloud)** | Rewrite the brief as prose, classify ambiguous news, summarize incidents | |
+| **6. Watch group** | PocketBase sync, shared incident log and watch areas, member roles, blurring of faces and plates in shared photos | |
+| **7. Polish** | Command palette, red-light mode, OS keychain for keys, installers + auto-update, optional Google Maps provider | |
 
 ## 12. Remaining open items
 - Check the *verify* items in section 10 as each connector is built.

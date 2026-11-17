@@ -5,7 +5,7 @@ import { getState, setState, type DataState, type SharedUi } from './store';
 /**
  * Cross-window sync. The main console window is the leader: it polls the data
  * sources and broadcasts snapshots. Any window can change shared UI (selection,
- * city, filters), and every window applies it.
+ * city, filters, settings, watch areas), and every window applies it.
  *   Desktop: Tauri events (all webview windows).
  *   Browser: BroadcastChannel (all tabs/popups of the same origin).
  */
@@ -18,6 +18,7 @@ const TOPIC = 'vigilante:bus';
 const windowId = Math.random().toString(36).slice(2);
 let channel: BroadcastChannel | null = null;
 let onHello: (() => void) | null = null;
+let publishQueued = false;
 
 function send(msg: Msg) {
   if (isTauri()) void emit(TOPIC, msg);
@@ -31,6 +32,11 @@ function receive(msg: Msg) {
   else if (msg.type === 'hello') onHello?.();
 }
 
+export function sharedSnapshot(): SharedUi {
+  const { packId, selectedHex, focus, ceilingAglFt, hideGround, layers, muted, settings, areas, requests } = getState();
+  return { packId, selectedHex, focus, ceilingAglFt, hideGround, layers, muted, settings, areas, requests };
+}
+
 export function startBus(isLeader: boolean) {
   if (isTauri()) void listen<Msg>(TOPIC, (e) => receive(e.payload));
   else {
@@ -40,17 +46,22 @@ export function startBus(isLeader: boolean) {
   if (isLeader) {
     onHello = () => {
       publishData();
-      const { packId, selectedHex, ceilingAglFt, hideGround, layers, muted } = getState();
-      send({ type: 'ui', from: windowId, ui: { packId, selectedHex, ceilingAglFt, hideGround, layers, muted } });
+      send({ type: 'ui', from: windowId, ui: sharedSnapshot() });
     };
   } else {
     send({ type: 'hello', from: windowId });
   }
 }
 
+/** Broadcast the data snapshot (coalesced to one send per tick). */
 export function publishData() {
-  const { aircraft, trails, orbiting, alerts, incidents, log, feeds } = getState();
-  send({ type: 'data', from: windowId, data: { aircraft, trails, orbiting, alerts, incidents, log, feeds } });
+  if (publishQueued) return;
+  publishQueued = true;
+  queueMicrotask(() => {
+    publishQueued = false;
+    const { aircraft, trails, orbiting, alerts, incidents, clusters, tfrs, traffic, cameras, news, drones, brief, log, feeds } = getState();
+    send({ type: 'data', from: windowId, data: { aircraft, trails, orbiting, alerts, incidents, clusters, tfrs, traffic, cameras, news, drones, brief, log, feeds } });
+  });
 }
 
 /** Change shared UI in this window and every other window. */

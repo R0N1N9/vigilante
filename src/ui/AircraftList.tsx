@@ -33,8 +33,7 @@ export function AircraftList() {
   return (
     <section className="panel grow">
       <div className="panel-head">
-        <h2>AIRCRAFT</h2>
-        <span className="count mono">{rows.length}</span>
+        <span className="count mono">{rows.length} aircraft</span>
         <div className="seg small">
           {FILTERS.map((f) => (
             <button key={f.id} className={filter === f.id ? 'on' : ''} onClick={() => setFilter(f.id)}>

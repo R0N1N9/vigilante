@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { setShared } from '../data/bus';
-import { useStore, type SharedUi } from '../data/store';
+import { useStore, type Layers } from '../data/store';
 
 const CEILINGS: { label: string; value: number | null }[] = [
   { label: 'All', value: null },
@@ -10,20 +10,25 @@ const CEILINGS: { label: string; value: number | null }[] = [
   { label: '2k', value: 2_000 },
 ];
 
+const ROWS: [keyof Layers, string, string][] = [
+  ['aircraft', 'Aircraft', '#8FA3B8'],
+  ['trails', 'Trails', '#3B4B5C'],
+  ['drones', 'Drones', '#C084FC'],
+  ['tfr', 'FAA no-fly zones', '#FF4D4F'],
+  ['weather', 'NWS alerts', '#FFB020'],
+  ['traffic', 'Road incidents', '#FF7A45'],
+  ['cameras', 'Traffic cameras', '#7DD3FC'],
+  ['news', 'News (placed)', '#4C8DFF'],
+  ['areas', 'Watch areas', '#3DD6F5'],
+  ['aoi', 'Area ring', '#3DD6F5'],
+];
+
 export function LayerPanel() {
   const layers = useStore((s) => s.layers);
   const ceiling = useStore((s) => s.ceilingAglFt);
   const hideGround = useStore((s) => s.hideGround);
   const [open, setOpen] = useState(true);
-
-  const toggle = (k: keyof SharedUi['layers']) => setShared({ layers: { ...layers, [k]: !layers[k] } });
-  const row = (k: keyof SharedUi['layers'], label: string, swatch: string) => (
-    <label className="check">
-      <input type="checkbox" checked={layers[k]} onChange={() => toggle(k)} />
-      <i style={{ background: swatch }} />
-      {label}
-    </label>
-  );
+  const toggle = (k: keyof Layers) => setShared({ layers: { ...layers, [k]: !layers[k] } });
 
   return (
     <div className={`overlay layer-panel ${open ? '' : 'closed'}`}>
@@ -32,11 +37,14 @@ export function LayerPanel() {
       </button>
       {open && (
         <div className="overlay-body">
-          {row('aircraft', 'Aircraft', '#8FA3B8')}
-          {row('trails', 'Trails', '#3B4B5C')}
-          {row('weather', 'NWS alerts', '#FFB020')}
-          {row('aoi', 'Area ring', '#3DD6F5')}
-          <div className="sub">Max altitude (ft AGL)</div>
+          {ROWS.map(([k, label, swatch]) => (
+            <label key={k} className="check">
+              <input type="checkbox" checked={layers[k]} onChange={() => toggle(k)} />
+              <i style={{ background: swatch }} />
+              {label}
+            </label>
+          ))}
+          <div className="sub">Max aircraft altitude (ft AGL)</div>
           <div className="seg small">
             {CEILINGS.map((c) => (
               <button key={c.label} className={ceiling === c.value ? 'on' : ''} onClick={() => setShared({ ceilingAglFt: c.value })}>
@@ -48,12 +56,6 @@ export function LayerPanel() {
             <input type="checkbox" checked={hideGround} onChange={() => setShared({ hideGround: !hideGround })} />
             Hide aircraft on ground
           </label>
-          <div className="legend">
-            <span><i style={{ background: '#FF4D4F' }} />Emergency</span>
-            <span><i style={{ background: '#FFB020' }} />Helicopter</span>
-            <span><i style={{ background: '#4C8DFF' }} />Military</span>
-            <span><i style={{ background: '#E6EDF3' }} />Low &lt;3k</span>
-          </div>
         </div>
       )}
     </div>

@@ -1,14 +1,16 @@
 //! Vigilante desktop core.
 //!
-//! Phase 0 keeps the core thin: it fetches data for the webview (so the UI is not
-//! subject to browser CORS rules), remembers window positions per monitor via the
-//! window-state plugin, and closes every pop-out window when the main console closes.
+//! The core stays thin: it fetches data for the webview (so the UI is not
+//! subject to browser CORS rules), sends phone alerts through ntfy, keeps small
+//! JSON files (settings, watch areas, history) in the app data folder, scans for
+//! drone Remote ID over Bluetooth, remembers window positions per monitor, and
+//! closes every pop-out window when the main console closes.
 
+mod drones;
+
+use std::sync::OnceLock;
 use std::time::Duration;
 use tauri::{Manager, WindowEvent};
-
-/// Hosts the UI may fetch through the core. Keep in sync with `src/lib/hosts.ts`.
-const ALLOWED_HOSTS: &[&str] = &["api.adsb.lol", "api.weather.gov"];
 
 const USER_AGENT: &str = concat!(
     "Vigilante/",
@@ -16,10 +18,24 @@ const USER_AGENT: &str = concat!(
     " (neighborhood awareness console; github.com/r0n1n9/vigilante)"
 );
 
+/// Shared with the browser dev proxy: config/hosts.json.
+const HOSTS_JSON: &str = include_str!("../../config/hosts.json");
+
+fn allowed_hosts() -> &'static Vec<String> {
+    static HOSTS: OnceLock<Vec<String>> = OnceLock::new();
+    HOSTS.get_or_init(|| {
+        let v: serde_json::Value = serde_json::from_str(HOSTS_JSON).expect("config/hosts.json is valid JSON");
+        v["get"]
+            .as_array()
+            .map(|a| a.iter().filter_map(|h| h.as_str().map(str::to_owned)).collect())
+            .unwrap_or_default()
+    })
+}
+
 fn check_url(url: &str) -> Result<reqwest::Url, String> {
     let parsed = reqwest::Url::parse(url).map_err(|e| format!("bad url: {e}"))?;
     let host = parsed.host_str().unwrap_or_default();
-    if parsed.scheme() != "https" || !ALLOWED_HOSTS.contains(&host) {
+    if parsed.scheme() != "https" || !allowed_hosts().iter().any(|h| h == host) {
         return Err(format!("host not allowed: {host}"));
     }
     Ok(parsed)
@@ -31,7 +47,7 @@ async fn http_get(url: String, client: tauri::State<'_, reqwest::Client>) -> Res
     let parsed = check_url(&url)?;
     let resp = client
         .get(parsed)
-        .header("Accept", "application/geo+json, application/json")
+        .header("Accept", "application/geo+json, application/json, application/rss+xml, application/xml, text/xml, */*")
         .send()
         .await
         .map_err(|e| format!("request failed: {e}"))?;
@@ -43,19 +59,91 @@ async fn http_get(url: String, client: tauri::State<'_, reqwest::Client>) -> Res
     Ok(body)
 }
 
+/// Send a phone notification through an ntfy server (https://ntfy.sh or self-hosted).
+#[tauri::command]
+async fn ntfy_send(
+    server: String,
+    topic: String,
+    title: String,
+    message: String,
+    priority: u8,
+    tags: String,
+    click: Option<String>,
+    client: tauri::State<'_, reqwest::Client>,
+) -> Result<(), String> {
+    let base = reqwest::Url::parse(server.trim_end_matches('/')).map_err(|e| format!("bad server: {e}"))?;
+    if base.scheme() != "https" {
+        return Err("ntfy server must use https".into());
+    }
+    if topic.is_empty() || !topic.chars().all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_') {
+        return Err("topic may only contain letters, numbers, - and _".into());
+    }
+    let url = base.join(&format!("/{topic}")).map_err(|e| e.to_string())?;
+    let mut req = client
+        .post(url)
+        .header("Title", title.replace(['\r', '\n'], " "))
+        .header("Priority", priority.clamp(1, 5).to_string())
+        .header("Tags", tags);
+    if let Some(c) = click.filter(|c| c.starts_with("https://")) {
+        req = req.header("Click", c);
+    }
+    let resp = req.body(message).send().await.map_err(|e| format!("send failed: {e}"))?;
+    if !resp.status().is_success() {
+        return Err(format!("ntfy answered HTTP {}", resp.status()));
+    }
+    Ok(())
+}
+
+fn store_path(app: &tauri::AppHandle, name: &str) -> Result<std::path::PathBuf, String> {
+    if name.is_empty() || !name.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-') {
+        return Err("bad store name".into());
+    }
+    let dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
+    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    Ok(dir.join(format!("{name}.json")))
+}
+
+/// Read a small JSON document from the app data folder (None if it does not exist yet).
+#[tauri::command]
+fn store_read(app: tauri::AppHandle, name: String) -> Result<Option<String>, String> {
+    let path = store_path(&app, &name)?;
+    match std::fs::read_to_string(&path) {
+        Ok(s) => Ok(Some(s)),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(None),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+/// Write a small JSON document atomically (write temp file, then rename).
+#[tauri::command]
+fn store_write(app: tauri::AppHandle, name: String, contents: String) -> Result<(), String> {
+    let path = store_path(&app, &name)?;
+    let tmp = path.with_extension("json.tmp");
+    std::fs::write(&tmp, contents).map_err(|e| e.to_string())?;
+    std::fs::rename(&tmp, &path).map_err(|e| e.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let client = reqwest::Client::builder()
         .user_agent(USER_AGENT)
         .connect_timeout(Duration::from_secs(5))
-        .timeout(Duration::from_secs(15))
+        .timeout(Duration::from_secs(20))
         .build()
         .expect("failed to build HTTP client");
 
     tauri::Builder::default()
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .manage(client)
-        .invoke_handler(tauri::generate_handler![http_get])
+        .manage(drones::DroneScanner::default())
+        .invoke_handler(tauri::generate_handler![
+            http_get,
+            ntfy_send,
+            store_read,
+            store_write,
+            drones::drones_start,
+            drones::drones_stop
+        ])
         .on_window_event(|window, event| {
             // Closing the main console closes the whole app, pop-outs included.
             if window.label() == "main" {
@@ -76,6 +164,8 @@ mod tests {
     fn allows_known_https_hosts() {
         assert!(check_url("https://api.adsb.lol/v2/point/1/2/3").is_ok());
         assert!(check_url("https://api.weather.gov/alerts/active?point=1,2").is_ok());
+        assert!(check_url("https://tfr.faa.gov/tfrapi/exportTfrList").is_ok());
+        assert!(check_url("https://www.11alive.com/feeds/syndication/rss/news/local").is_ok());
     }
 
     #[test]

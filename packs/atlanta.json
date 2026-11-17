@@ -3,13 +3,402 @@
   "name": "Atlanta",
   "region": "GA",
   "timezone": "America/New_York",
-  "center": [-84.388, 33.749],
+  "center": [
+    -84.388,
+    33.749
+  ],
   "zoom": 9.7,
   "radiusNm": 25,
   "fieldElevationFt": 1050,
   "nwsOffice": "FFC",
   "radioFeeds": [
-    { "name": "Fulton County feeds (Atlanta Fire Rescue, Atlanta Metro)", "url": "https://www.broadcastify.com/listen/ctid/442", "agency": "Fulton County" }
+    {
+      "name": "Fulton County feeds (Atlanta Fire Rescue, Atlanta Metro)",
+      "url": "https://www.broadcastify.com/listen/ctid/442",
+      "agency": "Fulton County"
+    }
   ],
-  "notes": "ATL is the world's busiest airport: use the altitude filter."
+  "notes": "ATL is the world's busiest airport: use the altitude filter.",
+  "traffic": {
+    "provider": "ga511"
+  },
+  "news": {
+    "feeds": [
+      {
+        "name": "11Alive",
+        "url": "https://www.11alive.com/feeds/syndication/rss/news/local"
+      },
+      {
+        "name": "FOX 5 Atlanta",
+        "url": "https://www.fox5atlanta.com/rss/category/news"
+      },
+      {
+        "name": "WSB-TV",
+        "url": "https://www.wsbtv.com/arc/outboundfeeds/rss/?outputType=xml"
+      },
+      {
+        "name": "Atlanta News First",
+        "url": "https://www.atlantanewsfirst.com/arc/outboundfeeds/rss/?outputType=xml"
+      }
+    ],
+    "googleQuery": "Atlanta (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT) when:1d",
+    "localTerms": [
+      "Atlanta",
+      "Fulton",
+      "DeKalb",
+      "Cobb",
+      "Gwinnett",
+      "Clayton County",
+      "MARTA",
+      "APD"
+    ]
+  },
+  "liveTv": [
+    {
+      "name": "FOX 5 Atlanta",
+      "channelId": "UCjHWv2DU5-HLpogAAr386DQ"
+    },
+    {
+      "name": "WSB-TV",
+      "channelId": "UCPsSnSR7ymSE8on3wafNbqg"
+    },
+    {
+      "name": "Atlanta News First",
+      "channelId": "UCWElIIlFx2JiyI9UVrbrEcw"
+    },
+    {
+      "name": "CBS Atlanta",
+      "channelId": "UCmExSaXVBHIO8_Vohswo4UA"
+    }
+  ],
+  "places": [
+    [
+      "Downtown Atlanta",
+      -84.388,
+      33.7537
+    ],
+    [
+      "Midtown",
+      -84.383,
+      33.784
+    ],
+    [
+      "Buckhead",
+      -84.379,
+      33.84
+    ],
+    [
+      "Old Fourth Ward",
+      -84.37,
+      33.763
+    ],
+    [
+      "Inman Park",
+      -84.353,
+      33.758
+    ],
+    [
+      "Little Five Points",
+      -84.349,
+      33.764
+    ],
+    [
+      "Virginia-Highland",
+      -84.353,
+      33.781
+    ],
+    [
+      "Virginia Highland",
+      -84.353,
+      33.781
+    ],
+    [
+      "Poncey-Highland",
+      -84.356,
+      33.772
+    ],
+    [
+      "Grant Park",
+      -84.37,
+      33.738,
+      1
+    ],
+    [
+      "Cabbagetown",
+      -84.36,
+      33.749
+    ],
+    [
+      "Reynoldstown",
+      -84.351,
+      33.746
+    ],
+    [
+      "East Atlanta",
+      -84.34,
+      33.74
+    ],
+    [
+      "Kirkwood",
+      -84.32,
+      33.753,
+      1
+    ],
+    [
+      "Edgewood",
+      -84.34,
+      33.755,
+      1
+    ],
+    [
+      "West End",
+      -84.414,
+      33.737,
+      1
+    ],
+    [
+      "Vine City",
+      -84.411,
+      33.756
+    ],
+    [
+      "English Avenue",
+      -84.415,
+      33.768
+    ],
+    [
+      "Bankhead",
+      -84.438,
+      33.772
+    ],
+    [
+      "West Midtown",
+      -84.41,
+      33.782
+    ],
+    [
+      "Atlantic Station",
+      -84.396,
+      33.792
+    ],
+    [
+      "Home Park",
+      -84.403,
+      33.783
+    ],
+    [
+      "Collier Hills",
+      -84.408,
+      33.813
+    ],
+    [
+      "Morningside",
+      -84.36,
+      33.798,
+      1
+    ],
+    [
+      "Ansley Park",
+      -84.376,
+      33.796
+    ],
+    [
+      "Peachtree Hills",
+      -84.38,
+      33.817
+    ],
+    [
+      "Lindbergh",
+      -84.37,
+      33.823,
+      1
+    ],
+    [
+      "Summerhill",
+      -84.388,
+      33.738
+    ],
+    [
+      "Mechanicsville",
+      -84.4,
+      33.74
+    ],
+    [
+      "Pittsburgh",
+      -84.404,
+      33.727,
+      1
+    ],
+    [
+      "Adair Park",
+      -84.413,
+      33.727
+    ],
+    [
+      "Lakewood Heights",
+      -84.38,
+      33.71
+    ],
+    [
+      "Ormewood Park",
+      -84.348,
+      33.73
+    ],
+    [
+      "Candler Park",
+      -84.338,
+      33.764
+    ],
+    [
+      "Druid Hills",
+      -84.325,
+      33.78
+    ],
+    [
+      "Ponce City Market",
+      -84.3657,
+      33.7726
+    ],
+    [
+      "Piedmont Park",
+      -84.3733,
+      33.7851
+    ],
+    [
+      "Lenox",
+      -84.362,
+      33.846
+    ],
+    [
+      "Georgia Tech",
+      -84.3963,
+      33.7756
+    ],
+    [
+      "Georgia State",
+      -84.3856,
+      33.7531
+    ],
+    [
+      "Mercedes-Benz Stadium",
+      -84.4008,
+      33.7554
+    ],
+    [
+      "State Farm Arena",
+      -84.3963,
+      33.7573
+    ],
+    [
+      "Truist Park",
+      -84.4677,
+      33.8908
+    ],
+    [
+      "Hartsfield-Jackson",
+      -84.4277,
+      33.6407
+    ],
+    [
+      "Atlanta airport",
+      -84.4277,
+      33.6407
+    ],
+    [
+      "Five Points",
+      -84.3915,
+      33.7537
+    ],
+    [
+      "Brookhaven",
+      -84.3366,
+      33.8651
+    ],
+    [
+      "Chamblee",
+      -84.2985,
+      33.8921
+    ],
+    [
+      "Doraville",
+      -84.2833,
+      33.8982
+    ],
+    [
+      "Sandy Springs",
+      -84.3785,
+      33.9304
+    ],
+    [
+      "Dunwoody",
+      -84.3346,
+      33.9462
+    ],
+    [
+      "Decatur",
+      -84.2963,
+      33.7748
+    ],
+    [
+      "East Point",
+      -84.4394,
+      33.6795
+    ],
+    [
+      "College Park",
+      -84.4494,
+      33.6534
+    ],
+    [
+      "Hapeville",
+      -84.4102,
+      33.6601
+    ],
+    [
+      "Smyrna",
+      -84.5144,
+      33.884
+    ],
+    [
+      "Marietta",
+      -84.5499,
+      33.9526
+    ],
+    [
+      "Tucker",
+      -84.2171,
+      33.8545
+    ],
+    [
+      "Stone Mountain",
+      -84.1702,
+      33.8082
+    ],
+    [
+      "Forest Park",
+      -84.3691,
+      33.6221
+    ],
+    [
+      "Riverdale",
+      -84.413,
+      33.5726
+    ],
+    [
+      "Union City",
+      -84.5424,
+      33.5871,
+      1
+    ],
+    [
+      "Clarkston",
+      -84.2405,
+      33.8095
+    ],
+    [
+      "Avondale Estates",
+      -84.2669,
+      33.7715
+    ]
+  ]
 }

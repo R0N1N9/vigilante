@@ -9,51 +9,151 @@ export const CLASS_COLORS = {
   selected: '#3DD6F5',
 } as const;
 
+export const DRONE_COLOR = '#C084FC';
+export const CAMERA_COLOR = '#7DD3FC';
+export const SEVERITY_COLORS = ['#8FA3B8', '#4C8DFF', '#FFB020', '#FF7A45', '#FF4D4F'];
+
 const SIZE = 64; // drawn at 2x, displayed at 32px
 
-function draw(shape: 'plane' | 'heli', color: string): ImageData {
+function canvas(draw: (g: CanvasRenderingContext2D) => void): ImageData {
   const c = document.createElement('canvas');
   c.width = c.height = SIZE;
   const g = c.getContext('2d')!;
   g.translate(SIZE / 2, SIZE / 2);
-  g.fillStyle = color;
-  g.strokeStyle = 'rgba(11,15,20,0.95)';
-  g.lineWidth = 3;
   g.lineJoin = 'round';
-  g.beginPath();
-  if (shape === 'plane') {
-    // Chevron pointing north; rotated on the map by track.
-    g.moveTo(0, -22);
-    g.lineTo(15, 18);
-    g.lineTo(0, 9);
-    g.lineTo(-15, 18);
-    g.closePath();
-  } else {
-    // Helicopter: body dot with a rotor ring and a tail.
-    g.arc(0, 0, 9, 0, Math.PI * 2);
-  }
-  g.stroke();
-  g.fill();
-  if (shape === 'heli') {
-    g.beginPath();
-    g.lineWidth = 3;
-    g.strokeStyle = color;
-    g.arc(0, 0, 18, 0, Math.PI * 2);
-    g.stroke();
-    g.beginPath();
-    g.moveTo(0, 9);
-    g.lineTo(0, 26);
-    g.stroke();
-  }
+  draw(g);
   return g.getImageData(0, 0, SIZE, SIZE);
 }
 
-/** Register aircraft icons on the current style (call after each style load). */
-export function addAircraftIcons(map: MlMap) {
-  for (const [cls, color] of Object.entries(CLASS_COLORS)) {
-    for (const shape of ['plane', 'heli'] as const) {
-      const id = `ac-${shape}-${cls}`;
-      if (!map.hasImage(id)) map.addImage(id, draw(shape, color), { pixelRatio: 2 });
+function aircraft(shape: 'plane' | 'heli', color: string): ImageData {
+  return canvas((g) => {
+    g.fillStyle = color;
+    g.strokeStyle = 'rgba(11,15,20,0.95)';
+    g.lineWidth = 3;
+    g.beginPath();
+    if (shape === 'plane') {
+      g.moveTo(0, -22);
+      g.lineTo(15, 18);
+      g.lineTo(0, 9);
+      g.lineTo(-15, 18);
+      g.closePath();
+    } else g.arc(0, 0, 9, 0, Math.PI * 2);
+    g.stroke();
+    g.fill();
+    if (shape === 'heli') {
+      g.beginPath();
+      g.strokeStyle = color;
+      g.arc(0, 0, 18, 0, Math.PI * 2);
+      g.stroke();
+      g.beginPath();
+      g.moveTo(0, 9);
+      g.lineTo(0, 26);
+      g.stroke();
     }
+  });
+}
+
+const drone = () =>
+  canvas((g) => {
+    g.strokeStyle = DRONE_COLOR;
+    g.fillStyle = 'rgba(11,15,20,0.9)';
+    g.lineWidth = 4;
+    // Quadcopter: X frame with four rotors.
+    for (const [x, y] of [[-12, -12], [12, -12], [-12, 12], [12, 12]]) {
+      g.beginPath();
+      g.moveTo(0, 0);
+      g.lineTo(x, y);
+      g.stroke();
+      g.beginPath();
+      g.arc(x, y, 7, 0, Math.PI * 2);
+      g.fill();
+      g.stroke();
+    }
+    g.beginPath();
+    g.fillStyle = DRONE_COLOR;
+    g.arc(0, 0, 5, 0, Math.PI * 2);
+    g.fill();
+  });
+
+const pilot = () =>
+  canvas((g) => {
+    g.fillStyle = 'rgba(11,15,20,0.9)';
+    g.strokeStyle = DRONE_COLOR;
+    g.lineWidth = 4;
+    g.beginPath();
+    g.rect(-11, -11, 22, 22);
+    g.fill();
+    g.stroke();
+    g.fillStyle = DRONE_COLOR;
+    g.font = 'bold 18px sans-serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillText('P', 0, 1);
+  });
+
+const camera = () =>
+  canvas((g) => {
+    g.fillStyle = 'rgba(11,15,20,0.9)';
+    g.strokeStyle = CAMERA_COLOR;
+    g.lineWidth = 3;
+    g.beginPath();
+    g.roundRect(-14, -9, 20, 18, 3);
+    g.fill();
+    g.stroke();
+    g.beginPath();
+    g.moveTo(6, -4);
+    g.lineTo(15, -9);
+    g.lineTo(15, 9);
+    g.lineTo(6, 4);
+    g.closePath();
+    g.fill();
+    g.stroke();
+  });
+
+function traffic(color: string) {
+  return canvas((g) => {
+    g.fillStyle = color;
+    g.strokeStyle = 'rgba(11,15,20,0.95)';
+    g.lineWidth = 3;
+    g.beginPath();
+    g.moveTo(0, -17);
+    g.lineTo(17, 13);
+    g.lineTo(-17, 13);
+    g.closePath();
+    g.fill();
+    g.stroke();
+    g.fillStyle = '#0B0F14';
+    g.fillRect(-2, -6, 4, 10);
+    g.fillRect(-2, 7, 4, 3);
+  });
+}
+
+function news(color: string) {
+  return canvas((g) => {
+    g.fillStyle = color;
+    g.strokeStyle = 'rgba(11,15,20,0.95)';
+    g.lineWidth = 3;
+    g.beginPath();
+    g.roundRect(-12, -12, 24, 24, 4);
+    g.fill();
+    g.stroke();
+    g.fillStyle = '#0B0F14';
+    for (const y of [-6, 0, 6]) g.fillRect(-7, y - 1.5, 14, 3);
+  });
+}
+
+/** Register map icons on the current style (call after each style load). */
+export function addIcons(map: MlMap) {
+  const add = (id: string, img: () => ImageData) => !map.hasImage(id) && map.addImage(id, img(), { pixelRatio: 2 });
+  for (const [cls, color] of Object.entries(CLASS_COLORS)) {
+    add(`ac-plane-${cls}`, () => aircraft('plane', color));
+    add(`ac-heli-${cls}`, () => aircraft('heli', color));
   }
+  add('drone', drone);
+  add('pilot', pilot);
+  add('camera', camera);
+  SEVERITY_COLORS.forEach((c, i) => {
+    add(`traffic-${i}`, () => traffic(c));
+    add(`news-${i}`, () => news(c));
+  });
 }

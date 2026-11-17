@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
+  <channel>
+    <title>Example Station</title>
+    <item>
+      <title><![CDATA[Police investigate shooting near Little Five Points]]></title>
+      <link>https://example.com/a</link>
+      <description><![CDATA[<p>Officers responded overnight to reports of shots fired on Moreland Avenue.</p>]]></description>
+      <pubDate>Tue, 17 Nov 2026 06:10:00 GMT</pubDate>
+      <media:content url="https://example.com/a.jpg" medium="image"/>
+    </item>
+    <item>
+      <title>Holiday market opens downtown this weekend</title>
+      <link>https://example.com/b</link>
+      <description>Vendors and music at the plaza.</description>
+      <pubDate>Tue, 17 Nov 2026 05:00:00 GMT</pubDate>
+      <enclosure url="https://example.com/b.jpg" type="image/jpeg"/>
+    </item>
+    <item>
+      <title>Golden retriever wins dog show</title>
+      <link>https://example.com/c</link>
+      <description>A heartwarming story.</description>
+      <pubDate>Tue, 17 Nov 2026 04:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

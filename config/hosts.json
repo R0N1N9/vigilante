@@ -1,0 +1,20 @@
+{
+  "_comment": "Hosts the app may GET data from (desktop core and browser dev proxy). Phone alerts use the ntfy server set in Settings.",
+  "get": [
+    "api.adsb.lol",
+    "api.weather.gov",
+    "tfr.faa.gov",
+    "511ga.org",
+    "data.cotrip.org",
+    "news.google.com",
+    "www.denver7.com",
+    "kdvr.com",
+    "denverite.com",
+    "www.9news.com",
+    "www.cpr.org",
+    "www.11alive.com",
+    "www.fox5atlanta.com",
+    "www.wsbtv.com",
+    "www.atlantanewsfirst.com"
+  ]
+}

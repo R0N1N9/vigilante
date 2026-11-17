@@ -2,7 +2,7 @@ import react from '@vitejs/plugin-react';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { EnvHttpProxyAgent, fetch as ufetch } from 'undici';
 import { defineConfig, type Plugin } from 'vite';
-import { DATA_HOSTS } from './src/lib/hosts.ts';
+import hosts from './config/hosts.json' with { type: 'json' };
 
 /**
  * Browser dev mode only: a tiny server-side fetch at /proxy?url=... so the UI can
@@ -10,7 +10,7 @@ import { DATA_HOSTS } from './src/lib/hosts.ts';
  */
 function devProxy(): Plugin {
   const dispatcher = new EnvHttpProxyAgent();
-  const allowed = new Set<string>(DATA_HOSTS);
+  const allowed = new Set<string>(hosts.get);
   const handler = async (req: IncomingMessage, res: ServerResponse) => {
     try {
       const target = new URL(new URL(req.url ?? '', 'http://x').searchParams.get('url') ?? '');
@@ -21,7 +21,7 @@ function devProxy(): Plugin {
       }
       const r = await ufetch(target, {
         dispatcher,
-        headers: { 'User-Agent': 'Vigilante/0.1 (dev)', Accept: 'application/geo+json, application/json' },
+        headers: { 'User-Agent': 'Vigilante/0.1 (dev)', Accept: 'application/geo+json, application/json, application/rss+xml, application/xml, */*' },
       });
       res.statusCode = r.status;
       res.setHeader('Content-Type', r.headers.get('content-type') ?? 'application/json');

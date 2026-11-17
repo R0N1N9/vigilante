@@ -3,13 +3,409 @@
   "name": "Denver",
   "region": "CO",
   "timezone": "America/Denver",
-  "center": [-104.9903, 39.7392],
+  "center": [
+    -104.9903,
+    39.7392
+  ],
   "zoom": 9.7,
   "radiusNm": 25,
   "fieldElevationFt": 5280,
   "nwsOffice": "BOU",
   "radioFeeds": [
-    { "name": "Denver Fire Alerting and EMS", "url": "https://www.broadcastify.com/listen/feed/7435", "agency": "Denver Fire / Denver Health EMS" }
+    {
+      "name": "Denver Fire Alerting and EMS",
+      "url": "https://www.broadcastify.com/listen/feed/7435",
+      "agency": "Denver Fire / Denver Health EMS"
+    }
   ],
-  "notes": "Denver PD radio encrypted since July 2019."
+  "notes": "Denver PD radio encrypted since July 2019.",
+  "traffic": {
+    "provider": "cotrip"
+  },
+  "news": {
+    "feeds": [
+      {
+        "name": "Denver7",
+        "url": "https://www.denver7.com/news/local-news.rss"
+      },
+      {
+        "name": "9NEWS",
+        "url": "https://www.9news.com/feeds/syndication/rss/news/local"
+      },
+      {
+        "name": "FOX31",
+        "url": "https://kdvr.com/feed/"
+      },
+      {
+        "name": "Denverite",
+        "url": "https://denverite.com/feed/"
+      },
+      {
+        "name": "CPR News",
+        "url": "https://www.cpr.org/feed/"
+      }
+    ],
+    "googleQuery": "Denver (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT) when:1d",
+    "localTerms": [
+      "Denver",
+      "Arapahoe",
+      "Adams County",
+      "Jefferson County",
+      "Douglas County",
+      "Broomfield",
+      "RTD"
+    ]
+  },
+  "liveTv": [
+    {
+      "name": "Denver7",
+      "channelId": "UC-2MJlKSq9_pYk5-bdvMhnw"
+    },
+    {
+      "name": "FOX31",
+      "channelId": "UCaoDaJH-Ji_NBpQOn5aeX7A"
+    },
+    {
+      "name": "CBS Colorado",
+      "channelId": "UC_-gT7OYiRCK9Sp8SIv9WgQ"
+    }
+  ],
+  "places": [
+    [
+      "Downtown Denver",
+      -104.9925,
+      39.7475
+    ],
+    [
+      "LoDo",
+      -105.0,
+      39.753
+    ],
+    [
+      "Union Station",
+      -105.0,
+      39.753
+    ],
+    [
+      "16th Street Mall",
+      -104.995,
+      39.746
+    ],
+    [
+      "Capitol Hill",
+      -104.9787,
+      39.7313
+    ],
+    [
+      "Five Points",
+      -104.98,
+      39.756
+    ],
+    [
+      "RiNo",
+      -104.983,
+      39.768
+    ],
+    [
+      "River North",
+      -104.983,
+      39.768
+    ],
+    [
+      "Highland",
+      -105.011,
+      39.762,
+      1
+    ],
+    [
+      "LoHi",
+      -105.008,
+      39.759
+    ],
+    [
+      "Sloan Lake",
+      -105.045,
+      39.748
+    ],
+    [
+      "Sloan's Lake",
+      -105.045,
+      39.748
+    ],
+    [
+      "Cherry Creek",
+      -104.953,
+      39.717
+    ],
+    [
+      "Washington Park",
+      -104.97,
+      39.7
+    ],
+    [
+      "Wash Park",
+      -104.97,
+      39.7
+    ],
+    [
+      "Baker",
+      -104.992,
+      39.713,
+      1
+    ],
+    [
+      "Speer",
+      -104.979,
+      39.718,
+      1
+    ],
+    [
+      "Congress Park",
+      -104.952,
+      39.733
+    ],
+    [
+      "Park Hill",
+      -104.923,
+      39.755
+    ],
+    [
+      "City Park",
+      -104.95,
+      39.747
+    ],
+    [
+      "Montbello",
+      -104.842,
+      39.783
+    ],
+    [
+      "Green Valley Ranch",
+      -104.77,
+      39.79
+    ],
+    [
+      "Central Park",
+      -104.88,
+      39.765
+    ],
+    [
+      "Stapleton",
+      -104.88,
+      39.765
+    ],
+    [
+      "Globeville",
+      -104.99,
+      39.786
+    ],
+    [
+      "Elyria-Swansea",
+      -104.96,
+      39.784
+    ],
+    [
+      "Sun Valley",
+      -105.017,
+      39.731
+    ],
+    [
+      "Villa Park",
+      -105.03,
+      39.73
+    ],
+    [
+      "Barnum",
+      -105.033,
+      39.717
+    ],
+    [
+      "Westwood",
+      -105.04,
+      39.7,
+      1
+    ],
+    [
+      "Ruby Hill",
+      -105.0,
+      39.688
+    ],
+    [
+      "Athmar Park",
+      -105.025,
+      39.702
+    ],
+    [
+      "Harvey Park",
+      -105.043,
+      39.673
+    ],
+    [
+      "University Park",
+      -104.959,
+      39.678
+    ],
+    [
+      "Platt Park",
+      -104.98,
+      39.683
+    ],
+    [
+      "Hampden",
+      -104.88,
+      39.655,
+      1
+    ],
+    [
+      "Lowry",
+      -104.89,
+      39.72,
+      1
+    ],
+    [
+      "Virginia Village",
+      -104.93,
+      39.685
+    ],
+    [
+      "Coors Field",
+      -104.9942,
+      39.7559
+    ],
+    [
+      "Ball Arena",
+      -105.0074,
+      39.7487
+    ],
+    [
+      "Empower Field",
+      -105.0201,
+      39.7439
+    ],
+    [
+      "Denver International Airport",
+      -104.6737,
+      39.8561
+    ],
+    [
+      "DIA",
+      -104.6737,
+      39.8561
+    ],
+    [
+      "Aurora",
+      -104.8319,
+      39.7294
+    ],
+    [
+      "Lakewood",
+      -105.0814,
+      39.7047
+    ],
+    [
+      "Arvada",
+      -105.0875,
+      39.8028
+    ],
+    [
+      "Westminster",
+      -105.0372,
+      39.8367
+    ],
+    [
+      "Thornton",
+      -104.9719,
+      39.868
+    ],
+    [
+      "Commerce City",
+      -104.9339,
+      39.8083
+    ],
+    [
+      "Englewood",
+      -104.9878,
+      39.6478
+    ],
+    [
+      "Littleton",
+      -105.0166,
+      39.6133
+    ],
+    [
+      "Centennial",
+      -104.8772,
+      39.5807
+    ],
+    [
+      "Wheat Ridge",
+      -105.0772,
+      39.7661
+    ],
+    [
+      "Golden",
+      -105.2211,
+      39.7555,
+      1
+    ],
+    [
+      "Northglenn",
+      -104.9811,
+      39.8961
+    ],
+    [
+      "Glendale",
+      -104.9336,
+      39.705,
+      1
+    ],
+    [
+      "Edgewater",
+      -105.0645,
+      39.7531
+    ],
+    [
+      "Federal Heights",
+      -105.0158,
+      39.863
+    ],
+    [
+      "Lone Tree",
+      -104.8864,
+      39.5361
+    ],
+    [
+      "Greenwood Village",
+      -104.9508,
+      39.6172
+    ],
+    [
+      "Sheridan",
+      -105.025,
+      39.647,
+      1
+    ],
+    [
+      "Broomfield",
+      -105.0867,
+      39.9205
+    ],
+    [
+      "Brighton",
+      -104.8205,
+      39.9853,
+      1
+    ],
+    [
+      "Parker",
+      -104.7614,
+      39.5186,
+      1
+    ],
+    [
+      "Highlands Ranch",
+      -104.969,
+      39.5539
+    ]
+  ]
 }

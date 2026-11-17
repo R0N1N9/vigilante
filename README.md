@@ -2,21 +2,34 @@
 
 A neighborhood situational-awareness console for your laptop. It watches the area around a city and tells you what's in the sky and in the weather right now. It works on one screen and lets you pop panels out onto other monitors.
 
-> **Status: Phase 0 spike.** Live aircraft and National Weather Service alerts for **Denver** and **Atlanta**. The full roadmap is in [`docs/PLAN.md`](docs/PLAN.md).
+> **Status: Phase 1.** Live aircraft, drones, no-fly zones, weather, roads, cameras and local news for **Denver** and **Atlanta**, merged into developing-incident cards, a morning brief and phone alerts. The full roadmap is in [`docs/PLAN.md`](docs/PLAN.md).
 
-## What it does today
+## What it does
 
-- **Dark ops-style map** with a **satellite toggle** (USGS aerial imagery)
-- **Live aircraft** within 25 nm of the city center (adsb.lol), with trails
-  - helicopters (amber), military (blue), low aircraft (white) and **emergency squawks** 7500/7600/7700 (red) are highlighted
-  - **circling detection** flags aircraft orbiting a spot, often a police, news or medical helicopter working an incident
-  - an altitude ceiling filter hides airliners at cruise (essential around ATL); helicopters and emergencies always show
-- **NWS alerts** drawn on the map with full text, severity-coded
-- **Alerts panel + event log** in a dispatch-console style, with optional alert tones
-- **City switcher** (Denver / Atlanta) and a local clock for that city
-- **Pop-out windows** for the Map, Aircraft list, and Alerts & Log. Drag them to other monitors. Everything stays in sync, and window positions are remembered.
+**On the map** (every layer can be switched off in the Layers panel)
+- **Aircraft** within 25 nm (adsb.lol), with trails. Helicopters (amber), military (blue), low aircraft (white) and **emergency squawks** (red) are highlighted, aircraft **circling** a spot are flagged, and an altitude filter hides airliners at cruise.
+- **Drones** via FAA **Remote ID**: drone position and height, plus the pilot's position, using this laptop's Bluetooth. See [Drones](#drones).
+- **FAA no-fly zones (TFRs)** from tfr.faa.gov, as red dashed outlines. Toggle them off in Layers.
+- **NWS weather alerts**, color-coded by severity
+- **Road incidents and closures** (Georgia 511 / COtrip), with routine roadwork hidden
+- **Traffic cameras**: click one for a snapshot that refreshes every few seconds
+- **News stories** that name a local neighborhood, pinned where they happened
+- Your **watch areas**
 
-All data sources are free and need no API keys.
+**In the side rail**
+- **Alerts:** **developing incident** cards. When signals from different sources line up in the same blocks within the same hour (for example a helicopter circling + a road closed for police activity + a news story), they merge into one card with a timeline. Below them: live alerts.
+- **News:** local safety stories from local TV and newspaper feeds plus Google News, de-duplicated and filtered to stories that name your area. A small **TV player** shows a station's latest clips, or its **live stream** when it's on air, and pops out into an always-on-top **mini window**.
+- **Roads:** current crashes and closures
+- **Cams:** a **camera wall** of the four cameras nearest whatever you selected
+- **Air:** the aircraft list
+- **Drones:** Remote ID detections, plus a simulator
+- **Areas:** draw and manage watch areas
+
+**Around it**
+- **Phone alerts** through the free **ntfy** app, with a severity threshold, an "only inside my watch areas" option and quiet hours
+- **Morning brief** at a time you choose, covering the previous 8 to 24 hours: developing incidents, air activity, weather, roads, news and drones. It also goes to your phone.
+- **Pop-out windows** for every panel (Map, Alerts & log, Camera wall, News & TV, Roads, Aircraft, Drones), to drag onto other monitors. All windows stay in sync.
+- **Dispatch-style event log** and alert tones
 
 ## Run it
 
@@ -61,21 +74,36 @@ Then open http://localhost:5173. Pop-outs open as browser popups.
 
 ## Using it
 
-- **Switch city:** Denver / Atlanta in the top bar. Any window can switch it.
-- **Select an aircraft:** click it on the map or in the list. The card shows altitude, approximate height above ground, speed, squawk and distance.
-- **Pop out:** the *Pop out → Map / Aircraft / Alerts* buttons open separate windows to drag onto other screens. Closing the main window closes them all.
-- **Layers panel:** toggle aircraft, trails, NWS alerts and the area ring, set a max altitude, and hide aircraft on the ground.
-- **Bell icon:** mute or unmute alert tones.
+### First-time setup (Settings ⚙)
+1. **Traffic keys (free).** For Atlanta, create an account at [511ga.org](https://511ga.org), then request a developer key under *Developers*. For Denver, sign up at [manage-api.cotrip.org](https://manage-api.cotrip.org). Paste the keys into Settings.
+2. **Phone alerts.** Install **ntfy** ([iOS](https://apps.apple.com/app/ntfy/id1625396347) / [Android](https://play.google.com/store/apps/details?id=io.heckel.ntfy)), tick *Send alerts to my phone*, subscribe to the topic shown in Settings from the ntfy app, then press *Send a test notification*. The topic works like a password, so keep it random.
+3. **Morning brief.** Choose a time and how many hours it covers. Leave the app running overnight so it has something to report.
+
+### Watch areas
+Open the **Areas** tab, click **Draw a new area**, click the corners on the map, then click **Finish**. Anything inside a watch area is treated as one step more urgent, and phone alerts can be limited to watch areas.
+
+### Drones
+Remote ID is a **short-range radio broadcast**, not an online feed: you only see drones within a few hundred meters of the laptop. Turn on *Scan with this laptop's Bluetooth* in the Drones tab (desktop app only; macOS asks for Bluetooth permission). Many DJI drones broadcast over **Wi-Fi only**, which laptops can't receive; a small ESP32 receiver (planned) covers those. **Simulate a drone** shows how a detection looks. If a drone concerns you, report it to police non-emergency or the FAA, and don't approach the pilot.
+
+### Everything else
+- **Switch city** with Denver / Atlanta in the top bar.
+- **Brief (☀)** shows the latest situation brief, and **Refresh** rebuilds it.
+- **Pop out ▾** opens any panel in its own window. Closing the main window closes them all.
+- **Bell icon** mutes or unmutes alert tones.
 
 ## Project layout
 
 ```
-packs/           City packs (Denver, Atlanta): center, radius, time zone, field elevation, radio feeds
-src/lib/         Pure logic: ADS-B parsing, orbit detection, NWS parsing, geo math (unit-tested)
-src/data/        Store, polling engine (main window), cross-window sync bus, alert tones
+packs/           City packs: center, radius, time zone, news feeds, TV channels, neighborhood gazetteer
+config/hosts.json  Data hosts the app may fetch from (shared by the Rust core and dev proxy)
+src/lib/         Pure logic (unit-tested): ADS-B, orbits, NWS, TFRs, traffic, news, Remote ID decoder,
+                 correlation, watch areas, alert rules, brief
+src/data/        Store, cross-window sync bus, alert tones
+src/data/engine/ Polling engine (main window only), one module per source, plus signal history and push
 src/map/         MapLibre map, icons, basemap styles
 src/ui/          Command bar, panels, cards, pop-out helper
-src-tauri/       Rust core: allow-listed HTTP fetch, window-state memory, app lifecycle
+src-tauri/       Rust core: allow-listed HTTP fetch, ntfy push, settings files, Bluetooth Remote ID scanner,
+                 window-state memory, app lifecycle
 tests/           Vitest unit tests
 ```
 
@@ -95,10 +123,18 @@ cd src-tauri && cargo test
 - Weather alerts: [National Weather Service API](https://www.weather.gov/documentation/services-web-api)
 - Dark basemap: [OpenFreeMap](https://openfreemap.org) / © OpenMapTiles / © OpenStreetMap contributors
 - Satellite: [USGS The National Map](https://www.usgs.gov/programs/national-geospatial-program/national-map) (public domain)
+- No-fly zones: [FAA TFR](https://tfr.faa.gov)
+- Roads and cameras: [Georgia 511](https://511ga.org), [COtrip / CDOT](https://www.cotrip.org)
+- News: station RSS feeds (Denver7, 9NEWS, FOX31, Denverite, CPR News, 11Alive, FOX 5 Atlanta, WSB-TV, Atlanta News First) and Google News search RSS. Headlines link to the original story.
+- Phone alerts: [ntfy](https://ntfy.sh)
 
-## Known limitations (Phase 0)
+## Known limitations
 
-- "AGL" is approximate: barometric altitude minus the city's elevation.
-- Circling detection is a heuristic: about a full turn within 4 km over 10 minutes. Expect occasional false positives (flight-school maneuvers) and misses (wide orbits).
+- **Denver traffic is untested.** COtrip's incident format isn't public without a key, so the parser is deliberately tolerant. Denver cameras are blocked on finding COtrip's camera endpoint, which needs a key to look up. Atlanta (Georgia 511) follows 511's published format, and its camera snapshots were tested live.
+- **Live TV** relies on YouTube embeds. Stations only stream live during newscasts and breaking news; otherwise use *Latest*. If a desktop webview refuses to play the embed, use the **Mini ↗** window.
+- **The brief and developing incidents only know what the app saw while it was running.** History is kept for 72 hours.
+- **News places** come from a built-in neighborhood list. Stories that only say "Denver" aren't pinned, to avoid false precision.
+- **"AGL" is approximate:** barometric altitude minus the city's elevation. Circling detection is a heuristic.
+- **API keys are stored in a plain settings file** in the app data folder. Moving them to the OS keychain is planned.
 - adsb.lol rate limits are dynamic. If ADS-B shows **ERR**, the app retries automatically.
-- The content security policy is disabled for the spike. It will be tightened once the full list of tile and data hosts settles.
+- The content security policy is still disabled during development.
