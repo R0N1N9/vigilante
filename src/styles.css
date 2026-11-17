@@ -771,3 +771,5 @@ button.link { background: none; border: 0; padding: 0; color: var(--accent); cur
 .roster tr.dark .nm { color: var(--dim); }
 .roster .dark-tag { color: #A78BFA; letter-spacing: .2em; text-align: center; }
 .roster .src.vigil { color: #A78BFA; }
+.brand svg { filter: drop-shadow(0 0 4px rgba(var(--accent-rgb), .6)); }
+.field-mark { color: var(--accent); align-self: center; filter: drop-shadow(0 0 4px rgba(var(--accent-rgb), .6)); }
