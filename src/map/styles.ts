@@ -1,4 +1,4 @@
-import type { StyleSpecification } from 'maplibre-gl';
+import type { Map as MlMap, StyleSpecification } from 'maplibre-gl';
 import type { Basemap } from '../data/store';
 
 const GLYPHS = 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf';
@@ -30,8 +30,9 @@ export function styleFor(b: Basemap): string | StyleSpecification {
 }
 
 /** Nudge the OpenFreeMap dark style toward the console palette. */
-export function tuneDarkStyle(map: maplibregl.Map) {
-  const set = (id: string, prop: string, value: unknown) => {
+export function tuneDarkStyle(map: MlMap) {
+  type PaintProp = Parameters<MlMap['setPaintProperty']>[1];
+  const set = (id: string, prop: PaintProp, value: string) => {
     if (map.getLayer(id)) {
       try {
         map.setPaintProperty(id, prop, value);
