@@ -1,3 +1,4 @@
+import { feedAgent } from './fieldBridge';
 import { FieldFreqs } from './FieldFreqs';
 import { PhotoComposer, PhotoStrip, PhotoViewer, useFieldPhotos, type FieldPhoto } from './FieldPhotos';
 import { cleanListening, describeDevice, deviceFromUA, isReconName, RATES, reconName, RECON_NOTE, type RateId } from '../lib/teamext';
@@ -12,7 +13,7 @@ import { ACK_LABEL, directionsLinks, isFor, markLive, MARK_CATEGORIES, MARK_KIND
 
 const MARK_DOT: Record<MarkCategory, string> = { general: '#E6EDF3', hazard: '#FF7A45', entry: '#4C8DFF', rally: '#2BD47D', observation: '#C084FC', vehicle: '#FFD84D', activity: '#FF4D4F', medical: '#FF8FA3', staging: '#7DD3FC' };
 import { BrandMark } from './BrandMark';
-import { Icon, RichText } from './Icon';
+import { Icon, RichText, type IconName } from './Icon';
 
 /**
  * Phone check-in page (?view=field#join=…). Runs in any phone browser with no
@@ -187,7 +188,7 @@ function FieldMark() {
   return <BrandMark className="field-mark" />;
 }
 
-export function FieldApp() {
+function FieldTeam({ tab, radioSlot }: { tab: AgentTab; radioSlot?: React.ReactNode }) {
   const [saved, setSaved] = useState<Saved>(() => {
     const s = load();
     const code = /#join=(.+)$/.exec(location.hash)?.[1];
@@ -250,6 +251,7 @@ export function FieldApp() {
     es.onopen = () => setConnected(true);
     es.onerror = () => setConnected(false);
     es.onmessage = (e) => {
+      feedAgent('chat', e.data);
       try {
         const m = ntfyToMessage(JSON.parse(e.data) as NtfyEvent, ch.id, saved.deviceId);
         if (m) setChat((c) => (c.some((x) => x.id === m.id) ? c : [...c, m].slice(-150)));
@@ -266,6 +268,7 @@ export function FieldApp() {
     if (!ch?.posKey) return;
     const es = new EventSource(ntfyStreamUrl({ ...ch, topic: opsTopic(ch.topic) }, '24h'));
     es.onmessage = (e) => {
+      feedAgent('ops', e.data);
       try {
         const ev = JSON.parse(e.data) as NtfyEvent;
         if (ev.event !== 'message' || !ev.message) return;
@@ -315,6 +318,7 @@ export function FieldApp() {
     if (!ch?.posKey) return;
     const es = new EventSource(ntfyStreamUrl({ ...ch, topic: posTopic(ch.topic) }, '1h'));
     es.onmessage = (e) => {
+      feedAgent('pos', e.data);
       try {
         const ev = JSON.parse(e.data) as NtfyEvent;
         if (ev.event !== 'message' || !ev.message) return;
@@ -562,11 +566,11 @@ export function FieldApp() {
 
   if (!ch) {
     return (
-      <div className="fieldapp">
+      <div className="fieldapp noteam" data-tab={tab}>
         <header className="field-head">
           <FieldMark />
           <b>VIGILANCE</b>
-          <span>FIELD</span>
+          <span>FIELD AGENT</span>
         </header>
         {meshInvite ? (
           <div className="field-card">
@@ -586,11 +590,11 @@ export function FieldApp() {
   }
 
   return (
-    <div className="fieldapp">
+    <div className="fieldapp" data-tab={tab}>
       <header className="field-head">
         <FieldMark />
         <b>VIGILANCE</b>
-        <span>FIELD</span>
+        <span>FIELD AGENT</span>
         <em className={connected ? 'ok' : ''}>● {ch.name}</em>
       </header>
 
@@ -904,6 +908,7 @@ export function FieldApp() {
       {viewing && <PhotoViewer p={viewing} onClose={() => setViewing(null)} markName={viewing.meta.mark ? marks.get(viewing.meta.mark)?.name : undefined} />}
 
       <FieldFreqs chat={chat} callsign={saved.callsign} onSend={(t) => sendChat(t)} />
+      {radioSlot && <div className="agent-radio-slot">{radioSlot}</div>}
 
       {ch.posKey && <FieldRadio ch={ch} callsign={saved.callsign} deviceId={saved.deviceId} />}
 
@@ -991,4 +996,93 @@ export function FieldApp() {
     </div>
   );
 }
+export type AgentTab = 'now' | 'map' | 'radio' | 'team';
+const TAB_KEY = 'vigilance.agent.tab';
+const TABS: { id: AgentTab; label: string; icon: IconName }[] = [
+  { id: 'now', label: 'Now', icon: 'spark' },
+  { id: 'map', label: 'Map', icon: 'target' },
+  { id: 'radio', label: 'Radio', icon: 'radio' },
+  { id: 'team', label: 'Team', icon: 'users' },
+];
+
+type AgentModule = typeof import('../agent');
+
+/**
+ * The Field Agent phone app: Now (what's happening around you), Map (live map with the team and the hold
+ * ring), Radio (push-to-talk, team frequencies, scanner) and Team (chat, location sharing, marks, photos).
+ * The Team page stays mounted so its streams keep running; Now, Map and the scanner load on first use.
+ */
+export function FieldApp() {
+  const [tab, setTabState] = useState<AgentTab>(() => {
+    if (/#join=/.test(location.hash)) return 'team';
+    try {
+      const t = localStorage.getItem(TAB_KEY) as AgentTab | null;
+      return t && TABS.some((x) => x.id === t) ? t : 'team';
+    } catch {
+      return 'team';
+    }
+  });
+  const [agent, setAgent] = useState<AgentModule | null>(null);
+  const [seen, setSeen] = useState<Set<AgentTab>>(() => new Set([tab]));
+  const setTab = (t: AgentTab) => {
+    setTabState(t);
+    setSeen((s) => new Set(s).add(t));
+    try {
+      localStorage.setItem(TAB_KEY, t);
+    } catch {
+      /* private mode */
+    }
+  };
+  const needsAgent = seen.has('now') || seen.has('map') || seen.has('radio');
+  useEffect(() => {
+    if (!needsAgent || agent) return;
+    void import('../agent').then((m) => {
+      const s = load();
+      void m.startAgent({ channel: s.channel, callsign: s.callsign, deviceId: s.deviceId }).then(() => setAgent(m));
+    });
+  }, [needsAgent, agent]);
+  // Keep the engine's identity and channel in step with the Team page (join, leave, callsign).
+  useEffect(() => {
+    if (!agent) return;
+    const s = load();
+    agent.syncAgent({ channel: s.channel, callsign: s.callsign, deviceId: s.deviceId });
+  }, [agent, tab]);
+  const channelName = load().channel?.name;
+  const loading = <div className="agent-loading mono">LOADING…</div>;
+  return (
+    <div className={`agent-app tab-${tab}`}>
+      <header className="fa-head">
+        <BrandMark className="field-mark" />
+        <b>VIGILANCE</b>
+        <span>FIELD AGENT</span>
+        {channelName && <em className="mono">● {channelName}</em>}
+      </header>
+      <main className="agent-main">
+        <section className="agent-pane" hidden={tab !== 'team' && tab !== 'radio'}>
+          <FieldTeam tab={tab} radioSlot={agent && seen.has('radio') ? <agent.AgentRadio /> : seen.has('radio') ? loading : null} />
+        </section>
+        {seen.has('now') && (
+          <section className="agent-pane" hidden={tab !== 'now'}>
+            {agent ? <agent.AgentNow /> : loading}
+          </section>
+        )}
+        {seen.has('map') && (
+          <section className="agent-pane map" hidden={tab !== 'map'}>
+            {agent ? <agent.AgentMap visible={tab === 'map'} /> : loading}
+          </section>
+        )}
+        {agent && <agent.AgentModals />}
+      </main>
+      <nav className="agent-tabs" role="tablist">
+        {TABS.map((t) => (
+          <button key={t.id} role="tab" aria-selected={tab === t.id} className={tab === t.id ? 'on' : ''} onClick={() => setTab(t.id)}>
+            <Icon name={t.icon} size={20} />
+            <span>{t.label}</span>
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
 export function mountFieldApp() { createRoot(document.getElementById('root')!).render(<FieldApp />); }

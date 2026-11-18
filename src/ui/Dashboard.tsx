@@ -565,3 +565,21 @@ export function Dashboard() {
   );
 }
 
+
+/** The dashboard without its own map, for the Field Agent phone app's Now tab (the Map tab has the map). */
+export function NowTiles() {
+  return (
+    <div className="dashboard now-tiles">
+      <SitrepBar />
+      <AlertsTile />
+      <StabilityTile />
+      <InsightsTile />
+      <NewsTile />
+      <HoodsTile />
+      <CrimeTrendTile />
+      <CamsTile />
+      <PostersTile />
+      <StatusTile />
+    </div>
+  );
+}

@@ -63,8 +63,14 @@ export function connectPhotos(ch: NtfyChannel) {
   if (!ch.posKey) return void streams.delete(ch.id);
   // ntfy.sh keeps attachments ~3 h; older events are only useful if we already stored the photo.
   const es = new EventSource(ntfyStreamUrl({ ...ch, topic: photoTopic(ch.topic) }, '6h'));
-  es.onmessage = (e) => {
-    const ev = attachmentEvent(e.data);
+  es.onmessage = (e) => ingestPhotoEvent(ch, e.data);
+  streams.set(ch.id, { es, key });
+}
+
+export function ingestPhotoEvent(ch: NtfyChannel, data: string) {
+  void loadStored();
+  {
+    const ev = attachmentEvent(data);
     if (!ev) return;
     void openPhotoMeta(ch.posKey, ev.message).then(async (m) => {
       if (!m || getState().photos.some((p) => p.id === m.id)) return;
@@ -77,8 +83,7 @@ export function connectPhotos(ch: NtfyChannel) {
       log(`TEAM   Photo from ${p.by}${mark ? ` at "${mark}"` : ''}${p.cap ? `: ${p.cap}` : ''}`, 0);
       void desktopNotify(`Photo from ${p.by}`, p.cap || (mark ? `At ${mark}` : 'New team photo'));
     });
-  };
-  streams.set(ch.id, { es, key });
+  }
 }
 
 export function dropPhotos(live: Set<string>) {

@@ -14,6 +14,21 @@ export function proxyUrl(url: string, base: string = import.meta.env.VITE_PROXY_
 }
 
 /**
+ * Browser fetch of an allow-listed data URL. With a relay configured (VITE_PROXY_URL) or on a dev server (/proxy),
+ * requests go through it. A published build without a relay fetches directly: sources that allow cross-origin
+ * requests (NWS, USGS, ArcGIS, Open-Meteo, OpenStreetMap…) still work; the rest need the relay.
+ */
+async function webGet(url: string): Promise<Response> {
+  const relay = import.meta.env.VITE_PROXY_URL || (import.meta.env.DEV ? '/proxy' : '');
+  if (relay) return fetch(proxyUrl(url, relay), { credentials: 'omit' });
+  try {
+    return await fetch(url, { credentials: 'omit', mode: 'cors' });
+  } catch {
+    throw new Error(`${new URL(url).host} needs the data relay (see web/proxy)`);
+  }
+}
+
+/**
  * Fetch text from an allow-listed data host (config/hosts.json).
  * Desktop: through the Rust core (no CORS limits, proper User-Agent).
  * Browser: through the CORS proxy (Vite dev server's /proxy, or the web proxy Worker).
@@ -22,7 +37,7 @@ export function proxyUrl(url: string, base: string = import.meta.env.VITE_PROXY_
 export async function getText(url: string, headers?: Record<string, string>): Promise<string> {
   if (isTauri()) return invoke<string>('http_get', { url, headers: headers ?? null });
   if (headers && Object.keys(headers).length) throw new Error('request headers are not allowed');
-  const res = await fetch(proxyUrl(url), { credentials: 'omit' });
+  const res = await webGet(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.text();
 }
@@ -30,7 +45,7 @@ export async function getText(url: string, headers?: Record<string, string>): Pr
 /** Fetch binary data (protobuf feeds, zip files) from an allow-listed host. */
 export async function getBytes(url: string): Promise<Uint8Array> {
   if (isTauri()) return new Uint8Array(await invoke<ArrayBuffer>('http_get_bytes', { url }));
-  const res = await fetch(proxyUrl(url), { credentials: 'omit' });
+  const res = await webGet(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return new Uint8Array(await res.arrayBuffer());
 }
@@ -58,9 +73,13 @@ export const getTextRetry = (url: string, attempts = 2, delayMs = 800) => retry(
 export const getBytesRetry = (url: string, attempts = 2, delayMs = 800) => retry(() => getBytes(url), attempts, delayMs);
 
 /** Small JSON documents kept in the app data folder (desktop) or localStorage (browser). */
+let storePrefix = 'vigilante.store.';
+/** The Field Agent phone app keeps its own copy of console data, apart from a console opened in the same browser. */
+export const setStorePrefix = (p: string) => void (storePrefix = p);
+
 export async function storeRead<T>(name: string): Promise<T | null> {
   try {
-    const raw = isTauri() ? await invoke<string | null>('store_read', { name }) : localStorage.getItem(`vigilante.store.${name}`);
+    const raw = isTauri() ? await invoke<string | null>('store_read', { name }) : localStorage.getItem(`${storePrefix}${name}`);
     return raw ? (JSON.parse(raw) as T) : null;
   } catch {
     return null;
@@ -71,7 +90,7 @@ export async function storeWrite(name: string, value: unknown): Promise<void> {
   const contents = JSON.stringify(value);
   try {
     if (isTauri()) await invoke('store_write', { name, contents });
-    else localStorage.setItem(`vigilante.store.${name}`, contents);
+    else localStorage.setItem(`${storePrefix}${name}`, contents);
   } catch (e) {
     console.warn('store write failed', name, e);
   }

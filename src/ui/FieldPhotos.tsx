@@ -4,6 +4,7 @@ import { ntfyStreamUrl, type NtfyChannel } from '../lib/comms';
 import { attachmentEvent, fetchPhoto, loadPhotos, openPhotoMeta, photoBlob, photoTopic, PHOTO_HINT, prepareJpeg, savePhoto, sendPhoto, type PhotoMeta } from '../lib/photo';
 import { memberColor } from '../lib/teamext';
 import { Icon } from './Icon';
+import { feedAgent } from './fieldBridge';
 
 export interface FieldPhoto {
   meta: PhotoMeta;
@@ -29,6 +30,7 @@ export function useFieldPhotos(ch: NtfyChannel | null, deviceId: string) {
     if (!ch?.posKey) return;
     const es = new EventSource(ntfyStreamUrl({ ...ch, topic: photoTopic(ch.topic) }, '6h'));
     es.onmessage = (e) => {
+      feedAgent('photo', e.data);
       const ev = attachmentEvent(e.data);
       if (!ev) return;
       void openPhotoMeta(ch.posKey, ev.message).then(async (m) => {
