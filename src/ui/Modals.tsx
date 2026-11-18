@@ -1,3 +1,4 @@
+import { APP } from '../lib/brand';
 import { PhotoModal, PhotoSendModal } from './Photos';
 import { FreqModal } from './Freqs';
 import { DeployModal } from './Deploy';
@@ -363,8 +364,8 @@ function InviteModal() {
   const who = callsign ? `${callsign} invited you` : "You're invited";
   const body =
     ch.kind === 'ntfy'
-      ? `${who} to the "${ch.name}" team channel on Vigilance.\n\n${field ? `On your phone (check in and share your location): ${field}\n\n` : ''}On a laptop with Vigilance: ${link}\n\nNo Vigilance? Follow along in the free ntfy app: ${native}${ch.token && withToken ? '' : ''}\n\nThis link works like a key: please don't forward it.`
-      : `${who} to the "${ch.name}" Meshtastic channel.\n\n1. Open this link on your phone with the Meshtastic app installed so your radio joins the channel: ${native ?? '(ask for the channel link)'}\n2. Add it in Vigilance: ${link}\n\nGet the Meshtastic app: ${MESHTASTIC_APP_URL}\n\nThis link contains the channel key: please don't forward it.`;
+      ? `${who} to the "${ch.name}" team channel on ${APP}.\n\n${field ? `On your phone (check in and share your location): ${field}\n\n` : ''}On a laptop: ${link}\n\nNo Vigilance? Follow along in the free ntfy app: ${native}${ch.token && withToken ? '' : ''}\n\nThis link works like a key: please don't forward it.`
+      : `${who} to the "${ch.name}" Meshtastic channel.\n\n1. Open this link on your phone with the Meshtastic app installed so your radio joins the channel: ${native ?? '(ask for the channel link)'}\n2. Add it in ${APP}: ${link}\n\nGet the Meshtastic app: ${MESHTASTIC_APP_URL}\n\nThis link contains the channel key: please don't forward it.`;
   const copy = async (what: string, label: string) => {
     try {
       await navigator.clipboard.writeText(what);
@@ -374,15 +375,15 @@ function InviteModal() {
       prompt('Copy this:', what);
     }
   };
-  const subject = `Join "${ch.name}" on Vigilance`;
+  const subject = `Join "${ch.name}" on ${APP}`;
   const canShare = typeof navigator !== 'undefined' && 'share' in navigator;
   return (
     <Modal title={`Invite to ${ch.name}`} wide>
       <section>
         <p className="muted small-text">
           {ch.kind === 'ntfy'
-            ? 'Teammates scan or open the Vigilance link to join. People without Vigilance can scan the ntfy code to read and reply from the free ntfy phone app.'
-            : 'Teammates first scan the Meshtastic code with the Meshtastic app so their radio joins the encrypted channel, then add it in Vigilance with the other code.'}
+            ? `Teammates scan or open the ${APP} link to join. People without ${APP} can scan the ntfy code to read and reply from the free ntfy phone app.`
+            : `Teammates first scan the Meshtastic code with the Meshtastic app so their radio joins the encrypted channel, then add it in ${APP} with the other code.`}
         </p>
         {field && (
           <div className="field-invite">
@@ -409,8 +410,8 @@ function InviteModal() {
           </div>
         )}
         <div className="qr-row">
-          <Qr text={link} caption="Join in Vigilance (laptops)" />
-          {native ? <Qr text={ch.kind === 'ntfy' ? native : native} caption={ch.kind === 'ntfy' ? 'ntfy app (no Vigilance needed)' : 'Meshtastic app: join the radio channel'} /> : <div className="qr-missing small-text muted">Paste the channel's share link from the Meshtastic app (Channels → Share) into this channel's settings to show its QR code here.</div>}
+          <Qr text={link} caption={`Join in ${APP} (laptops)`} />
+          {native ? <Qr text={ch.kind === 'ntfy' ? native : native} caption={ch.kind === 'ntfy' ? `ntfy app (no ${APP} needed)` : 'Meshtastic app: join the radio channel'} /> : <div className="qr-missing small-text muted">Paste the channel's share link from the Meshtastic app (Channels → Share) into this channel's settings to show its QR code here.</div>}
         </div>
         <label className="field">
           <span>Invite link</span>
@@ -434,7 +435,7 @@ function InviteModal() {
         )}
         {ch.kind === 'ntfy' && ch.token && (
           <label className="check small-text">
-            <input type="checkbox" checked={withToken} onChange={() => setWithToken(!withToken)} /> Include the access token in the Vigilance link (otherwise send it separately)
+            <input type="checkbox" checked={withToken} onChange={() => setWithToken(!withToken)} /> Include the access token in the link (otherwise send it separately)
           </label>
         )}
         <div className="field-row">

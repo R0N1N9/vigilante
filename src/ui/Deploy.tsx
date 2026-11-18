@@ -3,6 +3,7 @@
  * Vigilance Field Agent web app already joined to the team (iPhone or Android, nothing to install),
  * plus the Vigil Android app and a plain link to the web app. Creates a team channel if there isn't one.
  */
+import { APP } from '../lib/brand';
 import { useMemo, useState } from 'react';
 import { setShared } from '../data/bus';
 import { getState, setState, useStore } from '../data/store';
@@ -76,7 +77,7 @@ export function DeployModal() {
           <div>
             <h3>Scan with a phone camera</h3>
             <ol>
-              <li>Opens the <b>Vigilance Field Agent</b> web app, already joined to <b>{ch.name}</b>. Works on iPhone and Android, nothing to install.</li>
+              <li>Opens the <b>{APP} Field Agent</b> web app, already joined to <b>{ch.name}</b>. Works on iPhone and Android, nothing to install.</li>
               <li>They enter a callsign and tap <b>Start sharing</b>; they show up on your map and in Agents.</li>
               <li>Now, Map, Radio and Team tabs: area scan, live map with the hold ring, push-to-talk, marks, photos and chat.</li>
               <li>

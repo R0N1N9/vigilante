@@ -1,3 +1,4 @@
+import { APP } from '../lib/brand';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import type { BackgroundThrottlingPolicy } from '@tauri-apps/api/window';
 import { isTauri } from '../lib/http';
@@ -30,7 +31,7 @@ export async function popOut(view: Exclude<View, 'console'>) {
     }
     new WebviewWindow(label, {
       url: `index.html?view=${view}`,
-      title: `Vigilance · ${spec.label}`,
+      title: `${APP} · ${spec.label}`,
       width: spec.w,
       height: spec.h,
       minWidth: 360,
@@ -92,7 +93,7 @@ export async function openSystem(url: string) {
   } else window.location.href = url;
 }
 
-export async function openExternal(url: string, title = 'Vigilance') {
+export async function openExternal(url: string, title = APP) {
   if (!/^https:\/\//.test(url)) return;
   if (isTauri()) {
     const label = `web-${Math.random().toString(36).slice(2, 8)}`;

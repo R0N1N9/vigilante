@@ -3,7 +3,7 @@
  *   npm run dev:web      dev server with the local /proxy
  *   npm run build:web    -> dist-web/ (index.html, embed.html, embed.js, _headers)
  *   npm run preview:web  serve dist-web/ with the production headers
- * Env: VITE_PROXY_URL (the deployed web/proxy Worker), VITE_BASE (e.g. /vigilance/ on GitHub Pages).
+ * Env: VITE_PROXY_URL (the deployed web/proxy Worker), VITE_BASE (e.g. /vigilante/ on GitHub Pages).
  */
 import react from '@vitejs/plugin-react';
 import { readFileSync } from 'node:fs';

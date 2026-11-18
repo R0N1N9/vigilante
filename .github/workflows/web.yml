@@ -1,8 +1,11 @@
 # Build the web app (web/) and publish it to GitHub Pages.
+# In R0N1N9/vigilante this publishes Vigilante, the live web app (https://r0n1n9.github.io/vigilante/).
+# In R0N1N9/vigilance (the desktop app's repo) it publishes a small page that forwards the old
+# https://r0n1n9.github.io/vigilance/ address, invite included, so QR codes already handed out keep working.
 # One-time setup: Settings -> Pages -> Source: GitHub Actions.
 # Optional: Settings -> Secrets and variables -> Actions -> Variables -> VITE_PROXY_URL
 #   = your deployed web/proxy Worker URL (see web/proxy/README.md). It is a public URL, not a secret.
-name: Vigilance web app (GitHub Pages)
+name: Vigilante web app (GitHub Pages)
 
 on:
   push:
@@ -25,12 +28,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
+        if: github.repository == 'R0N1N9/vigilante'
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npx vitest run
+      - name: Old address (Vigilance repo) forwards to Vigilante
+        if: github.repository != 'R0N1N9/vigilante'
+        run: |
+          mkdir -p dist-web
+          cat > dist-web/index.html <<'HTML'
+          <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+          <title>Vigilante has moved</title>
+          <script>location.replace('https://r0n1n9.github.io/vigilante/' + location.pathname.replace(/^\/[^/]+\/?/, '') + location.search + location.hash);</script>
+          </head><body style="background:#0a1018;color:#e6edf3;font:16px system-ui;padding:24px">
+          <p>The web app moved to <a style="color:#3dd6f5" href="https://r0n1n9.github.io/vigilante/">r0n1n9.github.io/vigilante</a>.</p>
+          </body></html>
+          HTML
+          cp dist-web/index.html dist-web/404.html
+      - if: github.repository == 'R0N1N9/vigilante'
+        run: npm ci
+      - if: github.repository == 'R0N1N9/vigilante'
+        run: npx vitest run
       - name: Build
+        if: github.repository == 'R0N1N9/vigilante'
         run: npm run build:web
         env:
           # Project pages live at https://<owner>.github.io/<repo>/

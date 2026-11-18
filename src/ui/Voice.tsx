@@ -1,3 +1,4 @@
+import { APP } from '../lib/brand';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { replayClip, transmit } from '../data/engine/voice';
 import { getState, setState, useStore } from '../data/store';
@@ -47,7 +48,7 @@ async function pttDown() {
     setPhase('tx');
   } catch (e) {
     held = false;
-    setPhase('error', /denied|NotAllowed/i.test(String(e)) ? 'Microphone blocked. Allow it for Vigilance.' : String(e instanceof Error ? e.message : e));
+    setPhase('error', /denied|NotAllowed/i.test(String(e)) ? `Microphone blocked. Allow it for ${APP}.` : String(e instanceof Error ? e.message : e));
   }
 }
 async function pttUp() {

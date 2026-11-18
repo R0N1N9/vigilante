@@ -1,3 +1,4 @@
+import { APP } from '../../lib/brand';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { meshText, ntfyPublishBody, ntfyStreamUrl, ntfyToMessage, parseSpot, type ChatMessage, type MeshChannel, type NtfyChannel, type NtfyEvent, type TeamChannel, type TeamMember } from '../../lib/comms';
@@ -309,7 +310,7 @@ function onChatEvent(ch: NtfyChannel, data: string) {
 
 async function sendNtfy(ch: NtfyChannel, m: ChatMessage) {
   const s = getState();
-  const body = ntfyPublishBody(ch, s.settings.team.callsign || 'Vigilance', m.text, s.settings.team.installId, m.spot, m.url, m.tags, !s.fieldMode);
+  const body = ntfyPublishBody(ch, s.settings.team.callsign || APP, m.text, s.settings.team.installId, m.spot, m.url, m.tags, !s.fieldMode);
   const res = await fetch(`${ch.server.replace(/\/$/, '')}/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...(ch.token ? { Authorization: `Bearer ${ch.token}` } : {}) },

@@ -1,3 +1,4 @@
+import { APP } from '../../lib/brand';
 import type { LonLat } from '../../lib/geo';
 import { isTauri, webhookSend } from '../../lib/http';
 import { areasContaining } from '../../lib/areas';
@@ -62,7 +63,7 @@ export function notifyGeneral(item: { title: string; message: string; severity: 
 }
 
 export async function sendTestNotifications() {
-  const ok = await desktopNotify('Vigilance test', 'Desktop notifications are working.');
+  const ok = await desktopNotify(`${APP} test`, 'Desktop notifications are working.');
   log(ok ? 'NOTIFY Desktop test sent' : 'NOTIFY Desktop notifications are blocked. Allow them in your system settings.', ok ? 0 : 2);
-  if (getState().settings.notify.webhookUrl && isTauri()) await sendWebhook('Vigilance test', 'Webhook alerts are working.', 1);
+  if (getState().settings.notify.webhookUrl && isTauri()) await sendWebhook(`${APP} test`, 'Webhook alerts are working.', 1);
 }
