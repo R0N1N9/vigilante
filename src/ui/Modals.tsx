@@ -1,3 +1,5 @@
+import { PhotoModal, PhotoSendModal } from './Photos';
+import { FreqModal } from './Freqs';
 import { useEffect, useState } from 'react';
 import { setShared } from '../data/bus';
 import { getState, setState, useStore } from '../data/store';
@@ -463,6 +465,9 @@ export function Modals() {
   if (modal === 'agent') return <AgentModal />;
   if (modal === 'waypoint') return <WaypointModal />;
   if (modal === 'mark') return <MarkModal />;
+  if (modal === 'photo') return <PhotoModal />;
+  if (modal === 'photo-send') return <PhotoSendModal />;
+  if (modal === 'freq') return <FreqModal />;
   if (modal === 'settings') return <SettingsModal />;
   if (modal === 'brief') return <BriefModal />;
   if (modal === 'about') return <AboutModal />;

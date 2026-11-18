@@ -1,16 +1,20 @@
 import { maplibregl } from './maplibre';
 import type { GeoJSONSource, Map as MlMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { setShared } from '../data/bus';
 import { getState, setState, subscribe, type State } from '../data/store';
 import { passesCeiling } from '../lib/adsb';
 import { circleRing, NM_TO_M, type LonLat } from '../lib/geo';
 import { getPack } from '../lib/packs';
 import { openExternal, openRadio } from '../ui/popout';
-import { openWaypoint, placeWaypoint } from '../ui/Waypoints';
-import { markColor, newMarkAt, openMark } from '../ui/Marks';
-import { hasStatus, markLive, markStateLabel } from '../lib/waypoints';
+import { openWaypoint } from '../ui/Waypoints';
+import { markColor, openMark } from '../ui/Marks';
+import { openPhoto } from '../ui/Photos';
+import { closeRing, MapRing, openRing, ringMove, ringOpen, ringRelease } from '../ui/MapRing';
+import { distanceM } from '../lib/geo';
+import { memberColor } from '../lib/teamext';
+import { deviceOf, hasStatus, markLive, markStateLabel } from '../lib/waypoints';
 import { addIcons, CLASS_COLORS, DRONE_COLOR, RADIO_COLOR } from './icons';
 import { addTerrain, setTerrainOptions } from './terrain';
 import { shipTypeName, stormSeverity } from '../lib/intel';
@@ -23,7 +27,7 @@ const fc = (features: GeoJSON.Feature[]): GeoJSON.FeatureCollection => ({ type: 
 const SEVERITY_FILL = ['match', ['get', 'severity'], 'Extreme', '#FF4D4F', 'Severe', '#FF7A45', 'Moderate', '#FFB020', 'Minor', '#4C8DFF', '#8FA3B8'] as unknown as maplibregl.ExpressionSpecification;
 const SEV_NUM = ['match', ['get', 'sev'], 4, '#FF4D4F', 3, '#FF7A45', 2, '#FFB020', 1, '#4C8DFF', '#8FA3B8'] as unknown as maplibregl.ExpressionSpecification;
 
-const SOURCES = ['aoi', 'monitors', 'mark-areas', 'marks', 'wp-links', 'waypoints', 'team-trails', 'team', 'crime', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'outages', 'radio', 'transit', 'areas', 'draw', 'weather', 'tfr', 'traffic-lines', 'traffic', 'cameras', 'fires', 'clusters', 'trails', 'orbits', 'drone-links', 'drones', 'aircraft'];
+const SOURCES = ['aoi', 'monitors', 'mark-areas', 'marks', 'photos', 'wp-links', 'waypoints', 'team-trails', 'team', 'crime', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'outages', 'radio', 'transit', 'areas', 'draw', 'weather', 'tfr', 'traffic-lines', 'traffic', 'cameras', 'fires', 'clusters', 'trails', 'orbits', 'drone-links', 'drones', 'aircraft'];
 
 function addDataLayers(map: MlMap) {
   addIcons(map);
@@ -64,6 +68,8 @@ function addDataLayers(map: MlMap) {
   L({ id: 'marks-ping', type: 'circle', source: 'marks', filter: ['==', ['get', 'kind'], 'ping'], paint: { 'circle-radius': 12, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': ['get', 'color'], 'circle-stroke-width': 2, 'circle-stroke-opacity': 0.8 } });
   L({ id: 'marks', type: 'circle', source: 'marks', paint: { 'circle-radius': ['match', ['get', 'kind'], 'objective', 8, 'investigate', 9, 'ping', 5, 6], 'circle-color': ['case', ['get', 'ring'], 'rgba(11,15,20,0.85)', ['get', 'color']], 'circle-stroke-color': ['case', ['get', 'ring'], ['get', 'color'], '#0B0F14'], 'circle-stroke-width': ['case', ['get', 'ring'], ['match', ['get', 'kind'], 'investigate', 2, 3], 1.5], 'circle-opacity': ['case', ['get', 'done'], 0.45, 1], 'circle-stroke-opacity': ['case', ['get', 'done'], 0.45, 1] } });
   L({ id: 'marks-q', type: 'symbol', source: 'marks', filter: ['==', ['get', 'kind'], 'investigate'], layout: { 'text-field': '?', 'text-font': LABEL_FONT, 'text-size': 13, 'text-allow-overlap': true, 'text-ignore-placement': true }, paint: { 'text-color': ['get', 'color'], 'text-opacity': ['case', ['get', 'done'], 0.45, 1] } });
+  L({ id: 'photos', type: 'circle', source: 'photos', paint: { 'circle-radius': 7, 'circle-color': '#0B0F14', 'circle-stroke-color': ['get', 'color'], 'circle-stroke-width': 2.5 } });
+  L({ id: 'photos-dot', type: 'circle', source: 'photos', paint: { 'circle-radius': 2.5, 'circle-color': ['get', 'color'] } });
   L({ id: 'marks-label', type: 'symbol', source: 'marks', layout: { 'text-field': ['get', 'label'], 'text-font': LABEL_FONT, 'text-size': 10.5, 'text-offset': [0, 1.3], 'text-anchor': 'top', 'text-letter-spacing': 0.04, 'text-optional': true }, paint: { 'text-color': ['get', 'color'], 'text-halo-color': '#0B0F14', 'text-halo-width': 1.6 } });
   L({ id: 'wp-links', type: 'line', source: 'wp-links', paint: { 'line-color': ['get', 'color'], 'line-width': 1.6, 'line-opacity': 0.75, 'line-dasharray': [2, 2] } });
   L({ id: 'waypoints', type: 'circle', source: 'waypoints', paint: { 'circle-radius': 9, 'circle-color': 'rgba(11,15,20,0.85)', 'circle-stroke-color': ['get', 'color'], 'circle-stroke-width': 2.5, 'circle-opacity': ['case', ['get', 'active'], 1, 0.4], 'circle-stroke-opacity': ['case', ['get', 'active'], 1, 0.4] } });
@@ -151,15 +157,19 @@ function render(map: MlMap, s: State) {
   vis(['outages-fill', 'outages-line', 'outages-label'], s.layers.outages);
   vis(['drones', 'drone-links'], s.layers.drones);
   vis(['areas-fill', 'areas-line', 'areas-label', 'monitors-line', 'monitors-label'], s.layers.areas);
-  vis(['team', 'team-label', 'team-trails', 'team-halo', 'waypoints', 'waypoints-label', 'wp-links', 'marks', 'marks-ping', 'marks-label', 'mark-areas-fill', 'mark-areas-line'], s.layers.team);
+  vis(['team', 'team-label', 'team-trails', 'team-halo', 'waypoints', 'waypoints-label', 'wp-links', 'marks', 'marks-ping', 'marks-label', 'mark-areas-fill', 'mark-areas-line', 'marks-q', 'photos', 'photos-dot'], s.layers.team);
 
   setData(map, 'aoi', { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: circleRing(pack.center, pack.radiusNm * NM_TO_M) } });
   setData(map, 'weather', fc(s.alerts.filter((a) => a.geometry).map((a) => ({ type: 'Feature', properties: { id: a.id, severity: a.severity }, geometry: a.geometry! }))));
   setData(map, 'tfr', fc(s.tfrs.map((t) => ({ type: 'Feature', properties: { id: t.id }, geometry: t.geometry }))));
   const TEAM_COLOR = { phone: '#2BD47D', mesh: '#FBBF24', ntfy: '#3DD6F5' } as const;
-  setData(map, 'team', fc(s.team.filter((m): m is typeof m & { location: LonLat } => !!m.location && !m.dark).map((m) => ({ type: 'Feature', properties: { id: m.id, name: m.name, color: TEAM_COLOR[m.source], stale: Date.now() - m.at > 10 * 60_000 }, geometry: { type: 'Point', coordinates: m.location } }))));
+  setData(map, 'team', fc(s.team.filter((m): m is typeof m & { location: LonLat } => !!m.location && !m.dark).map((m) => ({ type: 'Feature', properties: { id: m.id, name: m.name, color: m.source === 'phone' ? memberColor(deviceOf(m.id) ?? m.id) : TEAM_COLOR[m.source], stale: Date.now() - m.at > 10 * 60_000 }, geometry: { type: 'Point', coordinates: m.location } }))));
   const liveMarks = s.marks.filter((m) => markLive(m));
-  setData(map, 'marks', fc(liveMarks.map((m) => ({ type: 'Feature', properties: { id: m.id, kind: m.kind, color: markColor(m), done: m.state === 'done', ring: hasStatus(m.kind), label: m.kind === 'ping' ? `PING · ${m.by}` : `${m.name}${hasStatus(m.kind) && m.state !== 'active' ? ` · ${markStateLabel(m.kind, m.state).toLowerCase()}` : ''}` }, geometry: { type: 'Point', coordinates: m.location } }))));
+  const photoCount = new Map<string, number>();
+  for (const p of s.photos) if (p.mark) photoCount.set(p.mark, (photoCount.get(p.mark) ?? 0) + 1);
+  const markIds = new Set(liveMarks.map((m) => m.id));
+  setData(map, 'photos', fc(s.photos.filter((p) => p.lat != null && !(p.mark && markIds.has(p.mark))).map((p) => ({ type: 'Feature', properties: { id: p.id, color: memberColor(p.byId) }, geometry: { type: 'Point', coordinates: [p.lon!, p.lat!] } }))));
+  setData(map, 'marks', fc(liveMarks.map((m) => ({ type: 'Feature', properties: { id: m.id, kind: m.kind, color: markColor(m), done: m.state === 'done', ring: hasStatus(m.kind), label: (m.kind === 'ping' ? `PING · ${m.by}` : `${m.name}${hasStatus(m.kind) && m.state !== 'active' ? ` · ${markStateLabel(m.kind, m.state).toLowerCase()}` : ''}`) + (photoCount.get(m.id) ? ` · ${photoCount.get(m.id)} photo${photoCount.get(m.id)! > 1 ? 's' : ''}` : '') }, geometry: { type: 'Point', coordinates: m.location } }))));
   setData(map, 'mark-areas', fc(liveMarks.filter((m) => m.kind === 'area' && m.radiusM).map((m) => ({ type: 'Feature', properties: { id: m.id, color: markColor(m), done: m.state === 'done' }, geometry: { type: 'Polygon', coordinates: [circleRing(m.location, m.radiusM!, 72)] } }))));
   const wpColor = (w: (typeof s.waypoints)[number]) => (w.priority === 'urgent' ? '#FF4D4F' : '#3DD6F5');
   const shownWps = s.waypoints.filter((w) => w.state === 'active' || Date.now() - w.at < 30 * 60_000);
@@ -254,12 +264,27 @@ function render(map: MlMap, s: State) {
   setData(map, 'draw', fc(drawF));
 }
 
-const CLICKABLE = ['marks', 'mark-areas-fill', 'waypoints', 'team', 'aircraft', 'weather-fill', 'tfr-fill', 'crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'cameras', 'fires', 'traffic', 'transit', 'news', 'news-clusters', 'clusters', 'drones', 'outages-fill', 'radio-line', 'radio-label'];
+const CLICKABLE = ['photos', 'marks', 'mark-areas-fill', 'waypoints', 'team', 'aircraft', 'weather-fill', 'tfr-fill', 'crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'cameras', 'fires', 'traffic', 'transit', 'news', 'news-clusters', 'clusters', 'drones', 'outages-fill', 'radio-line', 'radio-label'];
 
 export function MapView() {
   const el = useRef<HTMLDivElement>(null);
+  const ringInfo = useRef<((at: [number, number]) => void) | null>(null);
+  const [size, setSize] = useState({ w: 800, h: 600 });
+  useEffect(() => {
+    const node = el.current;
+    if (!node) return;
+    const ro = new ResizeObserver(() => setSize({ w: node.clientWidth, h: node.clientHeight }));
+    ro.observe(node);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
+    let suppressClickUntil = 0;
+    const offs: (() => void)[] = [];
+    const on = <K extends keyof WindowEventMap>(t: K, f: (e: WindowEventMap[K]) => void) => {
+      window.addEventListener(t, f);
+      offs.push(() => window.removeEventListener(t, f));
+    };
     const s0 = getState();
     const pack = getPack(s0.packId);
     const map = new maplibregl.Map({ container: el.current!, style: styleFor(s0.basemap), center: pack.center, zoom: pack.zoom, attributionControl: { compact: true }, fadeDuration: 0, doubleClickZoom: true });
@@ -291,6 +316,7 @@ export function MapView() {
     const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: true, maxWidth: '320px', className: 'vg-popup' });
 
     map.on('click', (e) => {
+      if (Date.now() < suppressClickUntil || ringOpen()) return;
       const s = getState();
       if (s.drawing) {
         setState({ drawing: [...s.drawing, [e.lngLat.lng, e.lngLat.lat] as LonLat] });
@@ -351,18 +377,21 @@ export function MapView() {
           popup.setLngLat(e.lngLat).setHTML(`<small>FAA TFR · ${esc(t.type)} · NOTAM ${esc(t.id)}</small><b>${esc(t.title)}</b><p>${esc(t.description.slice(0, 300))}</p>`).addTo(map);
           if (t.url) void openExternal(t.url, `TFR ${t.id}`);
         }
-      } else if (f.layer.id === 'marks' || f.layer.id === 'mark-areas-fill') openMark(String(p.id));
+      } else if (f.layer.id === 'photos') openPhoto(String(p.id));
+      else if (f.layer.id === 'marks' || f.layer.id === 'mark-areas-fill') openMark(String(p.id));
       else if (f.layer.id === 'waypoints') openWaypoint(String(p.id));
       else if (f.layer.id === 'team') setState({ modal: 'agent', agentId: String(p.id) });
       else if (f.layer.id === 'drones') setState({ tab: 'sky' });
     });
-    // Right-click: share this spot with the team.
-    map.on('contextmenu', (e) => {
-      if (getState().drawing) return;
-      const spot = { lat: e.lngLat.lat, lon: e.lngLat.lng };
-      const el = document.createElement('div');
-      el.className = 'ctx-menu';
-      el.innerHTML = `<small>${spot.lat.toFixed(5)}, ${spot.lon.toFixed(5)}</small>`;
+    // Info card for a spot (from the ring): coordinates, copy, share with the team, open in maps.
+    const showInfo = (at: [number, number]) => {
+      const [lon, lat] = at;
+      const box = document.createElement('div');
+      box.className = 'ctx-menu';
+      const pack = getPack(getState().packId);
+      const d = distanceM(pack.center, at);
+      const brg = (Math.round((Math.atan2(lon - pack.center[0], lat - pack.center[1]) * 180) / Math.PI) + 360) % 360;
+      box.innerHTML = `<small>${lat.toFixed(5)}, ${lon.toFixed(5)}</small><p class="muted">${d < 1000 ? `${Math.round(d)} m` : `${(d / 1609.34).toFixed(1)} mi`} · ${brg}° from ${pack.name} center</p>`;
       const item = (label: string, fn: () => void) => {
         const b = document.createElement('button');
         b.className = 'btn small';
@@ -371,28 +400,76 @@ export function MapView() {
           popup.remove();
           fn();
         };
-        el.appendChild(b);
+        box.appendChild(b);
       };
-      const at: [number, number] = [spot.lon, spot.lat];
-      item('Ping here', () => newMarkAt(at, 'ping'));
-      item('Add marker', () => newMarkAt(at, 'marker'));
-      item('Investigate (?)', () => newMarkAt(at, 'investigate'));
-      item('Area of interest', () => newMarkAt(at, 'area'));
-      item('Objective', () => newMarkAt(at, 'objective'));
-      item('Place waypoint for agents', () => placeWaypoint(at));
-      if (!getState().channels.some((c) => c.enabled)) {
-        popup.setLngLat(e.lngLat).setDOMContent(el).addTo(map);
-        return;
+      item('Copy coordinates', () => void navigator.clipboard?.writeText(`${lat.toFixed(6)}, ${lon.toFixed(6)}`));
+      if (getState().channels.some((c) => c.enabled)) item('Share this spot with the team', () => setState({ teamDraft: { text: '', spot: { lat, lon, label: 'Shared spot' } }, tab: 'team' }));
+      item('Open in maps', () => void openExternal(`https://www.openstreetmap.org/?mlat=${lat.toFixed(6)}&mlon=${lon.toFixed(6)}#map=17/${lat.toFixed(6)}/${lon.toFixed(6)}`, 'Map'));
+      popup.setLngLat(at).setDOMContent(box).addTo(map);
+    };
+    ringInfo.current = showInfo;
+
+    // Press and hold (mouse or finger) opens the ring; right-click opens it too.
+    const container = map.getCanvasContainer();
+    const local = (e: { clientX: number; clientY: number }) => {
+      const r = container.getBoundingClientRect();
+      return { x: e.clientX - r.left, y: e.clientY - r.top };
+    };
+    let hold: { timer: number; x: number; y: number; id: number } | null = null;
+    const pointers = new Set<number>();
+    const cancelHold = () => {
+      if (hold) window.clearTimeout(hold.timer);
+      hold = null;
+    };
+    container.addEventListener('pointerdown', (e) => {
+      pointers.add(e.pointerId);
+      const st = getState();
+      if (pointers.size > 1 || e.button !== 0 || st.drawing || st.pickPoint || ringOpen()) return cancelHold();
+      const p = local(e);
+      cancelHold();
+      hold = {
+        x: p.x,
+        y: p.y,
+        id: e.pointerId,
+        timer: window.setTimeout(() => {
+          if (!hold) return;
+          const ll = map.unproject([hold.x, hold.y]);
+          map.dragPan.disable();
+          suppressClickUntil = Date.now() + 800;
+          openRing({ x: hold.x, y: hold.y, at: [ll.lng, ll.lat], mode: 'hold' });
+          navigator.vibrate?.(25);
+          hold = null;
+        }, 480),
+      };
+    });
+    on('pointermove', (e) => {
+      if (hold && hold.id === e.pointerId) {
+        const p = local(e);
+        if (Math.hypot(p.x - hold.x, p.y - hold.y) > 8) cancelHold();
+      } else if (ringOpen()) {
+        const p = local(e);
+        ringMove(p.x, p.y);
       }
-      const btn = document.createElement('button');
-      btn.className = 'btn small';
-      btn.textContent = 'Share this spot with the team';
-      btn.onclick = () => {
-        popup.remove();
-        setState({ teamDraft: { text: '', spot: { ...spot, label: 'Shared spot' } }, tab: 'team' });
-      };
-      el.appendChild(btn);
-      popup.setLngLat(e.lngLat).setDOMContent(el).addTo(map);
+    });
+    const up = (e: PointerEvent) => {
+      pointers.delete(e.pointerId);
+      cancelHold();
+      if (!map.dragPan.isEnabled()) {
+        map.dragPan.enable();
+        const p = local(e);
+        suppressClickUntil = Date.now() + 400;
+        ringRelease(p.x, p.y);
+      }
+    };
+    on('pointerup', up);
+    on('pointercancel', up);
+    // Only a pan or zoom the user started cancels a hold; the map's own fly-to animations don't.
+    map.on('movestart', (e) => e.originalEvent && cancelHold());
+    map.on('contextmenu', (e) => {
+      e.preventDefault();
+      if (getState().drawing || ringOpen()) return;
+      cancelHold();
+      openRing({ x: e.point.x, y: e.point.y, at: [e.lngLat.lng, e.lngLat.lat], mode: 'open' });
     });
     map.on('dblclick', (e) => {
       const d = getState().drawing;
@@ -523,6 +600,8 @@ export function MapView() {
     const ro = new ResizeObserver(() => map.resize());
     ro.observe(el.current!);
     return () => {
+      offs.forEach((f) => f());
+      closeRing();
       unsub();
       ro.disconnect();
       cancelAnimationFrame(raf);
@@ -537,6 +616,7 @@ export function MapView() {
   return (
     <>
       <div ref={el} className="map" />
+      <MapRing size={size} showInfo={(at) => ringInfo.current?.(at)} />
       <div className="map-grid" aria-hidden />
       <div className="hud-coords mono" aria-live="off" />
     </>

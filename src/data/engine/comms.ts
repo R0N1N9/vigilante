@@ -15,6 +15,7 @@ import { getState, subscribe, type State } from '../store';
 import { log, onSignal } from './core';
 import { desktopNotify } from './notify';
 import { connectVoice, dropVoice } from './voice';
+import { connectPhotos, dropPhotos } from './photos';
 
 const CHAT_MAX = 600;
 const TEAM_TTL_MS = 6 * 3600_000;
@@ -256,6 +257,8 @@ function connectPositions(ch: NtfyChannel) {
         app: r.app,
         perm: r.perm ?? ['loc'],
         profile: r.prof,
+        radio: r.radio,
+        device: r.dev,
       });
     });
   };
@@ -441,10 +444,12 @@ function reconcile(s: State) {
       connectPositions(ch);
       connectOps(ch);
       connectVoice(ch);
+      connectPhotos(ch);
       live.add(ch.id);
     }
   }
   dropVoice(live);
+  dropPhotos(live);
   for (const map of [streams, posStreams, opsStreams])
     for (const [id, st] of map) {
       if (!live.has(id)) {

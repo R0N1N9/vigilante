@@ -10,7 +10,7 @@ import { openExternal } from './popout';
 const uid = () => Math.random().toString(36).slice(2, 10);
 const fmtDist = (m: number) => (m < 1609 ? `${Math.round(m * 3.281).toLocaleString('en-US')} ft` : `${(m / 1609).toFixed(1)} mi`);
 
-export const placeWaypoint = (at: [number, number]) => setState({ modal: 'waypoint', waypointDraft: { at } });
+export const placeWaypoint = (at: [number, number], pre: { name?: string; note?: string; urgent?: boolean } = {}) => setState({ modal: 'waypoint', waypointDraft: { at, ...pre } });
 export const openWaypoint = (id: string) => {
   const w = getState().waypoints.find((x) => x.id === id);
   if (w) setState({ modal: 'waypoint', waypointDraft: { at: w.location, id } });
@@ -63,9 +63,9 @@ export function WaypointModal() {
   const channels = useMemo(() => allChannels.filter((c) => c.kind === 'ntfy' && c.enabled && c.posKey), [allChannels]);
   const team = useStore((s) => s.team);
   const callsign = useStore((s) => s.settings.team.callsign);
-  const [name, setName] = useState('');
-  const [note, setNote] = useState('');
-  const [priority, setPriority] = useState<WaypointPriority>('routine');
+  const [name, setName] = useState(draft?.name ?? '');
+  const [note, setNote] = useState(draft?.note ?? '');
+  const [priority, setPriority] = useState<WaypointPriority>(draft?.urgent ? 'urgent' : 'routine');
   const [channelId, setChannelId] = useState(channels[0]?.id ?? '');
   const [to, setTo] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);

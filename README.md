@@ -82,6 +82,22 @@ Built for people who keep watch over a place: physical security and asset protec
 
   Phone browsers pause location when the page is in the background, so the page keeps the screen awake while sharing. For all-day background tracking, use a Meshtastic radio (or, later, the Android app).
 - **Waypoints for agents:** right-click the map → **Place waypoint for agents**, or use **Place waypoint** in the Team view. Name it, add a note, mark it routine or urgent, and send it to everyone or to chosen agents. It's encrypted with the channel key on its own ops topic. Agents get a prompt in Vigil, or a card on the phone check-in page, with **Directions** that opens their maps app. They reply **Acknowledged / En route / Arrived / Can't make it**, and the console also marks someone arrived when their GPS is within 40 m. The map shows the waypoint and dashed lines from assigned agents. Click it for each agent's status, then **Mark complete**, **Cancel** or **Resend**. The wire format is in [`docs/TEAM_PROTOCOL.md`](docs/TEAM_PROTOCOL.md) §4.
+- **Press-and-hold ring menu:** hold the map with the mouse or a finger and options fan out around the spot. Slide onto one and let go, or let go and then click or tap one. Right-click opens the same ring. The options are:
+  - Ping
+  - Mark
+  - Recon (ask the team for photos of a spot)
+  - Waypoint
+  - Backup (urgent waypoint)
+  - Photo
+  - Go (directions)
+  - Info (copy coordinates, share the spot, open in maps)
+  - Zone (alert zone)
+  - Radio
+- **Team photos:**
+  - Post a photo on a mark or at a spot, from the console, the phone page or Vigil.
+  - Photos are resized to 1600 px. The location and camera details inside the file are removed, and the photo is encrypted with the channel key.
+  - Received photos are kept on the device and shown under their mark or as a pin in the sender's colour, with a full-screen viewer and a photo board (`docs/TEAM_PROTOCOL.md` §4c).
+- **Team intel:** each teammate has a colour and initials, and their device and what they're listening to (if they share them). An INTEL summary covers their photos, marks, voice clips and frequencies. The Team view has a photo board, voice log, marks and waypoints, and the team's shared radio frequencies, with **Share a frequency**.
 - **Push-to-talk voice:**
   - The console, Vigil and the phone page can talk to each other like walkie-talkies.
   - On the console, hold **PTT** in the top bar, the big button in the Team view, or the **V** key. On the phone page, hold **Hold to talk**. Release to send.

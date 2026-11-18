@@ -4,6 +4,8 @@ import { sendMark } from '../data/engine/comms';
 import { ageText } from '../lib/team';
 import { directionsLinks, hasStatus, markLive, markStateLabel, MARK_CATEGORIES, MARK_KIND_LABEL, PING_TTL_S, type Mark, type MarkCategory, type MarkKind, type MarkState } from '../lib/waypoints';
 import { Icon } from './Icon';
+import { MarkPhotos } from './Photos';
+import { isReconName, reconName, RECON_NOTE } from '../lib/teamext';
 import { openExternal } from './popout';
 import { placeWaypoint } from './Waypoints';
 
@@ -28,6 +30,8 @@ const KIND_COLOR: Partial<Record<MarkKind, string>> = { ping: PING_COLOR, object
 export const markColor = (m: Pick<Mark, 'kind' | 'cat'>) => KIND_COLOR[m.kind] ?? MARK_COLOR[m.cat] ?? '#E6EDF3';
 
 export const newMarkAt = (at: [number, number], kind: MarkKind) => setState({ modal: 'mark', markDraft: { at, kind } });
+/** Ask the team for eyes and photos on a spot: an investigate mark named "Recon: …" (Vigil badges it). */
+export const newReconAt = (at: [number, number]) => setState({ modal: 'mark', markDraft: { at, kind: 'investigate', recon: true } });
 export const openMark = (id: string) => {
   const m = getState().marks.find((x) => x.id === id);
   if (m) setState({ modal: 'mark', markDraft: { at: m.location, id } });
@@ -82,7 +86,7 @@ export function MarkModal() {
           <div className="modal-head">
             <h2>
               <i className="mark-dot" style={{ background: markColor(existing) }} /> {existing.name}
-              <span className="wp-state">{MARK_KIND_LABEL[existing.kind].toUpperCase()}</span>
+              <span className="wp-state">{isReconName(existing.name) ? 'RECON' : MARK_KIND_LABEL[existing.kind].toUpperCase()}</span>
               {existing.kind !== 'ping' && <span className="wp-state">{MARK_CATEGORIES[existing.cat].toUpperCase()}</span>}
               <span className={`wp-state ${existing.state === 'done' ? 'done' : live ? 'active' : ''}`}>{live ? markStateLabel(existing.kind, existing.state).toUpperCase() : 'EXPIRED'}</span>
             </h2>
@@ -94,6 +98,8 @@ export function MarkModal() {
             <section>
               {existing.desc ? <p className="mark-desc">{existing.desc}</p> : <p className="muted">No description.</p>}
               {existing.kind === 'investigate' && existing.state === 'progress' && <p className="small-text accent">{existing.by} is checking it.</p>}
+              {isReconName(existing.name) && <p className="recon-note small-text">RECON · photos requested. Post what you see.</p>}
+              <MarkPhotos markId={existing.id} at={existing.location} />
               {existing.found && (
                 <p className="mark-found">
                   <b>Found:</b> {existing.found}
@@ -170,15 +176,16 @@ export function MarkModal() {
   }
 
   const k = existing?.kind ?? kind;
+  const recon = !existing && !!draft.recon && k === 'investigate';
   const submit = () => {
     const cid = existing?.channelId ?? (channelId || channels[0]?.id);
     if (!cid) return;
     const base: Mark = existing ?? { id: uid(), channelId: cid, kind: k, cat, name: '', desc: '', location: draft.at, state: 'active', ...me, at: Date.now() };
     void save({
       ...base,
-      cat: k === 'ping' ? 'general' : cat,
-      name: (name.trim() || DEFAULT_NAME[k] || MARK_CATEGORIES[cat]).slice(0, 60),
-      desc: desc.trim(),
+      cat: k === 'ping' ? 'general' : recon ? 'observation' : cat,
+      name: recon ? reconName(name) : (name.trim() || DEFAULT_NAME[k] || MARK_CATEGORIES[cat]).slice(0, 60),
+      desc: desc.trim() || (recon ? RECON_NOTE : ''),
       ...(k === 'area' ? { radiusM: radius } : {}),
       ...(k === 'ping' ? { ttlS: PING_TTL_S } : {}),
       ...me,
@@ -190,7 +197,7 @@ export function MarkModal() {
       <div className="modal mark-modal" role="dialog" aria-label="Place mark">
         <div className="modal-head">
           <h2>
-            <Icon name="pin" size={18} className="accent" /> {existing ? `Edit ${MARK_KIND_LABEL[k].toLowerCase()}` : 'New mark'}
+            <Icon name="pin" size={18} className="accent" /> {existing ? `Edit ${MARK_KIND_LABEL[k].toLowerCase()}` : recon ? 'Request recon' : 'New mark'}
           </h2>
           <button className="x" onClick={close} aria-label="Close">
             ×
@@ -205,7 +212,7 @@ export function MarkModal() {
               <p className="warn small-text">Marks are shared through a team channel (Team tab → Channels → New ntfy channel).</p>
             ) : (
               <>
-                {!existing && (
+                {!existing && !recon && (
                   <div className="seg mark-kinds">
                     {KINDS.map((x) => (
                       <button key={x} className={kind === x ? 'on' : ''} onClick={() => setKind(x)}>
@@ -221,7 +228,8 @@ export function MarkModal() {
                   {k === 'objective' && 'A goal for the team, with a status: active, in progress, done.'}
                   {k === 'investigate' && 'A “?” on a place someone should go and look at. Whoever checks it marks it resolved and says what they found.'}
                 </p>
-                {k !== 'ping' && (
+                {recon && <p className="muted small-text">Ask the team to go and look, and post photos of what they see. Everyone sees it as a “?” to check.</p>}
+                {k !== 'ping' && !recon && (
                   <div className="field">
                     <span>Category</span>
                     <div className="chips">
@@ -234,7 +242,7 @@ export function MarkModal() {
                   </div>
                 )}
                 <label className="field">
-                  <span>Name {k === 'ping' && '(optional)'}</span>
+                  <span>{recon ? 'What to look at' : <>Name {k === 'ping' && '(optional)'}</>}</span>
                   <input autoFocus value={name} onChange={(e) => setName(e.target.value.slice(0, 60))} placeholder={k === 'ping' ? 'Look here' : k === 'objective' ? 'Secure the north lot' : k === 'investigate' ? 'Gate open after hours? Odd noise? Light on?' : 'Side gate, blue van, water main…'} />
                 </label>
                 <label className="field">
@@ -282,7 +290,7 @@ export function MarkModal() {
           </button>
           <button className="btn small primary" disabled={!channels.length || busy || (k !== 'ping' && !name.trim() && !desc.trim())} onClick={submit}>
             <Icon name="pin" />
-            {busy ? 'Sending…' : existing ? 'Save' : k === 'ping' ? 'Send ping' : `Place ${MARK_KIND_LABEL[k].toLowerCase()}`}
+            {busy ? 'Sending…' : existing ? 'Save' : recon ? 'Request recon' : k === 'ping' ? 'Send ping' : `Place ${MARK_KIND_LABEL[k].toLowerCase()}`}
           </button>
         </div>
       </div>
