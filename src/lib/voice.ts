@@ -173,10 +173,33 @@ export async function fetchClip(key: string, url: string): Promise<Uint8Array | 
 // ---------------------------------------------------------------- audio I/O ---
 
 let ctx: AudioContext | null = null;
+
+/**
+ * iPhone/iPad Safari: while a page holds the microphone, iOS routes sound to the
+ * quiet earpiece, and with the ring switch on silent Web Audio is muted unless
+ * the page declares a "playback" audio session (Safari 16.4+).
+ */
+export const isIOS = () => typeof navigator !== 'undefined' && (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+type AudioSessionType = 'playback' | 'play-and-record' | 'auto';
+function audioSession(type: AudioSessionType) {
+  const s = (navigator as unknown as { audioSession?: { type: AudioSessionType } }).audioSession;
+  if (s) {
+    try {
+      s.type = type;
+    } catch {
+      /* older Safari */
+    }
+  }
+}
+
 /** One shared AudioContext, created/resumed inside a user gesture (iOS requires that). */
 export function audioCtx(): AudioContext {
-  if (!ctx) ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-  if (ctx.state === 'suspended') void ctx.resume();
+  if (!ctx) {
+    audioSession('playback');
+    ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+  }
+  // 'interrupted' is iOS after a call, Siri or switching apps.
+  if (ctx.state !== 'running') void ctx.resume().catch(() => {});
   return ctx;
 }
 export const audioReady = () => !!ctx && ctx.state === 'running';
@@ -250,6 +273,7 @@ export class PttRecorder {
     const c = audioCtx();
     if (this.idle) clearTimeout(this.idle);
     if (!this.stream) {
+      audioSession('play-and-record');
       this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
       this.source = c.createMediaStreamSource(this.stream);
       this.node = c.createScriptProcessor(4096, 1, 1);
@@ -280,7 +304,10 @@ export class PttRecorder {
       o += ch.length;
     }
     this.chunks = [];
-    this.idle = setTimeout(() => this.release(), 30_000);
+    // Keep the mic warm briefly so the next first word isn't clipped, except on iOS, where an
+    // open mic sends teammates' replies to the earpiece; release it at once there.
+    if (isIOS()) this.release();
+    else this.idle = setTimeout(() => this.release(), 30_000);
     if (ms < MIN_CLIP_MS || !total) return null;
     return { audio: encodeClip(all, audioCtx().sampleRate), ms, t: this.startedAt };
   }
@@ -293,6 +320,7 @@ export class PttRecorder {
     this.stream = null;
     this.node = null;
     this.source = null;
+    audioSession('playback');
   }
 }
 

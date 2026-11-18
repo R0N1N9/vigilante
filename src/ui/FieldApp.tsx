@@ -1,3 +1,4 @@
+import { createRoot } from 'react-dom/client';
 import { FieldRadio } from './FieldRadio';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import QRCode from 'qrcode';
@@ -886,3 +887,4 @@ export function FieldApp() {
     </div>
   );
 }
+export function mountFieldApp() { createRoot(document.getElementById('root')!).render(<FieldApp />); }

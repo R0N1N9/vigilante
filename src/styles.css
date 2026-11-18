@@ -999,3 +999,25 @@ button.link { background: none; border: 0; padding: 0; color: var(--accent); cur
 .clip-row { display: grid; grid-template-columns: 14px auto 1fr; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 6px 4px; background: none; border: 0; border-top: 1px solid var(--line); color: var(--text); cursor: pointer; font-size: 13px; }
 .clip-row span { font-size: 11px; justify-self: end; }
 .clip-row.on, .clip-row:hover { color: var(--accent); }
+
+/* Phone page: comfortable touch targets */
+.fieldapp summary { min-height: 44px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.fieldapp .field-invite summary { justify-content: center; }
+.fieldapp .field-leave { min-height: 44px; padding: 0 16px; }
+.fieldapp .mark-actions a, .fieldapp .mark-actions button { min-height: 36px; min-width: 52px; display: inline-flex; align-items: center; justify-content: center; }
+.fieldapp .clip-row { min-height: 44px; }
+.fieldapp .ptt.big { min-height: 64px; font-size: 17px; }
+.fieldapp .field-compose { padding-bottom: env(safe-area-inset-bottom); }
+
+/* Console opened on a phone */
+.phone-hint { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(var(--accent-rgb), .12); border-bottom: 1px solid rgba(var(--accent-rgb), .35); font-size: 14px; }
+.phone-hint a { color: var(--accent); font-weight: 600; white-space: nowrap; }
+.phone-hint button { margin-left: auto; background: none; border: 0; color: var(--muted); font-size: 20px; min-width: 36px; min-height: 36px; }
+@media (max-width: 700px) {
+  .cmdbar { overflow-x: auto; overflow-y: hidden; scrollbar-width: none; flex-wrap: nowrap; }
+  .cmdbar::-webkit-scrollbar { display: none; }
+  .cmdbar > * { flex-shrink: 0; }
+}
+.radio-card .marks-head { display: flex; align-items: center; gap: 10px; min-height: 40px; }
+.radio-card .marks-head h3 { margin: 0; }
+.radio-card .ping-btn { margin-left: auto; padding: 9px 12px; font-size: 14px; }
