@@ -14,6 +14,7 @@ import { alertTone } from '../sound';
 import { getState, subscribe, type State } from '../store';
 import { log, onSignal } from './core';
 import { desktopNotify } from './notify';
+import { connectVoice, dropVoice } from './voice';
 
 const CHAT_MAX = 600;
 const TEAM_TTL_MS = 6 * 3600_000;
@@ -439,9 +440,11 @@ function reconcile(s: State) {
       connectNtfy(ch);
       connectPositions(ch);
       connectOps(ch);
+      connectVoice(ch);
       live.add(ch.id);
     }
   }
+  dropVoice(live);
   for (const map of [streams, posStreams, opsStreams])
     for (const [id, st] of map) {
       if (!live.has(id)) {

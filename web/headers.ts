@@ -32,8 +32,8 @@ export function securityHeaders(): Record<string, string> {
     'Content-Security-Policy': cspHeader(),
     'X-Content-Type-Options': 'nosniff',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
-    // Embeds may ask for location (Use my location) only if the host page grants it via iframe allow=.
-    'Permissions-Policy': 'camera=(), microphone=(), payment=(), usb=(), bluetooth=(), geolocation=(self)',
+    // Location and microphone (push-to-talk on the phone page) only for this site itself; an embedding page must also grant them via iframe allow=.
+    'Permissions-Policy': 'camera=(), microphone=(self), payment=(), usb=(), bluetooth=(), geolocation=(self)',
   };
 }
 

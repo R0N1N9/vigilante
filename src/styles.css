@@ -981,6 +981,25 @@ button.link { background: none; border: 0; padding: 0; color: var(--accent); cur
 .mark-item .mark-form .row { display: flex; gap: 8px; }
 .mark-item .mark-form .field-btn { flex: 1; padding: 9px; font-size: 14px; }
 
+/* Push to talk */
+.ptt { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: none; -webkit-touch-callout: none; border: 1px solid var(--line-2); background: var(--panel-2, rgba(255,255,255,.03)); color: var(--muted); }
+.ptt.compact { height: 28px; padding: 0 10px; border-radius: 6px; font-size: 11px; letter-spacing: .08em; }
+.ptt.big { width: 100%; justify-content: center; padding: 16px; border-radius: 10px; font-size: 15px; font-weight: 600; color: var(--text); margin: 6px 0; }
+.ptt:hover { border-color: rgba(var(--accent-rgb), .5); color: var(--text); }
+.ptt.tx { background: rgba(255,77,79,.16); border-color: #FF4D4F; color: #FFB3B4; }
+.ptt.rx { background: rgba(46,204,113,.12); border-color: rgba(46,204,113,.7); color: #8FF0B8; animation: ptt-rx 1s ease-in-out infinite; }
+.ptt.busy { opacity: .75; }
+.ptt.err { border-color: rgba(255,77,79,.5); }
+.ptt-dot { width: 7px; height: 7px; border-radius: 50%; background: #FF4D4F; animation: ptt-rx .8s ease-in-out infinite; }
+@keyframes ptt-rx { 50% { opacity: .55; } }
+.radio-panel { padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 10px; }
+.radio-panel .tv-chat-head { display: flex; align-items: center; gap: 8px; }
+.radio-panel .tv-chat-head select { margin-left: auto; font-size: 11px; }
+.radio-panel p { margin: 4px 0 6px; }
+.clip-row { display: grid; grid-template-columns: 14px auto 1fr; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 6px 4px; background: none; border: 0; border-top: 1px solid var(--line); color: var(--text); cursor: pointer; font-size: 13px; }
+.clip-row span { font-size: 11px; justify-self: end; }
+.clip-row.on, .clip-row:hover { color: var(--accent); }
+
 
 
 /* ---------- Get the app (About) ---------- */

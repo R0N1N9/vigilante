@@ -153,6 +153,37 @@ Marks are shared map annotations. **Anyone on the team** can place, edit or clea
 - Offer **Mark this spot** with kind, category, name and description.
 - Let anyone clear a mark.
 
+## 4b. Push-to-talk voice (topic `t` + `-voice`)
+
+Walkie-talkie style: **hold to talk, release to send**. Each transmission is one clip, posted as an ntfy **attachment**. Clips end to end usually take about 1 second after release. The server only ever sees ciphertext.
+
+**Audio:** 8 kHz, mono, G.711 **µ-law**, one byte per sample (about 8 KB/s), at most 30 s. There's no codec library or container, just raw µ-law bytes, so browsers, the desktop app and Android all decode it the same way. On Android, `AudioRecord` at 8000 Hz PCM16 with a standard µ-law encoder produces the same bytes. Play with `AudioTrack`, after decoding µ-law to PCM16.
+
+**Send:** `PUT https://<server>/<t>-voice`
+- **Body:** `iv(12) ‖ AES-256-GCM(µ-law bytes)`, including the tag, using the channel key `p`. These are raw bytes, not base64.
+- **Headers:**
+  - `Filename: ptt.vgv`
+  - `X-Message: VGV1.<sealed metadata>`, sealed exactly like `VGP1`/`VGO1`
+  - `X-Tags: vigilance-voice`
+  - `Authorization: Bearer <a>` if the invite has a token
+- **Sealed metadata:**
+```json
+{"v":1,"id":"k3j9x0a1","n":"Unit 7","byId":"vigil-3f9a2c","t":1763400000000,"ms":2400,"sr":8000,"c":"mulaw"}
+```
+
+**Receive:** subscribe to `<t>-voice`, for example `/sse?since=1h`.
+- Each message event has `message` (the sealed metadata) and `attachment.url`.
+- Download the URL, decrypt it, decode it and play it.
+- Auto-play only clips with `t` in the last ~90 s, and skip your own (`byId`). List older ones for replay.
+- Play clips one after another, never overlapping.
+- The apps play a short rising chirp before a clip and a falling "roger beep" after it.
+
+**Limits:**
+- The ntfy server must allow attachments. ntfy.sh does: 15 MB per file, and files are deleted after about 3 hours.
+- ntfy.sh also caps attachment storage per visitor, roughly 100 MB a day. That's plenty for push-to-talk: 30 s is 240 KB.
+- A self-hosted server needs `attachment-cache-dir` set.
+- Voice isn't sent over Meshtastic: LoRa carries about 200 bytes per packet, which is far too little for audio.
+
 ## 5. Kotlin reference (Android API 26+)
 
 ```kotlin

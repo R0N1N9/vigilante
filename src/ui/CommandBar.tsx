@@ -1,3 +1,4 @@
+import { PttButton, usePttHotkey } from './Voice';
 import { useEffect, useRef, useState } from 'react';
 import { setShared } from '../data/bus';
 import { setState, useStore, type Feed, type FeedName } from '../data/store';
@@ -130,6 +131,7 @@ function MainViewSwitch({ embed = false }: { embed?: boolean }) {
 }
 
 export function CommandBar({ view, embed = false }: { view: View; embed?: boolean }) {
+  usePttHotkey(!embed); // team voice stays out of public embeds
   const packId = useStore((s) => s.packId);
   const muted = useStore((s) => s.muted);
   const incidents = useStore((s) => s.incidents);
@@ -162,6 +164,7 @@ export function CommandBar({ view, embed = false }: { view: View; embed?: boolea
       </button>
       <FeedStatus />
       {!embed && <AgentsChip />}
+      {!embed && <PttButton compact />}
       {view === 'console' && <MainViewSwitch embed={embed} />}
       <div className="spacer" />
       <div className="actions">

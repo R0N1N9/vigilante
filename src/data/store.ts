@@ -1,3 +1,4 @@
+import type { VoiceClip } from './engine/voice';
 import { useSyncExternalStore } from 'react';
 import type { Aircraft } from '../lib/adsb';
 import type { WatchArea } from '../lib/areas';
@@ -163,6 +164,10 @@ export interface SharedUi {
   waypoints: Waypoint[];
   /** Shared map marks: pings, markers, areas of interest, objectives. */
   marks: Mark[];
+  /** Push-to-talk clips heard this session (metadata only; audio is fetched again to replay). */
+  voice: VoiceClip[];
+  /** Someone is talking right now (shown in every window). */
+  voiceRx: { by: string; until: number } | null;
   meshStatus: { state: 'off' | 'connecting' | 'connected' | 'error' | 'disconnected'; detail: string; node?: string; radioChannels?: { index: number; name: string }[] };
 }
 
@@ -197,6 +202,8 @@ export interface LocalUi {
   teamHighlight: number;
   /** Agent whose profile is open. */
   agentId: string | null;
+  /** Team channel push-to-talk transmits on. */
+  voiceChannelId: string | null;
 }
 
 export interface State extends DataState, SharedUi, LocalUi {}
@@ -279,6 +286,8 @@ let state: State = {
   meshStatus: { state: 'off', detail: '' },
   waypoints: [],
   marks: [],
+  voice: [],
+  voiceRx: null,
   basemap: prefs.basemap ?? 'dark',
   tab: typeof location !== 'undefined' && /#join=VG1\./.test(location.hash) ? 'team' : (prefs.tab ?? 'alerts'),
   cameraId: null,
@@ -296,6 +305,7 @@ let state: State = {
   mainView: prefs.mainView ?? 'map',
   teamHighlight: 0,
   agentId: null,
+  voiceChannelId: null,
 };
 
 const listeners = new Set<() => void>();
