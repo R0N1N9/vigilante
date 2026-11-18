@@ -22,7 +22,7 @@ export interface Env {
 }
 
 const ALLOWED = new Set<string>(hosts.get.map((h) => h.toLowerCase()));
-const USER_AGENT = 'Vigilance/0.1 (web proxy; neighborhood awareness console; github.com/r0n1n9/vigilante)';
+const USER_AGENT = 'Vigilance/0.1 (web proxy; neighborhood awareness console; github.com/r0n1n9/vigilance)';
 const ACCEPT = 'application/geo+json, application/json, application/rss+xml, application/xml, text/xml, */*';
 const MAX_BYTES = 60 * 1024 * 1024;
 const TIMEOUT_MS = 25_000;

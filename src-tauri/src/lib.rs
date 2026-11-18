@@ -20,7 +20,7 @@ use tauri::{Manager, WindowEvent};
 const USER_AGENT: &str = concat!(
     "Vigilance/",
     env!("CARGO_PKG_VERSION"),
-    " (neighborhood awareness console; github.com/r0n1n9/vigilante)"
+    " (neighborhood awareness console; github.com/r0n1n9/vigilance)"
 );
 
 /// Shared with the browser dev proxy: config/hosts.json.

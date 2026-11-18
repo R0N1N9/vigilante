@@ -17,7 +17,8 @@ describe('encrypted positions', () => {
   it('rejects tampering and junk', async () => {
     const k = newPosKey();
     const sealed = await sealPosition(k, r);
-    const flipped = sealed.slice(0, -2) + (sealed.endsWith('A') ? 'B' : 'A') + sealed.slice(-1);
+    const at = sealed.length - 2;
+    const flipped = sealed.slice(0, at) + (sealed[at] === 'A' ? 'B' : 'A') + sealed.slice(at + 1);
     expect(await openPosition(k, flipped)).toBeNull();
     expect(await openPosition(k, 'hello')).toBeNull();
     expect(await openPosition(k, 'VGP1.AAAA')).toBeNull();
