@@ -14,13 +14,13 @@
   "nwsOffice": "HUN",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Alabama",
+    "name": "Scanner feeds \u00b7 Alabama",
     "agency": "Live police, fire and EMS audio by county in Alabama (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/1",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Huntsville area",
+    "name": "Recorded dispatch \u00b7 Huntsville area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -72,13 +72,13 @@
   "nwsOffice": "BMX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Alabama",
+    "name": "Scanner feeds \u00b7 Alabama",
     "agency": "Live police, fire and EMS audio by county in Alabama (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/1",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Birmingham area",
+    "name": "Recorded dispatch \u00b7 Birmingham area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -130,13 +130,13 @@
   "nwsOffice": "AER",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Alaska",
+    "name": "Scanner feeds \u00b7 Alaska",
     "agency": "Live police, fire and EMS audio by county in Alaska (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/2",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Anchorage area",
+    "name": "Recorded dispatch \u00b7 Anchorage area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -189,13 +189,13 @@
   "nwsOffice": "PSR",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Arizona",
+    "name": "Scanner feeds \u00b7 Arizona",
     "agency": "Live police, fire and EMS audio by county in Arizona (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/4",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Phoenix area",
+    "name": "Recorded dispatch \u00b7 Phoenix area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -249,13 +249,13 @@
   "nwsOffice": "LZK",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Arkansas",
+    "name": "Scanner feeds \u00b7 Arkansas",
     "agency": "Live police, fire and EMS audio by county in Arkansas (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/5",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Little Rock area",
+    "name": "Recorded dispatch \u00b7 Little Rock area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -307,13 +307,13 @@
   "nwsOffice": "LOX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · California",
+    "name": "Scanner feeds \u00b7 California",
     "agency": "Live police, fire and EMS audio by county in California (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/6",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Los Angeles area",
+    "name": "Recorded dispatch \u00b7 Los Angeles area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -367,19 +367,19 @@
   "nwsOffice": "MTR",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · California",
+    "name": "Scanner feeds \u00b7 California",
     "agency": "Live police, fire and EMS audio by county in California (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/6",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · San Francisco area",
+    "name": "Recorded dispatch \u00b7 San Francisco area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
    }
   ],
-  "notes": "San Francisco preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a San Francisco feed.",
+  "notes": "San Francisco preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news and police crime data. Use the Broadcastify state list to pick a San Francisco feed.",
   "traffic": {
    "provider": "none"
   },
@@ -402,7 +402,7 @@
    "utilities": []
   },
   "intel": {
-   "crime": null,
+   "crime": "san-francisco",
    "s311": null,
    "fbiOffice": "sanfrancisco",
    "airports": [
@@ -426,13 +426,13 @@
   "nwsOffice": "SGX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · California",
+    "name": "Scanner feeds \u00b7 California",
     "agency": "Live police, fire and EMS audio by county in California (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/6",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · San Diego area",
+    "name": "Recorded dispatch \u00b7 San Diego area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -485,13 +485,13 @@
   "nwsOffice": "OKX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Connecticut",
+    "name": "Scanner feeds \u00b7 Connecticut",
     "agency": "Live police, fire and EMS audio by county in Connecticut (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/9",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Bridgeport area",
+    "name": "Recorded dispatch \u00b7 Bridgeport area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -544,13 +544,13 @@
   "nwsOffice": "PHI",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Delaware",
+    "name": "Scanner feeds \u00b7 Delaware",
     "agency": "Live police, fire and EMS audio by county in Delaware (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/10",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Wilmington area",
+    "name": "Recorded dispatch \u00b7 Wilmington area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -603,13 +603,13 @@
   "nwsOffice": "LWX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · District of Columbia",
+    "name": "Scanner feeds \u00b7 District of Columbia",
     "agency": "Live police, fire and EMS audio by county in District of Columbia (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/11",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Washington area",
+    "name": "Recorded dispatch \u00b7 Washington area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -662,13 +662,13 @@
   "nwsOffice": "JAX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Florida",
+    "name": "Scanner feeds \u00b7 Florida",
     "agency": "Live police, fire and EMS audio by county in Florida (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/12",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Jacksonville area",
+    "name": "Recorded dispatch \u00b7 Jacksonville area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -721,13 +721,13 @@
   "nwsOffice": "MFL",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Florida",
+    "name": "Scanner feeds \u00b7 Florida",
     "agency": "Live police, fire and EMS audio by county in Florida (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/12",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Miami area",
+    "name": "Recorded dispatch \u00b7 Miami area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -781,13 +781,13 @@
   "nwsOffice": "HFO",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Hawaii",
+    "name": "Scanner feeds \u00b7 Hawaii",
     "agency": "Live police, fire and EMS audio by county in Hawaii (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/15",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Honolulu area",
+    "name": "Recorded dispatch \u00b7 Honolulu area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -839,13 +839,13 @@
   "nwsOffice": "BOI",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Idaho",
+    "name": "Scanner feeds \u00b7 Idaho",
     "agency": "Live police, fire and EMS audio by county in Idaho (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/16",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Boise area",
+    "name": "Recorded dispatch \u00b7 Boise area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -897,19 +897,19 @@
   "nwsOffice": "LOT",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Illinois",
+    "name": "Scanner feeds \u00b7 Illinois",
     "agency": "Live police, fire and EMS audio by county in Illinois (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/17",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Chicago area",
+    "name": "Recorded dispatch \u00b7 Chicago area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
    }
   ],
-  "notes": "Chicago preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Chicago feed.",
+  "notes": "Chicago preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news and police crime data. Use the Broadcastify state list to pick a Chicago feed.",
   "traffic": {
    "provider": "none"
   },
@@ -932,7 +932,7 @@
    "utilities": []
   },
   "intel": {
-   "crime": null,
+   "crime": "chicago",
    "s311": null,
    "fbiOffice": "chicago",
    "airports": [
@@ -956,13 +956,13 @@
   "nwsOffice": "IND",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Indiana",
+    "name": "Scanner feeds \u00b7 Indiana",
     "agency": "Live police, fire and EMS audio by county in Indiana (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/18",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Indianapolis area",
+    "name": "Recorded dispatch \u00b7 Indianapolis area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -1014,13 +1014,13 @@
   "nwsOffice": "DMX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Iowa",
+    "name": "Scanner feeds \u00b7 Iowa",
     "agency": "Live police, fire and EMS audio by county in Iowa (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/19",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Des Moines area",
+    "name": "Recorded dispatch \u00b7 Des Moines area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -1072,13 +1072,13 @@
   "nwsOffice": "ICT",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Kansas",
+    "name": "Scanner feeds \u00b7 Kansas",
     "agency": "Live police, fire and EMS audio by county in Kansas (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/20",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Wichita area",
+    "name": "Recorded dispatch \u00b7 Wichita area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -1130,13 +1130,13 @@
   "nwsOffice": "LMK",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Kentucky",
+    "name": "Scanner feeds \u00b7 Kentucky",
     "agency": "Live police, fire and EMS audio by county in Kentucky (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/21",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Louisville area",
+    "name": "Recorded dispatch \u00b7 Louisville area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -1188,13 +1188,13 @@
   "nwsOffice": "LIX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Louisiana",
+    "name": "Scanner feeds \u00b7 Louisiana",
     "agency": "Live police, fire and EMS audio by county in Louisiana (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/22",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · New Orleans area",
+    "name": "Recorded dispatch \u00b7 New Orleans area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -1246,13 +1246,13 @@
   "nwsOffice": "GYX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Maine",
+    "name": "Scanner feeds \u00b7 Maine",
     "agency": "Live police, fire and EMS audio by county in Maine (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/23",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Portland area",
+    "name": "Recorded dispatch \u00b7 Portland area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -1304,13 +1304,13 @@
   "nwsOffice": "LWX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Maryland",
+    "name": "Scanner feeds \u00b7 Maryland",
     "agency": "Live police, fire and EMS audio by county in Maryland (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/24",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Baltimore area",
+    "name": "Recorded dispatch \u00b7 Baltimore area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -1362,13 +1362,13 @@
   "nwsOffice": "BOX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Massachusetts",
+    "name": "Scanner feeds \u00b7 Massachusetts",
     "agency": "Live police, fire and EMS audio by county in Massachusetts (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/25",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Boston area",
+    "name": "Recorded dispatch \u00b7 Boston area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -1420,13 +1420,13 @@
   "nwsOffice": "DTX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Michigan",
+    "name": "Scanner feeds \u00b7 Michigan",
     "agency": "Live police, fire and EMS audio by county in Michigan (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/26",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Detroit area",
+    "name": "Recorded dispatch \u00b7 Detroit area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -1479,13 +1479,13 @@
   "nwsOffice": "MPX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Minnesota",
+    "name": "Scanner feeds \u00b7 Minnesota",
     "agency": "Live police, fire and EMS audio by county in Minnesota (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/27",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Minneapolis area",
+    "name": "Recorded dispatch \u00b7 Minneapolis area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -1537,13 +1537,13 @@
   "nwsOffice": "JAN",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Mississippi",
+    "name": "Scanner feeds \u00b7 Mississippi",
     "agency": "Live police, fire and EMS audio by county in Mississippi (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/28",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Jackson area",
+    "name": "Recorded dispatch \u00b7 Jackson area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -1595,13 +1595,13 @@
   "nwsOffice": "EAX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Missouri",
+    "name": "Scanner feeds \u00b7 Missouri",
     "agency": "Live police, fire and EMS audio by county in Missouri (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/29",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Kansas City area",
+    "name": "Recorded dispatch \u00b7 Kansas City area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -1654,13 +1654,13 @@
   "nwsOffice": "LSX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Missouri",
+    "name": "Scanner feeds \u00b7 Missouri",
     "agency": "Live police, fire and EMS audio by county in Missouri (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/29",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · St. Louis area",
+    "name": "Recorded dispatch \u00b7 St. Louis area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -1712,13 +1712,13 @@
   "nwsOffice": "BYZ",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Montana",
+    "name": "Scanner feeds \u00b7 Montana",
     "agency": "Live police, fire and EMS audio by county in Montana (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/30",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Billings area",
+    "name": "Recorded dispatch \u00b7 Billings area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -1770,13 +1770,13 @@
   "nwsOffice": "OAX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Nebraska",
+    "name": "Scanner feeds \u00b7 Nebraska",
     "agency": "Live police, fire and EMS audio by county in Nebraska (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/31",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Omaha area",
+    "name": "Recorded dispatch \u00b7 Omaha area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -1828,13 +1828,13 @@
   "nwsOffice": "VEF",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Nevada",
+    "name": "Scanner feeds \u00b7 Nevada",
     "agency": "Live police, fire and EMS audio by county in Nevada (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/32",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Las Vegas area",
+    "name": "Recorded dispatch \u00b7 Las Vegas area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -1888,13 +1888,13 @@
   "nwsOffice": "GYX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · New Hampshire",
+    "name": "Scanner feeds \u00b7 New Hampshire",
     "agency": "Live police, fire and EMS audio by county in New Hampshire (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/33",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Manchester area",
+    "name": "Recorded dispatch \u00b7 Manchester area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -1946,13 +1946,13 @@
   "nwsOffice": "OKX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · New Jersey",
+    "name": "Scanner feeds \u00b7 New Jersey",
     "agency": "Live police, fire and EMS audio by county in New Jersey (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/34",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Newark area",
+    "name": "Recorded dispatch \u00b7 Newark area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -2004,13 +2004,13 @@
   "nwsOffice": "ABQ",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · New Mexico",
+    "name": "Scanner feeds \u00b7 New Mexico",
     "agency": "Live police, fire and EMS audio by county in New Mexico (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/35",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Albuquerque area",
+    "name": "Recorded dispatch \u00b7 Albuquerque area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -2062,19 +2062,19 @@
   "nwsOffice": "OKX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · New York",
+    "name": "Scanner feeds \u00b7 New York",
     "agency": "Live police, fire and EMS audio by county in New York (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/36",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · New York area",
+    "name": "Recorded dispatch \u00b7 New York area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
    }
   ],
-  "notes": "New York preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a New York feed.",
+  "notes": "New York preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news and police crime data. Use the Broadcastify state list to pick a New York feed.",
   "traffic": {
    "provider": "none"
   },
@@ -2097,7 +2097,7 @@
    "utilities": []
   },
   "intel": {
-   "crime": null,
+   "crime": "new-york",
    "s311": null,
    "fbiOffice": "newyork",
    "airports": [
@@ -2122,13 +2122,13 @@
   "nwsOffice": "GSP",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · North Carolina",
+    "name": "Scanner feeds \u00b7 North Carolina",
     "agency": "Live police, fire and EMS audio by county in North Carolina (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/37",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Charlotte area",
+    "name": "Recorded dispatch \u00b7 Charlotte area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -2180,13 +2180,13 @@
   "nwsOffice": "FGF",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · North Dakota",
+    "name": "Scanner feeds \u00b7 North Dakota",
     "agency": "Live police, fire and EMS audio by county in North Dakota (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/38",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Fargo area",
+    "name": "Recorded dispatch \u00b7 Fargo area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -2238,13 +2238,13 @@
   "nwsOffice": "ILN",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Ohio",
+    "name": "Scanner feeds \u00b7 Ohio",
     "agency": "Live police, fire and EMS audio by county in Ohio (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/39",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Columbus area",
+    "name": "Recorded dispatch \u00b7 Columbus area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -2297,13 +2297,13 @@
   "nwsOffice": "OUN",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Oklahoma",
+    "name": "Scanner feeds \u00b7 Oklahoma",
     "agency": "Live police, fire and EMS audio by county in Oklahoma (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/40",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Oklahoma City area",
+    "name": "Recorded dispatch \u00b7 Oklahoma City area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -2355,13 +2355,13 @@
   "nwsOffice": "PQR",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Oregon",
+    "name": "Scanner feeds \u00b7 Oregon",
     "agency": "Live police, fire and EMS audio by county in Oregon (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/41",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Portland area",
+    "name": "Recorded dispatch \u00b7 Portland area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -2413,13 +2413,13 @@
   "nwsOffice": "PHI",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Pennsylvania",
+    "name": "Scanner feeds \u00b7 Pennsylvania",
     "agency": "Live police, fire and EMS audio by county in Pennsylvania (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/42",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Philadelphia area",
+    "name": "Recorded dispatch \u00b7 Philadelphia area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -2471,13 +2471,13 @@
   "nwsOffice": "PBZ",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Pennsylvania",
+    "name": "Scanner feeds \u00b7 Pennsylvania",
     "agency": "Live police, fire and EMS audio by county in Pennsylvania (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/42",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Pittsburgh area",
+    "name": "Recorded dispatch \u00b7 Pittsburgh area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -2529,13 +2529,13 @@
   "nwsOffice": "BOX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Rhode Island",
+    "name": "Scanner feeds \u00b7 Rhode Island",
     "agency": "Live police, fire and EMS audio by county in Rhode Island (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/44",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Providence area",
+    "name": "Recorded dispatch \u00b7 Providence area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -2587,13 +2587,13 @@
   "nwsOffice": "CHS",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · South Carolina",
+    "name": "Scanner feeds \u00b7 South Carolina",
     "agency": "Live police, fire and EMS audio by county in South Carolina (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/45",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Charleston area",
+    "name": "Recorded dispatch \u00b7 Charleston area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -2645,13 +2645,13 @@
   "nwsOffice": "FSD",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · South Dakota",
+    "name": "Scanner feeds \u00b7 South Dakota",
     "agency": "Live police, fire and EMS audio by county in South Dakota (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/46",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Sioux Falls area",
+    "name": "Recorded dispatch \u00b7 Sioux Falls area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -2703,13 +2703,13 @@
   "nwsOffice": "OHX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Tennessee",
+    "name": "Scanner feeds \u00b7 Tennessee",
     "agency": "Live police, fire and EMS audio by county in Tennessee (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/47",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Nashville area",
+    "name": "Recorded dispatch \u00b7 Nashville area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -2761,13 +2761,13 @@
   "nwsOffice": "MEG",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Tennessee",
+    "name": "Scanner feeds \u00b7 Tennessee",
     "agency": "Live police, fire and EMS audio by county in Tennessee (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/47",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Memphis area",
+    "name": "Recorded dispatch \u00b7 Memphis area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -2819,13 +2819,13 @@
   "nwsOffice": "HGX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Texas",
+    "name": "Scanner feeds \u00b7 Texas",
     "agency": "Live police, fire and EMS audio by county in Texas (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/48",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Houston area",
+    "name": "Recorded dispatch \u00b7 Houston area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -2878,19 +2878,19 @@
   "nwsOffice": "FWD",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Texas",
+    "name": "Scanner feeds \u00b7 Texas",
     "agency": "Live police, fire and EMS audio by county in Texas (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/48",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Dallas area",
+    "name": "Recorded dispatch \u00b7 Dallas area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
    }
   ],
-  "notes": "Dallas preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Dallas feed.",
+  "notes": "Dallas preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news and police crime data. Use the Broadcastify state list to pick a Dallas feed.",
   "traffic": {
    "provider": "none"
   },
@@ -2913,7 +2913,7 @@
    "utilities": []
   },
   "intel": {
-   "crime": null,
+   "crime": "dallas",
    "s311": null,
    "fbiOffice": "dallas",
    "airports": [
@@ -2937,13 +2937,13 @@
   "nwsOffice": "EWX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Texas",
+    "name": "Scanner feeds \u00b7 Texas",
     "agency": "Live police, fire and EMS audio by county in Texas (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/48",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Austin area",
+    "name": "Recorded dispatch \u00b7 Austin area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -2995,13 +2995,13 @@
   "nwsOffice": "EWX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Texas",
+    "name": "Scanner feeds \u00b7 Texas",
     "agency": "Live police, fire and EMS audio by county in Texas (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/48",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · San Antonio area",
+    "name": "Recorded dispatch \u00b7 San Antonio area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -3053,13 +3053,13 @@
   "nwsOffice": "SLC",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Utah",
+    "name": "Scanner feeds \u00b7 Utah",
     "agency": "Live police, fire and EMS audio by county in Utah (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/49",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Salt Lake City area",
+    "name": "Recorded dispatch \u00b7 Salt Lake City area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -3111,13 +3111,13 @@
   "nwsOffice": "BTV",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Vermont",
+    "name": "Scanner feeds \u00b7 Vermont",
     "agency": "Live police, fire and EMS audio by county in Vermont (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/50",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Burlington area",
+    "name": "Recorded dispatch \u00b7 Burlington area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -3169,13 +3169,13 @@
   "nwsOffice": "AKQ",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Virginia",
+    "name": "Scanner feeds \u00b7 Virginia",
     "agency": "Live police, fire and EMS audio by county in Virginia (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/51",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Virginia Beach area",
+    "name": "Recorded dispatch \u00b7 Virginia Beach area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -3227,19 +3227,19 @@
   "nwsOffice": "SEW",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Washington",
+    "name": "Scanner feeds \u00b7 Washington",
     "agency": "Live police, fire and EMS audio by county in Washington (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/53",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Seattle area",
+    "name": "Recorded dispatch \u00b7 Seattle area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
    }
   ],
-  "notes": "Seattle preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Seattle feed.",
+  "notes": "Seattle preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news and police crime data. Use the Broadcastify state list to pick a Seattle feed.",
   "traffic": {
    "provider": "none"
   },
@@ -3262,7 +3262,7 @@
    "utilities": []
   },
   "intel": {
-   "crime": null,
+   "crime": "seattle",
    "s311": null,
    "fbiOffice": "seattle",
    "airports": [
@@ -3286,13 +3286,13 @@
   "nwsOffice": "RLX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · West Virginia",
+    "name": "Scanner feeds \u00b7 West Virginia",
     "agency": "Live police, fire and EMS audio by county in West Virginia (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/54",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Charleston area",
+    "name": "Recorded dispatch \u00b7 Charleston area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -3344,13 +3344,13 @@
   "nwsOffice": "MKX",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Wisconsin",
+    "name": "Scanner feeds \u00b7 Wisconsin",
     "agency": "Live police, fire and EMS audio by county in Wisconsin (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/55",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Milwaukee area",
+    "name": "Recorded dispatch \u00b7 Milwaukee area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null
@@ -3402,13 +3402,13 @@
   "nwsOffice": "CYS",
   "radioFeeds": [
    {
-    "name": "Scanner feeds · Wyoming",
+    "name": "Scanner feeds \u00b7 Wyoming",
     "agency": "Live police, fire and EMS audio by county in Wyoming (Broadcastify)",
     "url": "https://www.broadcastify.com/listen/stid/56",
     "coverage": null
    },
    {
-    "name": "Recorded dispatch · Cheyenne area",
+    "name": "Recorded dispatch \u00b7 Cheyenne area",
     "agency": "Trunked-radio call recordings (OpenMHz)",
     "url": "https://openmhz.com/systems",
     "coverage": null

@@ -1,3 +1,5 @@
+import { SOCRATA_CRIME } from '../lib/crimeSources';
+import type { Crime } from '../lib/intel';
 import { useMemo, useState } from 'react';
 import { setShared } from '../data/bus';
 import { useStore } from '../data/store';
@@ -31,7 +33,7 @@ export function CrimeList() {
   if (!crimes.length) return <div className="list"><FeedNote feed={feed} />{feed.status === 'live' && <div className="empty">No offenses reported in the last 7 days.</div>}</div>;
   return (
     <div className="list">
-      <Source>{pack.intel.crime === 'denver' ? 'Denver Police (NIBRS) open data' : 'Atlanta Police open data'} · last 7 days · {crimes.length} offenses · reports lag 1–2 days</Source>
+      <Source>{crimeSourceLabel(pack.intel.crime, crimes)} · {crimes.length} offenses</Source>
       <div className="hist" title="Violent and property crime by hour of day (local)">
         {hist.map((n, h) => (
           <i key={h} style={{ height: `${(n / max) * 100}%` }} title={`${h}:00 · ${n}`} />
@@ -246,4 +248,14 @@ export function AirportStatus() {
       ))}
     </div>
   );
+}
+
+/** Which police feed this is, its window, and how far behind it runs. */
+function crimeSourceLabel(id: string | null, crimes: Crime[]) {
+  if (id === 'denver') return 'Denver Police (NIBRS) open data · last 7 days · reports lag 1–2 days';
+  if (id === 'atlanta') return 'Atlanta Police open data · last 7 days · reports lag 1–2 days';
+  const s = id ? SOCRATA_CRIME[id] : undefined;
+  if (!s) return 'Police open data';
+  const newest = crimes.reduce((m, c) => Math.max(m, c.at), 0);
+  return `${s.label} · 7 days${newest ? ` to ${new Date(newest).toLocaleDateString([], { month: 'short', day: 'numeric' })}` : ''} · ${s.lag}`;
 }

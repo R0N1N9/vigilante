@@ -56,7 +56,7 @@ export interface CityPack {
     | { agency: 'MARTA'; tripUpdatesUrl: string; vehiclesUrl: string; staticUrl: string; infoUrl: string }
     | null;
   /** Keyless city/agency sources: crime and 311 providers, FBI field office, airports to watch. */
-  intel: { crime: 'denver' | 'atlanta' | null; s311: 'denver' | null; fbiOffice: string | null; airports: string[] };
+  intel: { crime: string | null; s311: 'denver' | null; fbiOffice: string | null; airports: string[] };
   /** True for locations the user searched for (vs. the built-in city packs). */
   custom?: boolean;
   /** Outage counts come from DOE ODIN by state; utilities link to their own official outage maps. */

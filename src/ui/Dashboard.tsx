@@ -22,6 +22,8 @@ import { MapView } from '../map/MapView';
 import { AircraftCard } from './AircraftCard';
 import { CameraViewer } from './Cameras';
 import { CRIME_MAP_URL } from '../lib/insights';
+import { crimeRef } from '../lib/stability';
+import { SOCRATA_CRIME } from '../lib/crimeSources';
 import type { LonLat } from '../lib/geo';
 import { Icon, RichText } from './Icon';
 
@@ -320,12 +322,14 @@ function HoodsTile() {
 function CrimeTrendTile() {
   const crimes = useStore((x) => x.crimes);
   const tz = useStore((x) => getPack(x.packId).timezone);
+  const crimeId = useStore((x) => getPack(x.packId).intel.crime);
   const days = useMemo(() => {
+    const ref = crimeRef(crimes, Date.now());
     const fmt = new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short' });
     const out: { label: string; all: number; violent: number }[] = [];
     for (let d = 6; d >= 0; d--) {
-      const start = Date.now() - (d + 1) * 86_400_000;
-      const end = Date.now() - d * 86_400_000;
+      const start = ref - (d + 1) * 86_400_000 + 1;
+      const end = ref - d * 86_400_000 + 1;
       const inDay = crimes.filter((c) => c.at >= start && c.at < end);
       out.push({ label: fmt.format(end - 1), all: inDay.length, violent: inDay.filter((c) => c.severity >= 2).length });
     }
@@ -334,7 +338,7 @@ function CrimeTrendTile() {
   const max = Math.max(1, ...days.map((d) => d.all));
   const cats = useMemo(() => Object.entries(crimes.reduce<Record<string, number>>((m, c) => ((m[c.category] = (m[c.category] ?? 0) + 1), m), {})).sort((a, b) => b[1] - a[1]).slice(0, 5), [crimes]);
   return (
-    <Tile code="08" title="CRIME ACTIVITY · 7D" right="REPORTS LAG 1–2 DAYS" className="a-crime">
+    <Tile code="08" title="CRIME ACTIVITY · 7D" right={(crimeId && SOCRATA_CRIME[crimeId]?.lag ? SOCRATA_CRIME[crimeId].lag.split(';')[0] : 'reports lag 1–2 days').toUpperCase()} className="a-crime">
       <div className="days">
         {days.map((d) => (
           <div key={d.label} className="day">
@@ -534,8 +538,9 @@ function SitrepBar() {
   const color = s ? LEVEL_COLOR[s.level] : 'var(--dim)';
   const now = Date.now();
   const lists = useMemo(() => {
+    const ref = crimeRef(crimes, now);
     const violent: Stop[] = crimes
-      .filter((c) => c.severity >= 2 && now - c.at < 2 * 86_400_000)
+      .filter((c) => c.severity >= 2 && ref - c.at < 2 * 86_400_000)
       .sort((a, b) => b.at - a.at)
       .map((c) => ({ key: c.id, at: c.location, zoom: 15, label: c.offense }));
     const sits: Stop[] = [

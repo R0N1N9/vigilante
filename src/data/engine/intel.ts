@@ -1,3 +1,4 @@
+import { parseNewest, parseSocrataCrime, socrataCrimeUrl, socrataNewestUrl, SOCRATA_CRIME } from '../../lib/crimeSources';
 import { distanceM, NM_TO_M } from '../../lib/geo';
 import { getJsonRetry, getTextRetry } from '../../lib/http';
 import {
@@ -45,8 +46,10 @@ export function startIntel(gen: number) {
     30 * 60_000,
     async (first) => {
       const since = arcgisSince(Date.now() - 7 * DAY);
-      const crimes =
-        pack.intel.crime === 'denver'
+      const soc = pack.intel.crime ? SOCRATA_CRIME[pack.intel.crime] : undefined;
+      const crimes = soc
+        ? parseSocrataCrime(pack.intel.crime!, soc, await getJsonRetry(socrataCrimeUrl(soc, parseNewest(await getJsonRetry(socrataNewestUrl(soc))) || Date.now())))
+        : pack.intel.crime === 'denver'
           ? parseDenverCrime(await getJsonRetry(arcgisQuery(DENVER_CRIME, `REPORTED_DATE >= TIMESTAMP '${since}'`, 'OFFENSE_ID,OFFENSE_TYPE_ID,OFFENSE_CATEGORY_ID,REPORTED_DATE,FIRST_OCCURRENCE_DATE,INCIDENT_ADDRESS,GEO_LON,GEO_LAT,NEIGHBORHOOD_ID', 'REPORTED_DATE DESC')))
           : parseAtlantaCrime(await getJsonRetry(arcgisQuery(ATLANTA_CRIME, `ReportDate >= TIMESTAMP '${since}'`, 'ReportNumber,NIBRS_Offense,Crime_Against,Part,FireArmInvolved,ReportDate,OccurredFromDate,StreetAddress,Longitude,Latitude,NhoodName', 'ReportDate DESC')));
       if (!alive(gen)) return;
@@ -60,7 +63,7 @@ export function startIntel(gen: number) {
       }
       setState({ crimes });
     },
-    pack.intel.crime ? undefined : 'No open crime data for this area yet (Denver and Atlanta supported)',
+    pack.intel.crime ? undefined : 'No open crime data for this city yet (Denver, Atlanta, Chicago, New York, San Francisco, Seattle and Dallas supported)',
   );
 
   // 311 service requests: last 3 days.

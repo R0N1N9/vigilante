@@ -1,3 +1,4 @@
+import { SOCRATA_CRIME } from './crimeSources';
 import { hourHistogram, type Crime } from './intel';
 import type { Severity } from './signals';
 import type { Stability } from './stability';
@@ -21,6 +22,7 @@ export interface Insight {
 export const CRIME_MAP_URL: Record<string, string> = {
   denver: 'https://www.denvergov.org/Government/Agencies-Departments-Offices/Agencies-Departments-Offices-Directory/Police-Department/Crime-Information',
   atlanta: 'https://atlantapd.org/community/crime-statistics/crime-maps',
+  ...Object.fromEntries(Object.entries(SOCRATA_CRIME).map(([k, v]) => [k, v.mapUrl])),
 };
 
 type At = [number, number];

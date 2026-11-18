@@ -60,6 +60,13 @@ export interface Stability {
 const clamp = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
 const DAY = 86_400_000;
 
+/** End of the crime window: the newest report, since some cities publish days or weeks late. */
+export function crimeRef(crimes: { at: number }[], now: number): number {
+  let max = 0;
+  for (const c of crimes) if (c.at > max) max = c.at;
+  return max ? Math.min(now, max) : now;
+}
+
 export function levelFor(score: number): Stability['level'] {
   return score >= 80 ? 'Stable' : score >= 60 ? 'Guarded' : score >= 40 ? 'Elevated' : score >= 20 ? 'High' : 'Severe';
 }
@@ -67,14 +74,15 @@ export function levelFor(score: number): Stability['level'] {
 export function computeStability(i: StabilityInputs): Stability {
   // Crime: recent violent reports compared with this week's own daily average,
   // so a city's normal level isn't penalized, only a spike is.
+  const ref = crimeRef(i.crimes, i.now);
   const violent = i.crimes.filter((c) => c.severity >= 2);
-  const recent = violent.filter((c) => i.now - c.at < 2 * DAY).length;
+  const recent = violent.filter((c) => ref - c.at < 2 * DAY).length;
   const dailyAvg = violent.length / 7;
   const expected48 = Math.max(1, dailyAvg * 2);
   const ratio = recent / expected48;
   // Gunfire is also judged against this week's own rate, so a city's baseline isn't a penalty.
   const gun = i.crimes.filter((c) => c.severity >= 3);
-  const shootings = gun.filter((c) => i.now - c.at < 2 * DAY).length;
+  const shootings = gun.filter((c) => ref - c.at < 2 * DAY).length;
   const gunExpected = Math.max(1, (gun.length / 7) * 2);
   const crimeRisk = clamp(25 * Math.max(0, ratio - 0.5) + 15 * Math.max(0, shootings / gunExpected - 1));
 

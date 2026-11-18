@@ -108,7 +108,8 @@ for (const [id, name, state, st, lat, lon, airports, fbi, zoom] of CITIES) {
     places: [],
     transit: null,
     power: { state, utilities: [] },
-    intel: { crime: null, s311: null, fbiOffice: fbi, airports },
+    // Cities with a checked open-data crime feed (src/lib/crimeSources.ts).
+    intel: { crime: ['chicago', 'new-york', 'san-francisco', 'seattle', 'dallas'].includes(id) ? id : null, s311: null, fbiOffice: fbi, airports },
   });
   process.stdout.write(`${id} ${pt.properties.gridId} ${pt.properties.timeZone} ${elevationFt}ft\n`);
 }
