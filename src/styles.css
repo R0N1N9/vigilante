@@ -1077,7 +1077,7 @@ fieldset.plain:disabled { opacity: .5; }
 .ring-opt span { font: 600 9.5px/1 var(--mono); letter-spacing: .04em; color: var(--text); }
 .ring-opt.hot, .ring-opt:hover { transform: scale(1.18); background: currentColor; }
 .ring-opt.hot span, .ring-opt:hover span, .ring-opt.hot svg, .ring-opt:hover svg { color: #0B0F14; }
-.ring-opt.off { opacity: .35; cursor: not-allowed; }
+.ring-opt.off { opacity: .5; }
 .ring-coords { position: absolute; transform: translateX(-50%); font-size: 11px; color: var(--muted); background: rgba(var(--bg-rgb), .8); padding: 2px 8px; border-radius: 4px; white-space: nowrap; pointer-events: none; }
 
 /* Photos */
@@ -1185,3 +1185,15 @@ fieldset.plain:disabled { opacity: .5; }
 .deploy-alt { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
 .deploy .link { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; text-decoration: underline; font: inherit; }
 @media (max-width: 640px) { .deploy-main { grid-template-columns: 1fr; justify-items: center; } }
+
+/* Right-click menu: the ring's actions as a rectangle at the cursor */
+.map-ring.list { background: transparent; }
+.ring-list { position: absolute; background: rgba(var(--panel-rgb), .97); border: 1px solid rgba(var(--accent-rgb), .35); border-radius: 8px; box-shadow: 0 12px 36px rgba(0,0,0,.5); padding: 6px; animation: ring-in .12s ease-out; }
+.ring-list-head { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--muted); padding: 4px 6px 6px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.ring-list-head button { background: none; border: 0; color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; padding: 0 4px; }
+.ring-list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.ring-item { display: flex; align-items: center; gap: 8px; min-height: 38px; padding: 0 10px; border-radius: 6px; border: 1px solid transparent; background: none; color: var(--text); font-size: 13px; cursor: pointer; text-align: left; }
+.ring-item svg { color: var(--c); flex: none; }
+.ring-item:hover, .ring-item:focus-visible { background: rgba(var(--accent-rgb), .12); border-color: rgba(var(--accent-rgb), .35); outline: none; }
+.ring-item.needs-team { opacity: .6; }
+.ring-list-note { margin: 6px 6px 2px; font-size: 11px; color: var(--muted); }

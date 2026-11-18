@@ -23,6 +23,8 @@ export interface RingAt {
   at: [number, number];
   /** 'hold': follows the pointer until release; 'open': waits for a click. */
   mode: 'hold' | 'open';
+  /** 'ring' (press and hold) or 'list' (right-click: a rectangular menu at the cursor). */
+  shape?: 'ring' | 'list';
 }
 
 interface Opt {
@@ -52,13 +54,16 @@ const B = 26; // half a button
 let setRingExternal: ((r: RingAt | null) => void) | null = null;
 let currentRing: RingAt | null = null;
 /** Moves during a hold report the pointer position (container pixels) so the ring can highlight. */
-let onMove: ((x: number, y: number) => void) | null = null;
+let onMove: ((x: number, y: number, buttons?: number) => void) | null = null;
 let onRelease: ((x: number, y: number) => void) | null = null;
+/** Called whenever the ring closes or stops following the pointer (MapView re-enables map dragging). */
+let onSettle: (() => void) | null = null;
+export const setRingSettle = (f: (() => void) | null) => void (onSettle = f);
 
 export const ringOpen = () => !!currentRing;
 export const openRing = (r: RingAt) => setRingExternal?.(r);
 export const closeRing = () => setRingExternal?.(null);
-export const ringMove = (x: number, y: number) => onMove?.(x, y);
+export const ringMove = (x: number, y: number, buttons?: number) => onMove?.(x, y, buttons);
 export const ringRelease = (x: number, y: number) => onRelease?.(x, y);
 
 function hasTeam() {
@@ -68,6 +73,8 @@ function hasTeam() {
 export function runRingOption(id: string, at: [number, number], showInfo: (at: [number, number]) => void) {
   const [lon, lat] = at;
   const s = getState();
+  // Team actions need a team channel: open Deploy, which creates one in a tap, instead of doing nothing.
+  if (OPTS.find((o) => o.id === id)?.team && !hasTeam()) return setState({ modal: 'deploy' });
   switch (id) {
     case 'ping': {
       const ch = s.channels.find((c) => c.kind === 'ntfy' && c.enabled && c.posKey);
@@ -109,6 +116,7 @@ export function MapRing({ size, showInfo }: { size: { w: number; h: number }; sh
   const hotRef = useRef(-1);
   useEffect(() => {
     setRingExternal = (r) => {
+      if (!r || r.mode !== 'hold') onSettle?.();
       currentRing = r;
       setRing(r);
       setHot(-1);
@@ -131,7 +139,7 @@ export function MapRing({ size, showInfo }: { size: { w: number; h: number }; sh
   };
   const pick = (i: number) => {
     const o = opts[i];
-    if (!o || !ring || (o.team && !team)) return;
+    if (!o || !ring) return;
     const at = ring.at;
     setRingExternal?.(null);
     navigator.vibrate?.(15);
@@ -153,8 +161,9 @@ export function MapRing({ size, showInfo }: { size: { w: number; h: number }; sh
     });
     return bd < B + 30 ? best : -1;
   };
-  onMove = (x, y) => {
+  onMove = (x, y, buttons?: number) => {
     if (!ring) return;
+    if (ring.mode === 'hold' && buttons === 0) return onRelease?.(x, y);
     const h = hitTest(x, y);
     if (h !== hotRef.current) {
       hotRef.current = h;
@@ -177,6 +186,43 @@ export function MapRing({ size, showInfo }: { size: { w: number; h: number }; sh
   }, [ring]);
 
   if (!ring) return null;
+  if (ring.shape === 'list') {
+    const W = 236;
+    const H = 44 + Math.ceil(opts.length / 2) * 42;
+    const left = Math.max(6, Math.min(ring.x, size.w - W - 6));
+    const top = ring.y + H + 6 > size.h ? Math.max(6, ring.y - H) : ring.y;
+    return (
+      <div
+        className="map-ring open list"
+        onPointerDown={(e) => {
+          if (e.target === e.currentTarget) setRingExternal?.(null);
+        }}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          if (e.target === e.currentTarget) setRingExternal?.(null);
+        }}
+      >
+        <i className="ring-spot" style={{ left: ring.x, top: ring.y }} />
+        <div className="ring-list" style={{ left, top, width: W }} role="menu" aria-label="Map actions">
+          <div className="ring-list-head mono">
+            {ring.at[1].toFixed(5)}, {ring.at[0].toFixed(5)}
+            <button onClick={() => setRingExternal?.(null)} aria-label="Close">
+              ×
+            </button>
+          </div>
+          <div className="ring-list-grid">
+            {opts.map((o, i) => (
+              <button key={o.id} role="menuitem" className={`ring-item ${o.team && !team ? 'needs-team' : ''}`} style={{ ['--c' as string]: o.color }} onClick={() => pick(i)}>
+                <Icon name={o.icon} size={15} />
+                <span>{o.label}</span>
+              </button>
+            ))}
+          </div>
+          {!team && <p className="ring-list-note">Team actions open Deploy to set up a team first.</p>}
+        </div>
+      </div>
+    );
+  }
   return (
     <div
       className={`map-ring ${ring.mode}`}
@@ -198,8 +244,7 @@ export function MapRing({ size, showInfo }: { size: { w: number; h: number }; sh
             key={o.id}
             className={`ring-opt ${hot === i ? 'hot' : ''} ${off ? 'off' : ''}`}
             style={{ left: p.x - B, top: p.y - B, color: o.color }}
-            disabled={off}
-            title={off ? `${o.label}: set up a team channel first` : o.label}
+            aria-label={off ? `${o.label} (sets up a team first)` : o.label}
             onClick={() => pick(i)}
             onPointerEnter={() => setHot(i)}
             onPointerLeave={() => setHot(-1)}
@@ -211,7 +256,7 @@ export function MapRing({ size, showInfo }: { size: { w: number; h: number }; sh
       })}
       <div className="ring-coords mono" style={{ left: cx, top: Math.min(cy + R + B + 14, size.h - 22) }}>
         {ring.at[1].toFixed(5)}, {ring.at[0].toFixed(5)}
-        {ring.mode === 'hold' ? ' · slide to an option and let go' : ''}
+        {ring.mode === 'hold' ? ' · slide to an option and let go' : !team ? ' · team actions set up a team first' : ''}
       </div>
     </div>
   );
