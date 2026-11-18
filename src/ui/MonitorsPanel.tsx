@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { setShared } from '../data/bus';
 import { getState, setState, useStore } from '../data/store';
+import { isWeb } from '../lib/http';
 import { getPack } from '../lib/packs';
 import { KIND_LABEL, METRIC_LABEL, newMonitor, TEMPLATES, type Metric, type Monitor, type MonitorHit, type MonitorKind } from '../lib/monitors';
 import { SOURCE_LABEL, type Severity, type SignalSource } from '../lib/signals';
@@ -166,10 +167,10 @@ function Editor({ m }: { m: Monitor }) {
               ['desktop', 'Desktop'],
               ['sound', 'Sound'],
               ['phone', pushReady ? 'Phone (ntfy)' : 'Phone (set up in Settings)'],
-              ['webhook', hookReady ? 'Team webhook' : 'Webhook (set up in Settings)'],
+              ['webhook', isWeb() ? 'Webhook (desktop app)' : hookReady ? 'Team webhook' : 'Webhook (set up in Settings)'],
             ] as const
           ).map(([k, label]) => (
-            <button key={k} className={`chip ${m.actions[k] ? 'on' : ''}`} onClick={() => u({ actions: { ...m.actions, [k]: !m.actions[k] } })}>
+            <button key={k} className={`chip ${m.actions[k] ? 'on' : ''}`} disabled={k === 'webhook' && isWeb()} title={k === 'webhook' && isWeb() ? 'Team webhooks need the desktop app' : undefined} onClick={() => u({ actions: { ...m.actions, [k]: !m.actions[k] } })}>
               {label}
             </button>
           ))}

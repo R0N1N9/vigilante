@@ -1,4 +1,5 @@
-import { Component, useEffect, type ReactNode } from 'react';
+import { Component, useEffect, useState, type ReactNode } from 'react';
+import { isTauri } from '../lib/http';
 import { applyAppearance } from '../lib/theme';
 import { setState, useStore, type RailTab } from '../data/store';
 import { MapView } from '../map/MapView';
@@ -19,6 +20,26 @@ import type { View } from './popout';
 import { InfraTab } from './InfraTab';
 import { TeamTab } from './TeamTab';
 import { TeamView } from './Agents';
+import { DESKTOP_APP, GITHUB_URL, MOBILE_APP } from '../lib/links';
+
+/** Embed mode: one slim strip pointing at the full app. */
+function EmbedFooter() {
+  return (
+    <footer className="embed-foot mono">
+      <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" title={DESKTOP_APP.label}>
+        VIGILANCE
+      </a>
+      <span className="muted hide-xs">open-source situational awareness</span>
+      <span className="spacer" />
+      <a href={MOBILE_APP.url} target="_blank" rel="noopener noreferrer" className="hide-xs">
+        {MOBILE_APP.label}
+      </a>
+      <button className="linkish" onClick={() => setState({ modal: 'about' })}>
+        Get the app
+      </button>
+    </footer>
+  );
+}
 
 function MapStage() {
   return (
@@ -132,14 +153,23 @@ function Solo({ title, children }: { title: string; children: React.ReactNode })
   );
 }
 
-export function App({ view }: { view: View }) {
+export function App({ view, embed = false }: { view: View; embed?: boolean }) {
   const mainView = useStore((s) => s.mainView);
   const appearance = useStore((s) => s.settings.appearance);
-  useEffect(() => applyAppearance(appearance), [appearance]);
+  useEffect(() => {
+    applyAppearance(appearance);
+  }, [appearance]);
   return (
-    <div className={`app view-${view}`}>
-      <CommandBar view={view} />
-      {view === 'console' && (
+    <div className={`app view-${view}${embed ? ' is-embed' : ''}`}>
+      {view === 'console' && !embed && <PhoneHint />}
+      <CommandBar view={view} embed={embed} />
+      {view === 'console' && embed && (
+        <>
+          <main className="console">{mainView === 'dashboard' ? <Dashboard /> : <MapStage />}</main>
+          <EmbedFooter />
+        </>
+      )}
+      {view === 'console' && !embed && (
         <>
           <main className="console">
             {mainView === 'dashboard' ? <Dashboard /> : mainView === 'team' ? <TeamView map={<MapStage />} /> : <MapStage />}
@@ -176,6 +206,38 @@ export function App({ view }: { view: View }) {
       {view === 'areas' && <Solo title="WATCH AREAS"><AreasTab /></Solo>}
       {view === 'team' && <Solo title="TEAM"><TeamTab /></Solo>}
       <Modals />
+    </div>
+  );
+}
+
+/** On a phone, point people to the phone page (team chat, location, push-to-talk) instead of the console. */
+function PhoneHint() {
+  const [show, setShow] = useState(() => {
+    try {
+      return !isTauri() && window.top === window && matchMedia('(max-width: 700px) and (pointer: coarse)').matches && sessionStorage.getItem('vg.phoneHint') !== 'off';
+    } catch {
+      return false;
+    }
+  });
+  if (!show) return null;
+  const href = `${location.pathname}?view=field${location.hash}`;
+  return (
+    <div className="phone-hint" role="note">
+      <span>On a phone? The phone page is made for it: team chat, location, marks and push-to-talk.</span>
+      <a href={href}>Open phone page</a>
+      <button
+        aria-label="Dismiss"
+        onClick={() => {
+          try {
+            sessionStorage.setItem('vg.phoneHint', 'off');
+          } catch {
+            /* private mode */
+          }
+          setShow(false);
+        }}
+      >
+        ×
+      </button>
     </div>
   );
 }

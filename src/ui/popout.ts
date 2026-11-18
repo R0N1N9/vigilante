@@ -38,7 +38,10 @@ export async function popOut(view: Exclude<View, 'console'>) {
       backgroundColor: '#0B0F14',
       backgroundThrottling: noThrottle, // keep live views updating while another window has focus
     });
-  } else window.open(`/?view=${view}`, label, `popup,width=${spec.w},height=${spec.h}`);
+  } else {
+    // Browser: a new tab of the same app (works under any base path, e.g. GitHub Pages); tabs sync over BroadcastChannel.
+    window.open(`${import.meta.env.BASE_URL}?view=${view}`, label);
+  }
 }
 
 export type TvMode = 'latest' | 'live';

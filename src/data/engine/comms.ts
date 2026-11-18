@@ -4,7 +4,7 @@ import { meshText, ntfyPublishBody, ntfyStreamUrl, ntfyToMessage, parseSpot, typ
 import { decodeFromRadio, decodePosition, decodeUser, encodeHeartbeat, encodeText, encodeWantConfig, nodeIdOf, PORT, type MeshUser } from '../../lib/meshproto';
 import { isTauri } from '../../lib/http';
 import { openPosition, posTopic } from '../../lib/poscrypt';
-import { deviceOf, openOps, opsTopic, reached, sealOps, toWire, type OpsMessage, type Waypoint } from '../../lib/waypoints';
+import { deviceOf, markFromWire, markToWire, MARK_CATEGORIES, openOps, opsTopic, reached, sealOps, toWire, type Mark, type OpsMessage, type Waypoint } from '../../lib/waypoints';
 import { fieldCodeOf, FIELD_CODES } from '../../lib/comms';
 import type { MonitorHit } from '../../lib/monitors';
 import type { LonLat } from '../../lib/geo';
@@ -14,6 +14,7 @@ import { alertTone } from '../sound';
 import { getState, subscribe, type State } from '../store';
 import { log, onSignal } from './core';
 import { desktopNotify } from './notify';
+import { connectVoice, dropVoice } from './voice';
 
 const CHAT_MAX = 600;
 const TEAM_TTL_MS = 6 * 3600_000;
@@ -124,6 +125,26 @@ function applyOps(ch: NtfyChannel, m: OpsMessage) {
     if (prev && prev.at > m.t && prev.state === m.state) return;
     const w: Waypoint = { id: m.id, channelId: ch.id, name: m.name, note: m.note ?? '', location: [m.lon, m.lat], to: m.to, priority: m.pri, state: m.state, by: m.by, at: m.t, acks: prev?.acks ?? {} };
     setShared({ waypoints: [w, ...wps.filter((x) => x.id !== m.id)] });
+  } else if (m.type === 'mark') {
+    const marks = getState().marks;
+    const prev = marks.find((x) => x.id === m.id);
+    if (prev && prev.at >= m.t) return;
+    const mk = markFromWire(m, ch.id);
+    setShared({ marks: [mk, ...marks.filter((x) => x.id !== m.id)].slice(0, 500) });
+    // A teammate's fresh ping deserves attention; our own (echoed back) doesn't.
+    const mine = m.byId === getState().settings.team.installId;
+    if (!prev && !mine && m.kind === 'ping' && Date.now() - m.t < 5 * 60_000) {
+      alertTone(2);
+      void desktopNotify(`Ping from ${m.by}`, m.desc || m.name);
+      log(`TEAM   Ping from ${m.by}: ${m.desc || m.name}`, 1);
+    } else if (!prev && !mine && m.kind === 'investigate' && Date.now() - m.t < 5 * 60_000) {
+      void desktopNotify(`${m.by}: investigate`, m.desc || m.name);
+      log(`TEAM   ${m.by} flagged a place to investigate: "${m.name}"`, 1);
+    } else if (!prev && !mine && Date.now() - m.t < 5 * 60_000) log(`TEAM   ${m.by} marked ${MARK_CATEGORIES[m.cat] ?? ''} "${m.name}"`, 0);
+    else if (prev && !mine && m.kind === 'investigate' && prev.state !== m.state) {
+      if (m.state === 'progress') log(`TEAM   ${m.by} is checking "${m.name}"`, 0);
+      if (m.state === 'done') log(`TEAM   ${m.by} resolved "${m.name}"${m.res ? `: ${m.res}` : ''}`, 0);
+    }
   } else {
     const w = wps.find((x) => x.id === m.wp);
     if (!w || (w.acks[m.id] && w.acks[m.id].at >= m.t)) return;
@@ -174,6 +195,15 @@ export async function sendWaypoint(w: Waypoint, notify = true) {
     const verb = w.state === 'active' ? (w.priority === 'urgent' ? 'URGENT waypoint' : 'Waypoint') : w.state === 'done' ? 'Waypoint completed' : 'Waypoint cancelled';
     postToChannel(ch.id, `📍 ${verb}: ${w.name} → ${who}. Open it in Vigil or the check-in page for directions.`);
   }
+}
+
+/** Place, edit or clear a mark (shared with everyone on the channel). */
+export async function sendMark(m: Mark) {
+  const s = getState();
+  const ch = s.channels.find((c): c is NtfyChannel => c.id === m.channelId && c.kind === 'ntfy');
+  if (!ch?.posKey) throw new Error('This channel has no encryption key; create a new channel or re-join from a fresh invite.');
+  setShared({ marks: [m, ...s.marks.filter((x) => x.id !== m.id)] });
+  await publishOps(ch, markToWire(m));
 }
 
 /** Live phone positions: a sibling topic carrying encrypted reports. */
@@ -410,9 +440,11 @@ function reconcile(s: State) {
       connectNtfy(ch);
       connectPositions(ch);
       connectOps(ch);
+      connectVoice(ch);
       live.add(ch.id);
     }
   }
+  dropVoice(live);
   for (const map of [streams, posStreams, opsStreams])
     for (const [id, st] of map) {
       if (!live.has(id)) {

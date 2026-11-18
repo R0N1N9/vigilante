@@ -127,6 +127,63 @@ The console sends **waypoints** (rally points, posts, places to check) to agents
 
 Send `enroute` when the user opens directions, and offer Acknowledged, Arrived and Can't make it buttons. A user in stealth (dark) mode still receives waypoints but sends no automatic replies.
 
+### Marks (anyone → everyone, same `-ops` topic and `VGO1.` sealing)
+
+Marks are shared map annotations. **Anyone on the team** can place, edit or clear one: the console, the web phone page or Vigil. A newer `t` with the same `id` replaces the older version.
+```json
+{"v":1,"type":"mark","id":"m7q2xk","kind":"area","cat":"hazard","name":"Downed power line",
+ "desc":"Line across the alley behind the gym. Keep clear.","lat":39.748,"lon":-104.995,"r":150,
+ "state":"active","by":"Unit 7","byId":"vigil-3f9a2c","t":1763400000000}
+```
+- `kind`:
+  - `ping`: a quick "look here". It pulses on maps and disappears after `ttl` seconds (default **900**).
+  - `marker`: a point of interest.
+  - `area`: a circle of radius `r` meters, 10–20,000.
+  - `objective`: a goal with a status.
+  - `investigate`: a "?" on a place someone should go and look at. States read as `active` = Open, `progress` = Checking (by `by`) and `done` = Resolved. Put the findings in `res` (up to 500 characters) when resolving.
+- `cat`: `general`, `hazard`, `entry`, `rally`, `observation`, `vehicle`, `activity`, `medical`, `staging`. Unknown values are shown as `general`.
+- `state`: `active`, `progress` (objectives and investigate), `done`, or `cleared`, which removes the mark everywhere.
+- `name` up to 60 characters, `desc` up to 500. `by` is the callsign. `byId` is the device id, or the console's install id.
+- Prompt people to **describe things and activity, not who someone is**. Marks aren't for identifying or tracking individuals.
+
+**Vigil suggestions:**
+- Show marks on the map in their category color, with distance and **Go** (directions).
+- Make a teammate's new ping vibrate briefly.
+- Offer **Ping my location** as one tap.
+- Offer **Mark this spot** with kind, category, name and description.
+- Let anyone clear a mark.
+
+## 4b. Push-to-talk voice (topic `t` + `-voice`)
+
+Walkie-talkie style: **hold to talk, release to send**. Each transmission is one clip, posted as an ntfy **attachment**. Clips end to end usually take about 1 second after release. The server only ever sees ciphertext.
+
+**Audio:** 8 kHz, mono, G.711 **µ-law**, one byte per sample (about 8 KB/s), at most 30 s. There's no codec library or container, just raw µ-law bytes, so browsers, the desktop app and Android all decode it the same way. On Android, `AudioRecord` at 8000 Hz PCM16 with a standard µ-law encoder produces the same bytes. Play with `AudioTrack`, after decoding µ-law to PCM16.
+
+**Send:** `PUT https://<server>/<t>-voice`
+- **Body:** `iv(12) ‖ AES-256-GCM(µ-law bytes)`, including the tag, using the channel key `p`. These are raw bytes, not base64.
+- **Headers:**
+  - `Filename: ptt.vgv`
+  - `X-Message: VGV1.<sealed metadata>`, sealed exactly like `VGP1`/`VGO1`
+  - `X-Tags: vigilance-voice`
+  - `Authorization: Bearer <a>` if the invite has a token
+- **Sealed metadata:**
+```json
+{"v":1,"id":"k3j9x0a1","n":"Unit 7","byId":"vigil-3f9a2c","t":1763400000000,"ms":2400,"sr":8000,"c":"mulaw"}
+```
+
+**Receive:** subscribe to `<t>-voice`, for example `/sse?since=1h`.
+- Each message event has `message` (the sealed metadata) and `attachment.url`.
+- Download the URL, decrypt it, decode it and play it.
+- Auto-play only clips with `t` in the last ~90 s, and skip your own (`byId`). List older ones for replay.
+- Play clips one after another, never overlapping.
+- The apps play a short rising chirp before a clip and a falling "roger beep" after it.
+
+**Limits:**
+- The ntfy server must allow attachments. ntfy.sh does: 15 MB per file, and files are deleted after about 3 hours.
+- ntfy.sh also caps attachment storage per visitor, roughly 100 MB a day. That's plenty for push-to-talk: 30 s is 240 KB.
+- A self-hosted server needs `attachment-cache-dir` set.
+- Voice isn't sent over Meshtastic: LoRa carries about 200 bytes per packet, which is far too little for audio.
+
 ## 5. Kotlin reference (Android API 26+)
 
 ```kotlin

@@ -41,6 +41,12 @@ export function DronesTab() {
 
   return (
     <div className="list">
+      {!desktop && (
+        <div className="callout">
+          <b>Drone scanning needs the desktop app</b>
+          <p>Remote ID is a short-range Bluetooth or Wi-Fi broadcast, and web browsers can't listen for it. Install the desktop app (Get the app, top bar) to see drones near you.</p>
+        </div>
+      )}
       <div className="callout">
         <b>Drone Remote ID</b>
         <p>

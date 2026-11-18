@@ -82,6 +82,21 @@ Built for people who keep watch over a place: physical security and asset protec
 
   Phone browsers pause location when the page is in the background, so the page keeps the screen awake while sharing. For all-day background tracking, use a Meshtastic radio (or, later, the Android app).
 - **Waypoints for agents:** right-click the map → **Place waypoint for agents**, or use **Place waypoint** in the Team view. Name it, add a note, mark it routine or urgent, and send it to everyone or to chosen agents. It's encrypted with the channel key on its own ops topic. Agents get a prompt in Vigil, or a card on the phone check-in page, with **Directions** that opens their maps app. They reply **Acknowledged / En route / Arrived / Can't make it**, and the console also marks someone arrived when their GPS is within 40 m. The map shows the waypoint and dashed lines from assigned agents. Click it for each agent's status, then **Mark complete**, **Cancel** or **Resend**. The wire format is in [`docs/TEAM_PROTOCOL.md`](docs/TEAM_PROTOCOL.md) §4.
+- **Push-to-talk voice:**
+  - The console, Vigil and the phone page can talk to each other like walkie-talkies.
+  - On the console, hold **PTT** in the top bar, the big button in the Team view, or the **V** key. On the phone page, hold **Hold to talk**. Release to send.
+  - Everyone on the channel hears it about a second later, with a radio chirp. Recent clips can be replayed.
+  - Audio is 8 kHz µ-law, encrypted with the channel key, and sent as an ntfy attachment on its own topic (`docs/TEAM_PROTOCOL.md` §4b).
+  - The microphone is used only while you hold the button, and closes 30 s after your last transmission.
+  - It works through any ntfy server that allows attachments, such as ntfy.sh. It doesn't work over Meshtastic, which has too little bandwidth for audio.
+- **Pings and marks:** right-click the map for **Ping here**, **Add marker**, **Investigate (?)**, **Area of interest** or **Objective**, or use **Add mark** in the Team view.
+  - Every mark has a category (hazard, entry point, rally point, observation, vehicle, activity, medical, staging, general), a name and a description of what's being marked.
+  - Areas have a radius. Objectives move through Active → In progress → Done.
+  - **Investigate** puts a "?" on a place someone should go and look at. Whoever goes taps **I'll check it**, so the team sees who's on it. They then **Resolve** it with what they found, and it can be reopened.
+  - Pings pulse on the map and expire after 15 minutes.
+  - Agents can place marks too: Vigil, or the phone page's **Ping my location** and **Mark this spot…**. Everyone sees every mark, with **Directions** to it.
+  - Anyone can clear a mark, and a marker can be turned into a waypoint with **Send agents here**.
+  - Descriptions should cover things and activity, not who someone is.
 - **Share to team:** ⇪ buttons on alerts, developing incidents, monitor hits and the aircraft card, plus **right-click the map → Share this spot**. Messages with a spot get a "Show on map" button; spots from teammates also appear as team positions.
 - **Auto-post:** each channel can also post new reports at or above a chosen level, so the whole team sees serious alerts.
 
@@ -130,7 +145,80 @@ Installers land in `src-tauri/target/release/bundle/` (`.msi`/`.exe` on Windows,
 npm run dev
 ```
 
-Then open http://localhost:5173. Pop-outs open as browser popups.
+Then open http://localhost:5173. Pop-outs open as new browser tabs. For the hosted web build, see [Web app and embedding](#web-app-and-embedding).
+
+## Web app and embedding
+
+The same app also builds for the web, so it can run in a browser tab or be dropped into any website the way a live map widget is. It's the same `src/` code with its own Vite target in [`web/`](web/).
+
+```bash
+npm run dev:web       # http://localhost:5180 (uses the local /proxy)
+npm run build:web     # -> dist-web/: index.html, embed.html, embed.js, _headers
+npm run preview:web   # serve dist-web/ with the production security headers
+```
+
+### What's different on the web
+
+| | Desktop app | Web app |
+|---|---|---|
+| Data sources | Rust core | The CORS proxy Worker in [`web/proxy/`](web/proxy/) (same host allowlist, GET only) |
+| Settings, watch areas, saved places | Settings files | This browser's local storage |
+| Phone alerts (ntfy) | Rust core | Straight from the browser (ntfy allows CORS) |
+| Monitors and alert inbox | Settings files | This browser's local storage |
+| Desktop notifications | OS notifications (Tauri plugin) | Browser notifications, after the visitor allows them |
+| Team webhooks (Slack, Teams, Discord, JSON) | Rust core | Desktop only. Slack and Teams refuse posts from web pages, and the proxy stays GET-only rather than relaying to arbitrary URLs. |
+| AI briefing, AIS ships | Optional key, kept in the core | Only with the visitor's own key, which stays in their browser; hidden otherwise |
+| Drone Remote ID (Bluetooth/Wi-Fi) | Yes | No: browsers can't listen for it. The Drones tab says so. |
+| Pop-outs | OS windows on any monitor | New browser tabs, kept in sync over BroadcastChannel |
+
+AI briefings from the browser use Anthropic's `anthropic-dangerous-direct-browser-access` header with the visitor's own key and the same request as the desktop app. AISstream may refuse browser connections; the desktop app always works for ships.
+
+### Deploy
+
+1. **Proxy:** deploy the Cloudflare Worker: `cd web/proxy && npx wrangler deploy`. Details, origin locking and rate limits: [`web/proxy/README.md`](web/proxy/README.md).
+2. **Site:** in GitHub, Settings → Pages → Source: *GitHub Actions*, and add an Actions variable `VITE_PROXY_URL` with the Worker URL. The [`Vigilance web app (GitHub Pages)`](.github/workflows/web.yml) workflow builds with the right base path (`/<repo>/`) and publishes on every push to `main`, or run it by hand.
+3. Any static host works too: build with `VITE_BASE=/ VITE_PROXY_URL=https://... npm run build:web` and upload `dist-web/`. Cloudflare Pages and Netlify also apply `dist-web/_headers`.
+
+No API keys are built into the bundle or stored in the repo.
+
+### Embed it on a website
+
+Paste one tag where the console should appear. It inserts a responsive, sandboxed `<iframe>`:
+
+```html
+<script src="https://r0n1n9.github.io/vigilante/embed.js" data-city="denver" data-view="dashboard" async></script>
+```
+
+| Attribute | Values | Default |
+|---|---|---|
+| `data-view` | `dashboard`, `map` | `dashboard` |
+| `data-city` | `denver`, `atlanta`, or `lat,lon` (e.g. `39.7392,-104.9903`) | the visitor's last choice, else Denver |
+| `data-theme` | `tactical`, `greenred`, `nightvision`, `amber`, `redlight`, `steel` | `tactical` |
+| `data-height` | a CSS height: `640`, `640px`, `70vh` | `620px` |
+| `data-target` | a CSS selector to fill instead of inserting after the tag | |
+
+More examples:
+
+```html
+<!-- Map of Atlanta in amber -->
+<script src="https://r0n1n9.github.io/vigilante/embed.js" data-city="atlanta" data-view="map" data-theme="amber" data-height="70vh" async></script>
+
+<!-- Any US location -->
+<script src="https://r0n1n9.github.io/vigilante/embed.js" data-city="40.0150,-105.2705" data-view="map" async></script>
+
+<!-- Plain iframe, no script -->
+<iframe src="https://r0n1n9.github.io/vigilante/embed.html?view=dashboard&city=denver&theme=nightvision"
+        title="Vigilance" style="width:100%;height:620px;border:0" loading="lazy"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+```
+
+`embed.html` (or `?embed=1` on the main page) is the compact mode: slim top bar, no pop-outs, settings or window controls, and a footer strip linking to the full app. Replace `r0n1n9.github.io/vigilante` with your own deployment. The **Get the app** button (phone icon in the top bar) shows the embed snippet for the site you're on.
+
+**Headers.** The app sends a Content-Security-Policy with `frame-ancestors *` so any site can embed it ([`web/headers.ts`](web/headers.ts); written to `_headers` for Cloudflare Pages and Netlify, and sent by `preview:web`). GitHub Pages can't set headers, but it sends no `X-Frame-Options`, so embedding works there too, and the rest of the policy ships as a `<meta>` tag. The embed sets no cookies, has no logins and tracks no one.
+
+### Get the app
+
+The **Get the app** dialog (phone icon in the top bar, or the embed footer) links the full project on GitHub and the Android app, with QR codes drawn in the browser (the pinned `qrcode` package, no external QR service). The Android link lives in one constant, `MOBILE_APP` in [`src/lib/links.ts`](src/lib/links.ts); point it at the Play Store listing when that's live.
 
 ## Using it
 
@@ -177,6 +265,8 @@ src/data/        Store, cross-window sync bus, alert tones
 src/data/engine/ Polling engine (main window only), one module per source, plus signal history and push
 src/map/         MapLibre map, icons, basemap styles
 src/ui/          Command bar, panels, cards, pop-out helper
+web/             Web build: Vite config, index/embed pages, embed.js loader, security headers
+web/proxy/       Cloudflare Worker CORS proxy for the web build (same host allowlist)
 src-tauri/       Rust core: allow-listed HTTP fetch, ntfy push, settings files, Bluetooth Remote ID scanner,
                  window-state memory, app lifecycle
 tests/           Vitest unit tests
@@ -236,7 +326,7 @@ so teammates don't need the Vigil Android app:
 
 - **Create a team** (team name + callsign) or **join** one by opening an invite link or QR code, or pasting it.
 - **Invite people** from the phone: QR code, the phone's share sheet, or copy the link.
-- Chat, SOS / backup / on-scene / all-clear, waypoints, and opt-in encrypted live location sharing.
+- Chat, SOS / backup / on-scene / all-clear, waypoints, pings and marks, and opt-in encrypted live location sharing.
 - **Add to Home Screen** (Safari → Share on iPhone; browser menu on Android) to keep it like an app.
 
 Teams made on the phone page, in Vigil or in Vigilance are the same kind of channel, so everyone can mix.

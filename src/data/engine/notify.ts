@@ -1,4 +1,3 @@
-import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/plugin-notification';
 import type { LonLat } from '../../lib/geo';
 import { isTauri, webhookSend } from '../../lib/http';
 import { areasContaining } from '../../lib/areas';
@@ -14,6 +13,8 @@ let permission: boolean | null = null;
 export async function desktopNotify(title: string, body: string): Promise<boolean> {
   try {
     if (isTauri()) {
+      // Loaded only in the desktop app, so the web bundle never pulls in the plugin.
+      const { isPermissionGranted, requestPermission, sendNotification } = await import('@tauri-apps/plugin-notification');
       permission ??= (await isPermissionGranted()) || (await requestPermission()) === 'granted';
       if (permission) sendNotification({ title, body });
       return permission;
@@ -36,7 +37,7 @@ export function quietNow(severity: Severity): boolean {
 
 export async function sendWebhook(title: string, message: string, severity: Severity, link?: string) {
   const n = getState().settings.notify;
-  if (!n.webhookUrl) return;
+  if (!n.webhookUrl || !isTauri()) return; // desktop only (see webhookSend)
   try {
     await webhookSend({ url: n.webhookUrl, format: n.webhookFormat, title, message, severity, link });
     log(`HOOK   Sent to ${n.webhookFormat}: ${title}`, 0);
@@ -63,5 +64,5 @@ export function notifyGeneral(item: { title: string; message: string; severity: 
 export async function sendTestNotifications() {
   const ok = await desktopNotify('Vigilance test', 'Desktop notifications are working.');
   log(ok ? 'NOTIFY Desktop test sent' : 'NOTIFY Desktop notifications are blocked. Allow them in your system settings.', ok ? 0 : 2);
-  if (getState().settings.notify.webhookUrl) await sendWebhook('Vigilance test', 'Webhook alerts are working.', 1);
+  if (getState().settings.notify.webhookUrl && isTauri()) await sendWebhook('Vigilance test', 'Webhook alerts are working.', 1);
 }

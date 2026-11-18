@@ -945,3 +945,122 @@ button.link { background: none; border: 0; padding: 0; color: var(--accent); cur
 .wp-acks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .wp-acks .q { padding: 10px 6px; font: 600 13px var(--sans); border-radius: 8px; border: 1px solid var(--line-2); background: var(--panel); color: var(--text); }
 .wp-acks .q.on { border-color: var(--accent); color: var(--accent); background: rgba(var(--accent-rgb), .1); }
+
+/* Marks */
+.mark-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; vertical-align: middle; box-shadow: 0 0 0 1.5px rgba(11,15,20,.9); }
+.mark-modal h2 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mark-kinds { display: flex; width: 100%; }
+.mark-kinds button { flex: 1; }
+.mark-desc { white-space: pre-wrap; margin: 0 0 6px; font-size: 13.5px; line-height: 1.5; }
+.chips .chip .mark-dot { width: 8px; height: 8px; margin-right: 3px; }
+.mark-row { grid-template-columns: 14px auto 1fr; }
+/* Phone page */
+.marks-card .marks-head { display: flex; align-items: center; gap: 10px; }
+.marks-card .marks-head h3 { margin: 0; }
+.marks-card .ping-btn { margin-left: auto; padding: 9px 12px; font-size: 14px; }
+.mark-form { display: flex; flex-direction: column; gap: 8px; }
+.mark-form textarea { font-size: 16px; padding: 10px; border-radius: 6px; border: 1px solid var(--line-2); background: var(--bg); color: var(--text); resize: vertical; }
+.mark-item { display: grid; grid-template-columns: 12px 1fr auto; gap: 10px; align-items: start; padding: 8px 0; border-top: 1px solid var(--line); }
+.mark-item .mark-dot { margin-top: 5px; }
+.mark-item b { font-size: 14px; }
+.mark-item small { display: block; font: 11px var(--mono); color: var(--dim); margin-top: 2px; }
+.mark-item p { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+.mark-actions { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+.mark-actions a, .mark-actions button { font-size: 13px; color: var(--accent); background: none; border: 1px solid rgba(var(--accent-rgb), .4); border-radius: 6px; padding: 5px 10px; text-decoration: none; }
+.mark-actions button { color: var(--muted); border-color: var(--line-2); }
+
+/* Investigate marks: a "?" in the dot */
+.mark-dot.q { width: 14px; height: 14px; position: relative; }
+.mark-dot.q::after { content: '?'; position: absolute; inset: 0; display: grid; place-items: center; font: 700 10px/1 var(--mono); color: #0B0F14; }
+.mark-item .mark-dot.q { margin-top: 3px; }
+.mark-found { font-size: 13px; margin: 0 0 6px; padding: 6px 8px; border-left: 2px solid #A78BFA; background: rgba(167,139,250,.08); border-radius: 4px; }
+.mark-actions button.hi { color: #C4B5FD; border-color: rgba(167,139,250,.5); }
+.mark-form textarea { font-family: inherit; width: 100%; box-sizing: border-box; }
+.mark-form textarea:focus { outline: none; border-color: rgba(var(--accent-rgb), .6); }
+.mark-item .mark-form { margin-top: 8px; }
+.mark-item .mark-form .row { display: flex; gap: 8px; }
+.mark-item .mark-form .field-btn { flex: 1; padding: 9px; font-size: 14px; }
+
+/* Push to talk */
+.ptt { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: none; -webkit-touch-callout: none; border: 1px solid var(--line-2); background: var(--panel-2, rgba(255,255,255,.03)); color: var(--muted); }
+.ptt.compact { height: 28px; padding: 0 10px; border-radius: 6px; font-size: 11px; letter-spacing: .08em; }
+.ptt.big { width: 100%; justify-content: center; padding: 16px; border-radius: 10px; font-size: 15px; font-weight: 600; color: var(--text); margin: 6px 0; }
+.ptt:hover { border-color: rgba(var(--accent-rgb), .5); color: var(--text); }
+.ptt.tx { background: rgba(255,77,79,.16); border-color: #FF4D4F; color: #FFB3B4; }
+.ptt.rx { background: rgba(46,204,113,.12); border-color: rgba(46,204,113,.7); color: #8FF0B8; animation: ptt-rx 1s ease-in-out infinite; }
+.ptt.busy { opacity: .75; }
+.ptt.err { border-color: rgba(255,77,79,.5); }
+.ptt-dot { width: 7px; height: 7px; border-radius: 50%; background: #FF4D4F; animation: ptt-rx .8s ease-in-out infinite; }
+@keyframes ptt-rx { 50% { opacity: .55; } }
+.radio-panel { padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 10px; }
+.radio-panel .tv-chat-head { display: flex; align-items: center; gap: 8px; }
+.radio-panel .tv-chat-head select { margin-left: auto; font-size: 11px; }
+.radio-panel p { margin: 4px 0 6px; }
+.clip-row { display: grid; grid-template-columns: 14px auto 1fr; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 6px 4px; background: none; border: 0; border-top: 1px solid var(--line); color: var(--text); cursor: pointer; font-size: 13px; }
+.clip-row span { font-size: 11px; justify-self: end; }
+.clip-row.on, .clip-row:hover { color: var(--accent); }
+
+/* Phone page: comfortable touch targets */
+.fieldapp summary { min-height: 44px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.fieldapp .field-invite summary { justify-content: center; }
+.fieldapp .field-leave { min-height: 44px; padding: 0 16px; }
+.fieldapp .mark-actions a, .fieldapp .mark-actions button { min-height: 36px; min-width: 52px; display: inline-flex; align-items: center; justify-content: center; }
+.fieldapp .clip-row { min-height: 44px; }
+.fieldapp .ptt.big { min-height: 64px; font-size: 17px; }
+.fieldapp .field-compose { padding-bottom: env(safe-area-inset-bottom); }
+
+/* Console opened on a phone */
+.phone-hint { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(var(--accent-rgb), .12); border-bottom: 1px solid rgba(var(--accent-rgb), .35); font-size: 14px; }
+.phone-hint a { color: var(--accent); font-weight: 600; white-space: nowrap; }
+.phone-hint button { margin-left: auto; background: none; border: 0; color: var(--muted); font-size: 20px; min-width: 36px; min-height: 36px; }
+@media (max-width: 700px) {
+  .cmdbar { overflow-x: auto; overflow-y: hidden; scrollbar-width: none; flex-wrap: nowrap; }
+  .cmdbar::-webkit-scrollbar { display: none; }
+  .cmdbar > * { flex-shrink: 0; }
+}
+.radio-card .marks-head { display: flex; align-items: center; gap: 10px; min-height: 40px; }
+.radio-card .marks-head h3 { margin: 0; }
+.radio-card .ping-btn { margin-left: auto; padding: 9px 12px; font-size: 14px; }
+
+
+
+/* ---------- Get the app (About) ---------- */
+.get-app { display: grid; grid-template-columns: 148px 1fr; gap: 14px; align-items: start; padding: 12px 0; border-top: 1px solid var(--line); }
+.get-app b { display: block; margin-bottom: 4px; }
+.get-app p { margin: 0 0 8px; }
+.get-app .url { margin-top: 6px; word-break: break-all; }
+@media (max-width: 520px) { .get-app { grid-template-columns: 1fr; } }
+a.btn { display: inline-block; text-decoration: none; }
+.linkish { color: var(--accent); padding: 0; font-size: inherit; }
+.linkish:hover { text-decoration: underline; }
+
+/* ---------- Embed mode (web: embed.html / ?embed=1) ---------- */
+.is-embed .cmdbar { height: 38px; gap: 10px; padding: 0 8px; -webkit-app-region: no-drag; }
+.is-embed .clock { font-size: 13px; }
+.is-embed .clock .zulu { display: none; }
+.is-embed .console { min-width: 0; }
+.embed-foot { display: flex; align-items: center; gap: 12px; height: 24px; padding: 0 10px; flex: none; font-size: 10px; letter-spacing: .06em; border-top: 1px solid var(--line); background: var(--panel); color: var(--muted); white-space: nowrap; overflow: hidden; }
+.embed-foot a { color: var(--accent); text-decoration: none; }
+.embed-foot a:hover { text-decoration: underline; }
+.embed-foot .spacer { flex: 1; }
+@media (max-width: 640px) { .hide-xs { display: none; } }
+
+/* Narrow windows and pop-out tabs: keep the command bar inside the window */
+@media (max-width: 760px) {
+  .feed-chip .dots { display: none; }
+  .cmdbar { gap: 8px; }
+}
+@media (max-width: 620px) {
+  .cmdbar .clock { display: none; }
+  .online-ind { font-size: 0; gap: 0; padding: 3px 6px; } /* keep just the light */
+  .agents-chip span { display: none; }
+  .cmdbar { gap: 6px; }
+  .cmdbar .menu.loc > button small { display: none; }
+  .brand svg + .brand-text { display: none; }
+}
+
+fieldset.plain { border: 0; padding: 0; margin: 0; min-width: 0; }
+fieldset.plain:disabled { opacity: .5; }
+.chips .chip:disabled { opacity: .45; cursor: default; }
+.about-brand { display: flex; align-items: center; gap: 12px; margin: 10px 0 4px; letter-spacing: .2em; color: var(--accent); }
+.about-brand img { border-radius: 12px; }
