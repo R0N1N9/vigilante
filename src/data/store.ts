@@ -24,6 +24,15 @@ import type { Stability } from '../lib/stability';
 import type { Insight } from '../lib/insights';
 import type { AirportDelay, AirQuality, Crime, Gauge, Hotspot, Quake, ServiceRequest, Ship, StormReport, Wanted } from '../lib/intel';
 
+/** Set once the person (or an embed's ?city=) has picked a city; until then the app opens on the nearest one. */
+export const hasChosenCity = (): boolean => {
+  try {
+    return !!(JSON.parse(localStorage.getItem('vigilante.prefs.v2') ?? '{}') as { packId?: string }).packId;
+  } catch {
+    return false;
+  }
+};
+
 export type Basemap = 'dark' | 'satellite';
 
 export type FeedStatus = 'idle' | 'live' | 'stale' | 'error' | 'off';
@@ -279,6 +288,7 @@ let state: State = {
   ...EMPTY_DATA,
   log: [],
   packId: prefs.packId ?? 'denver',
+
   selectedHex: null,
   focus: null,
   ceilingAglFt: prefs.ceilingAglFt === undefined ? 10_000 : prefs.ceilingAglFt,

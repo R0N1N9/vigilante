@@ -1,5 +1,6 @@
 import denver from '../../packs/denver.json';
 import atlanta from '../../packs/atlanta.json';
+import usCities from '../../packs/us-cities.json';
 import type { LonLat } from './geo';
 
 export interface RadioFeed {
@@ -62,7 +63,29 @@ export interface CityPack {
   power: { state: string; utilities: { name: string; url: string }[] };
 }
 
-export const PACKS: CityPack[] = [denver as unknown as CityPack, atlanta as unknown as CityPack];
+/** Denver and Atlanta have full local sources; the rest are the largest city in every state (plus a few more), with national sources. */
+export const PACKS: CityPack[] = [denver as unknown as CityPack, atlanta as unknown as CityPack, ...(usCities as unknown as CityPack[])];
+
+/** Cities with hand-built local sources (crime, 311, traffic, transit, local news, scanner feeds). */
+export const hasLocalSources = (p: CityPack) => !!(p.intel.crime || p.transit || p.traffic.provider !== 'none' || p.news.feeds.length);
+
+/** The built-in city nearest to a point (no distance limit). */
+export function nearestPack(at: LonLat): CityPack {
+  const d = (p: CityPack) => {
+    const dLat = ((p.center[1] - at[1]) * Math.PI) / 180;
+    const dLon = ((p.center[0] - at[0]) * Math.PI) / 180;
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos((at[1] * Math.PI) / 180) * Math.cos((p.center[1] * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+    return 2 * Math.asin(Math.sqrt(a));
+  };
+  return PACKS.reduce((best, p) => (d(p) < d(best) ? p : best), PACKS[0]);
+}
+
+/** Without a location: the first built-in city in this time zone (the list runs largest-first within a zone's states), else Denver. */
+export function packForTimezone(tz: string): CityPack {
+  const order = ['new-york', 'los-angeles', 'chicago', 'houston', 'phoenix', 'denver', 'anchorage', 'honolulu'];
+  const inZone = PACKS.filter((p) => p.timezone === tz);
+  return inZone.sort((a, b) => (order.indexOf(a.id) + 1 || 99) - (order.indexOf(b.id) + 1 || 99))[0] ?? PACKS[0];
+}
 
 /** Locations the user searched for or picked from device location. */
 const custom = new Map<string, CityPack>();
