@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { deviceOf, directionsLinks, isFor, openOps, reached, sealOps, toWire, type Waypoint } from '../src/lib/waypoints';
+import { deviceOf, directionsLinks, hasStatus, isFor, markFromWire, markStateLabel, markLive, markToWire, openOps, PING_TTL_S, reached, sealOps, toWire, type Mark, type Waypoint } from '../src/lib/waypoints';
 import { newPosKey, openPosition } from '../src/lib/poscrypt';
 
 const w: Waypoint = { id: 'w1', channelId: 'c1', name: 'North gate', note: 'Meet here', location: [-104.995, 39.748], to: ['dev-a'], priority: 'urgent', state: 'active', by: 'Ops', at: 1, acks: {} };
@@ -35,5 +35,38 @@ describe('waypoints', () => {
     expect(d.geo).toContain('(North%20gate)');
     expect(deviceOf('phone:c1:dev-a')).toBe('dev-a');
     expect(deviceOf('mesh:123')).toBeNull();
+  });
+});
+
+describe('marks', () => {
+  it('round-trips every kind, clamps and defaults', async () => {
+    const k = newPosKey();
+    const area = { v: 1 as const, type: 'mark' as const, id: 'm1', kind: 'area' as const, cat: 'hazard' as const, name: 'Downed line', desc: 'Keep clear', lat: 39.748, lon: -104.995, r: 99999, state: 'active' as const, by: 'Unit 7', byId: 'vigil-1', t: 5 };
+    const got = await openOps(k, await sealOps(k, area));
+    expect(got).toMatchObject({ type: 'mark', kind: 'area', cat: 'hazard', r: 20000, name: 'Downed line' });
+    const ping = await openOps(k, await sealOps(k, { ...area, id: 'p1', kind: 'ping', r: undefined }));
+    expect(ping).toMatchObject({ kind: 'ping', ttl: PING_TTL_S });
+    expect(await openOps(k, await sealOps(k, { ...area, cat: 'weird' as never }))).toMatchObject({ cat: 'general' });
+    expect(await openOps(k, await sealOps(k, { ...area, kind: 'nuke' as never }))).toBeNull();
+    expect(await openOps(k, await sealOps(k, { ...area, lat: 99 }))).toBeNull();
+  });
+  it('investigate carries findings and status labels', async () => {
+    const k = newPosKey();
+    const q = { v: 1 as const, type: 'mark' as const, id: 'q1', kind: 'investigate' as const, cat: 'general' as const, name: 'Gate open?', desc: 'After hours', lat: 39.7, lon: -105, state: 'done' as const, by: 'Unit 7', byId: 'web-7', t: 9, res: 'Left open by staff, locked now' };
+    expect(await openOps(k, await sealOps(k, q))).toMatchObject({ kind: 'investigate', state: 'done', res: 'Left open by staff, locked now' });
+    const m = markFromWire(q, 'c');
+    expect(m.found).toBe('Left open by staff, locked now');
+    expect(markToWire(m).res).toBe(m.found);
+    expect(markStateLabel('investigate', 'progress')).toBe('Checking');
+    expect(markStateLabel('objective', 'progress')).toBe('In progress');
+    expect(hasStatus('investigate') && hasStatus('objective') && !hasStatus('marker')).toBe(true);
+  });
+  it('wire conversion and liveness', () => {
+    const m: Mark = { id: 'x', channelId: 'c', kind: 'objective', cat: 'rally', name: 'Secure lot', desc: '', location: [-105, 39.7], state: 'progress', by: 'Ops', byId: 'lap', at: 1000 };
+    expect(markFromWire(markToWire(m), 'c')).toEqual(m);
+    expect(markLive({ state: 'active', at: 0, ttlS: 60 }, 30_000)).toBe(true);
+    expect(markLive({ state: 'active', at: 0, ttlS: 60 }, 61_000)).toBe(false);
+    expect(markLive({ state: 'cleared', at: 0 }, 1)).toBe(false);
+    expect(markLive({ state: 'done', at: 0 }, 1e12)).toBe(true);
   });
 });

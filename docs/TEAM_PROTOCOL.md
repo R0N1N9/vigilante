@@ -127,6 +127,32 @@ The console sends **waypoints** (rally points, posts, places to check) to agents
 
 Send `enroute` when the user opens directions, and offer Acknowledged, Arrived and Can't make it buttons. A user in stealth (dark) mode still receives waypoints but sends no automatic replies.
 
+### Marks (anyone → everyone, same `-ops` topic and `VGO1.` sealing)
+
+Marks are shared map annotations. **Anyone on the team** can place, edit or clear one: the console, the web phone page or Vigil. A newer `t` with the same `id` replaces the older version.
+```json
+{"v":1,"type":"mark","id":"m7q2xk","kind":"area","cat":"hazard","name":"Downed power line",
+ "desc":"Line across the alley behind the gym. Keep clear.","lat":39.748,"lon":-104.995,"r":150,
+ "state":"active","by":"Unit 7","byId":"vigil-3f9a2c","t":1763400000000}
+```
+- `kind`:
+  - `ping`: a quick "look here". It pulses on maps and disappears after `ttl` seconds (default **900**).
+  - `marker`: a point of interest.
+  - `area`: a circle of radius `r` meters, 10–20,000.
+  - `objective`: a goal with a status.
+  - `investigate`: a "?" on a place someone should go and look at. States read as `active` = Open, `progress` = Checking (by `by`) and `done` = Resolved. Put the findings in `res` (up to 500 characters) when resolving.
+- `cat`: `general`, `hazard`, `entry`, `rally`, `observation`, `vehicle`, `activity`, `medical`, `staging`. Unknown values are shown as `general`.
+- `state`: `active`, `progress` (objectives and investigate), `done`, or `cleared`, which removes the mark everywhere.
+- `name` up to 60 characters, `desc` up to 500. `by` is the callsign. `byId` is the device id, or the console's install id.
+- Prompt people to **describe things and activity, not who someone is**. Marks aren't for identifying or tracking individuals.
+
+**Vigil suggestions:**
+- Show marks on the map in their category color, with distance and **Go** (directions).
+- Make a teammate's new ping vibrate briefly.
+- Offer **Ping my location** as one tap.
+- Offer **Mark this spot** with kind, category, name and description.
+- Let anyone clear a mark.
+
 ## 5. Kotlin reference (Android API 26+)
 
 ```kotlin
