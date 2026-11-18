@@ -1,3 +1,4 @@
+import { isListen } from '../lib/teamext';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { setShared } from '../data/bus';
@@ -10,7 +11,7 @@ import { isTauri } from '../lib/http';
 import type { Severity } from '../lib/signals';
 import { fmtTime } from './format';
 import { getPack } from '../lib/packs';
-import { openExternal } from './popout';
+import { openExternal, openRadio } from './popout';
 import { Icon, RichText } from './Icon';
 
 const saveChannels = (channels: TeamChannel[]) => setShared({ channels });
@@ -63,8 +64,11 @@ function Message({ m, channel, showChannel, tz }: { m: ChatMessage; channel?: Te
             </button>
           )}
           {m.url && (
-            <button className="btn small" onClick={() => void openExternal(m.url!, m.from)}>
-              Open link ↗
+            <button
+              className="btn small"
+              onClick={() => void (isListen(m.text) && /^https:\/\/www\.broadcastify\.com\//.test(m.url!) ? openRadio({ name: m.text.replace(/^📻 LISTEN /, '').split(' — ')[0], url: m.url! }) : openExternal(m.url!, m.from))}
+            >
+              {isListen(m.text) ? 'Listen ↗' : 'Open link ↗'}
             </button>
           )}
           {m.spot && <code>{`${m.spot.lat.toFixed(5)}, ${m.spot.lon.toFixed(5)}`}</code>}

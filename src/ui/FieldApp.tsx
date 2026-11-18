@@ -2,7 +2,7 @@ import { APP, APP_UPPER } from '../lib/brand';
 import { feedAgent } from './fieldBridge';
 import { FieldFreqs } from './FieldFreqs';
 import { PhotoComposer, PhotoStrip, PhotoViewer, useFieldPhotos, type FieldPhoto } from './FieldPhotos';
-import { cleanListening, describeDevice, deviceFromUA, isReconName, RATES, reconName, RECON_NOTE, type RateId } from '../lib/teamext';
+import { cleanListening, describeDevice, deviceFromUA, isListen, isReconName, RATES, reconName, RECON_NOTE, type RateId } from '../lib/teamext';
 import { createRoot } from 'react-dom/client';
 import { FieldRadio } from './FieldRadio';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -968,6 +968,12 @@ function FieldTeam({ tab, radioSlot }: { tab: AgentTab; radioSlot?: React.ReactN
                 <Icon name="pin" size={13} />Open location
               </a>
             )}
+            {m.url && !m.spot && /^https:\/\//.test(m.url) && (
+              <a href={m.url} target="_blank" rel="noreferrer">
+                <Icon name={isListen(m.text) ? 'radio' : 'external'} size={13} />
+                {isListen(m.text) ? 'Listen ↗' : 'Open link ↗'}
+              </a>
+            )}
           </div>
         ))}
         {!chat.length && <p className="hint">No messages yet.</p>}
@@ -1001,7 +1007,7 @@ function FieldTeam({ tab, radioSlot }: { tab: AgentTab; radioSlot?: React.ReactN
 export type AgentTab = 'now' | 'map' | 'radio' | 'team';
 const TAB_KEY = 'vigilance.agent.tab';
 const TABS: { id: AgentTab; label: string; icon: IconName }[] = [
-  { id: 'now', label: 'Now', icon: 'spark' },
+  { id: 'now', label: 'Intel', icon: 'spark' },
   { id: 'map', label: 'Map', icon: 'target' },
   { id: 'radio', label: 'Radio', icon: 'radio' },
   { id: 'team', label: 'Team', icon: 'users' },

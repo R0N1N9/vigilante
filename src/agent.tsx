@@ -19,7 +19,7 @@ import { NowTiles } from './ui/Dashboard';
 import { setAgentSink } from './ui/fieldBridge';
 import { Icon } from './ui/Icon';
 import { Modals } from './ui/Modals';
-import { RadioTab } from './ui/RadioTab';
+import { RadioTab, ShareFeed } from './ui/RadioTab';
 
 export interface AgentIdentity {
   channel: NtfyChannel | null;
@@ -114,7 +114,7 @@ function ScanBar() {
   );
 }
 
-/** Now: what's happening around the agent, the same sources as the console dashboard and rail. */
+/** Intel: what's happening around the agent, the same sources as the console dashboard and rail. */
 export function AgentNow() {
   return (
     <div className="agent-now">
@@ -161,10 +161,13 @@ export function AgentRadio() {
       <RadioTab />
       <div className="agent-links">
         {links.map((l) => (
-          <a key={l.url} href={l.url} target="_blank" rel="noreferrer">
-            <b>{l.label}</b>
-            <small>{l.note}</small>
-          </a>
+          <div key={l.url} className="agent-link-row">
+            <a href={l.url} target="_blank" rel="noreferrer">
+              <b>{l.label}</b>
+              <small>{l.note}</small>
+            </a>
+            <ShareFeed name={l.label} agency={l.note} url={l.url} />
+          </div>
         ))}
       </div>
     </div>
