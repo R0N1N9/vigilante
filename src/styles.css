@@ -1129,3 +1129,50 @@ fieldset.plain:disabled { opacity: .5; }
 .fv-cap p { margin: 4px 0 0; }
 .fieldapp .mark-actions { flex-wrap: wrap; }
 .fieldapp .wp-acks { flex-wrap: wrap; }
+
+/* Field Agent phone app shell */
+.agent-app { position: fixed; inset: 0; display: flex; flex-direction: column; background: var(--bg); color: var(--text); }
+.fa-head { flex: none; display: flex; align-items: center; gap: 8px; padding: calc(8px + env(safe-area-inset-top)) 14px 8px; border-bottom: 1px solid var(--line); background: rgba(var(--panel-rgb), .9); }
+.fa-head .field-mark { width: 26px; height: 26px; color: var(--accent); }
+.fa-head b { font: 600 15px var(--mono); letter-spacing: .3em; color: var(--accent); }
+.fa-head span { font: 600 10.5px var(--mono); letter-spacing: .22em; color: var(--muted); }
+.fa-head em { margin-left: auto; font-style: normal; font-size: 12px; color: #2BD47D; max-width: 34vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agent-main { flex: 1; position: relative; min-height: 0; }
+.agent-pane { position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+.agent-pane[hidden] { display: none; }
+.agent-pane.map { overflow: hidden; }
+.agent-tabs { flex: none; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); background: rgba(var(--panel-rgb), .96); padding-bottom: env(safe-area-inset-bottom); }
+.agent-tabs button { min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: none; border: 0; color: var(--muted); font: 600 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.agent-tabs button.on { color: var(--accent); box-shadow: inset 0 2px 0 var(--accent); }
+.agent-loading { padding: 40px; text-align: center; color: var(--muted); letter-spacing: .2em; }
+.agent-app .fieldapp { position: absolute; inset: 0; height: auto; min-height: 0; }
+.agent-app .fieldapp > .field-head { display: none; }
+.fieldapp:not(.noteam)[data-tab='radio'] > :not(.radio-card):not(.freq-card):not(.agent-radio-slot) { display: none; }
+.fieldapp[data-tab='team'] > .freq-card, .fieldapp[data-tab='team'] > .agent-radio-slot { display: none; }
+/* Now */
+.agent-now { padding: 10px 10px 24px; display: flex; flex-direction: column; gap: 10px; }
+.agent-scan { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(var(--panel-rgb), .7); }
+.agent-scan .dot { width: 10px; height: 10px; border-radius: 50%; background: #2BD47D; box-shadow: 0 0 0 4px rgba(43,212,125,.2); animation: ptt-rx 1.6s ease-in-out infinite; flex: none; }
+.agent-scan small { display: block; font-size: 10px; letter-spacing: .2em; color: var(--muted); }
+.agent-scan b { font-size: 16px; }
+.agent-scan .ping-btn { margin-left: auto; white-space: nowrap; padding: 9px 12px; font-size: 14px; }
+.agent-now .now-tiles { display: flex; flex-direction: column; gap: 10px; padding: 0; height: auto; overflow: visible; }
+.agent-now .now-tiles > * { min-width: 0; }
+.agent-rail { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; min-height: 60vh; display: flex; flex-direction: column; }
+.agent-rail > * { flex: 1; min-height: 60vh; position: relative !important; width: auto !important; max-width: none !important; }
+/* Map */
+.agent-map { position: absolute; inset: 0; }
+.agent-map .stage { position: absolute; inset: 0; }
+.agent-map-hint { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); font-size: 11px; color: var(--muted); background: rgba(var(--bg-rgb), .8); padding: 4px 10px; border-radius: 12px; pointer-events: none; white-space: nowrap; }
+/* Radio */
+.agent-radio h3 { margin: 0 0 8px; }
+.agent-radio .list { padding: 0; }
+.agent-links { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.agent-links a { display: block; padding: 10px 12px; border: 1px solid var(--line-2); border-radius: 8px; color: var(--text); text-decoration: none; }
+.agent-links a b { display: block; color: var(--accent); }
+.agent-links a small { color: var(--muted); }
+
+.fa-head { flex-direction: row; }
+.fieldapp[data-tab='radio'] > .radio-card { order: -2; }
+.fieldapp[data-tab='radio'] > .freq-card { order: -1; }
+.agent-radio .callout { display: none; }

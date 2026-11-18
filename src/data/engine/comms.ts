@@ -15,7 +15,7 @@ import { getState, subscribe, type State } from '../store';
 import { log, onSignal } from './core';
 import { desktopNotify } from './notify';
 import { connectVoice, dropVoice } from './voice';
-import { connectPhotos, dropPhotos } from './photos';
+import { connectPhotos, dropPhotos, ingestPhotoEvent } from './photos';
 
 const CHAT_MAX = 600;
 const TEAM_TTL_MS = 6 * 3600_000;
@@ -164,15 +164,17 @@ function connectOps(ch: NtfyChannel) {
     return;
   }
   const es = new EventSource(ntfyStreamUrl({ ...ch, topic: opsTopic(ch.topic) }, '24h'));
-  es.onmessage = (e) => {
-    try {
-      const ev = JSON.parse(e.data) as NtfyEvent;
-      if (ev.event === 'message' && ev.message) void openOps(ch.posKey, ev.message).then((m) => m && applyOps(ch, m));
-    } catch {
-      /* keepalive */
-    }
-  };
+  es.onmessage = (e) => onOpsEvent(ch, e.data);
   opsStreams.set(ch.id, { es, key });
+}
+
+function onOpsEvent(ch: NtfyChannel, data: string) {
+  try {
+    const ev = JSON.parse(data) as NtfyEvent;
+    if (ev.event === 'message' && ev.message) void openOps(ch.posKey, ev.message).then((m) => m && applyOps(ch, m));
+  } catch {
+    /* keepalive */
+  }
 }
 
 async function publishOps(ch: NtfyChannel, m: OpsMessage) {
@@ -218,10 +220,14 @@ function connectPositions(ch: NtfyChannel) {
     return;
   }
   const es = new EventSource(ntfyStreamUrl({ ...ch, topic: posTopic(ch.topic) }, '1h'));
-  es.onmessage = (e) => {
+  es.onmessage = (e) => onPosEvent(ch, e.data);
+  posStreams.set(ch.id, { es, key });
+}
+
+function onPosEvent(ch: NtfyChannel, data: string) {
     let ev: NtfyEvent;
     try {
-      ev = JSON.parse(e.data) as NtfyEvent;
+      ev = JSON.parse(data) as NtfyEvent;
     } catch {
       return;
     }
@@ -261,9 +267,7 @@ function connectPositions(ch: NtfyChannel) {
         device: r.dev,
       });
     });
-  };
-  posStreams.set(ch.id, { es, key });
-}
+  }
 
 function connectNtfy(ch: NtfyChannel) {
   const key = `${ch.server}|${ch.topic}|${ch.token}`;
@@ -272,10 +276,18 @@ function connectNtfy(ch: NtfyChannel) {
   cur?.es.close();
   const last = getState().chat.filter((m) => m.channelId === ch.id && m.remoteId).at(-1);
   const es = new EventSource(ntfyStreamUrl(ch, last?.remoteId ?? '24h'));
+  es.onmessage = (e) => onChatEvent(ch, e.data);
+  es.onerror = () => {
+    if (es.readyState === EventSource.CLOSED) log(`TEAM   ${ch.name}: connection closed (check the server and topic)`, 1);
+  };
+  streams.set(ch.id, { es, key });
+}
+
+function onChatEvent(ch: NtfyChannel, data: string) {
   const installId = getState().settings.team.installId;
-  es.onmessage = (e) => {
+  {
     try {
-      const msg = ntfyToMessage(JSON.parse(e.data) as NtfyEvent, ch.id, installId);
+      const msg = ntfyToMessage(JSON.parse(data) as NtfyEvent, ch.id, installId);
       if (!msg) return;
       // Our own echo: mark the local copy as delivered instead of adding a duplicate.
       if (msg.mine) {
@@ -292,16 +304,12 @@ function connectNtfy(ch: NtfyChannel) {
     } catch {
       /* not a message event */
     }
-  };
-  es.onerror = () => {
-    if (es.readyState === EventSource.CLOSED) log(`TEAM   ${ch.name}: connection closed (check the server and topic)`, 1);
-  };
-  streams.set(ch.id, { es, key });
+  }
 }
 
 async function sendNtfy(ch: NtfyChannel, m: ChatMessage) {
   const s = getState();
-  const body = ntfyPublishBody(ch, s.settings.team.callsign || 'Vigilance', m.text, s.settings.team.installId, m.spot, m.url, m.tags, true);
+  const body = ntfyPublishBody(ch, s.settings.team.callsign || 'Vigilance', m.text, s.settings.team.installId, m.spot, m.url, m.tags, !s.fieldMode);
   const res = await fetch(`${ch.server.replace(/\/$/, '')}/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...(ch.token ? { Authorization: `Bearer ${ch.token}` } : {}) },
@@ -439,11 +447,17 @@ function shareSignal(sig: Signal, message: string) {
 function reconcile(s: State) {
   const live = new Set<string>();
   for (const ch of s.channels as TeamChannel[]) {
+    if (ch.kind === 'ntfy' && ch.enabled && s.fieldMode) {
+      // Field Agent app: its Team page already holds the streams and hands us their events (ingestFieldEvent).
+      live.add(ch.id);
+      continue;
+    }
     if (ch.kind === 'ntfy' && ch.enabled) {
       connectNtfy(ch);
       connectPositions(ch);
       connectOps(ch);
-      connectVoice(ch);
+      // The Field Agent app plays voice through its own Radio card; don't play clips twice.
+      if (!s.fieldMode) connectVoice(ch);
       connectPhotos(ch);
       live.add(ch.id);
     }
@@ -490,3 +504,13 @@ export async function startComms() {
 }
 
 export const severityForShare: Severity[] = [0, 2, 3, 4];
+
+/** Field Agent app: events its own streams received, processed exactly as the console would. */
+export function ingestFieldEvent(kind: 'chat' | 'pos' | 'ops' | 'photo', data: string) {
+  const ch = getState().channels.find((c): c is NtfyChannel => c.kind === 'ntfy' && c.enabled);
+  if (!ch) return;
+  if (kind === 'chat') onChatEvent(ch, data);
+  else if (kind === 'pos') onPosEvent(ch, data);
+  else if (kind === 'ops') onOpsEvent(ch, data);
+  else ingestPhotoEvent(ch, data);
+}

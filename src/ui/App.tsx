@@ -41,7 +41,7 @@ function EmbedFooter() {
   );
 }
 
-function MapStage() {
+export function MapStage() {
   return (
     <div className="stage">
       <MapView />
@@ -121,7 +121,7 @@ function TabBody({ tab }: { tab: RailTab }) {
   }
 }
 
-function Rail() {
+export function Rail() {
   const tab = useStore((s) => s.tab);
   return (
     <aside className="rail">

@@ -210,6 +210,8 @@ export interface LocalUi {
   agentId: string | null;
   /** Team channel push-to-talk transmits on. */
   voiceChannelId: string | null;
+  /** Running inside the Field Agent phone app: posts as the agent, not the control center. */
+  fieldMode: boolean;
 }
 
 export interface State extends DataState, SharedUi, LocalUi {}
@@ -313,6 +315,7 @@ let state: State = {
   teamHighlight: 0,
   agentId: null,
   voiceChannelId: null,
+  fieldMode: false,
   photoId: null,
   photoDraft: null,
 };

@@ -289,6 +289,10 @@ export function MapView() {
     const pack = getPack(s0.packId);
     const map = new maplibregl.Map({ container: el.current!, style: styleFor(s0.basemap), center: pack.center, zoom: pack.zoom, attributionControl: { compact: true }, fadeDuration: 0, doubleClickZoom: true });
     if (import.meta.env.DEV) (window as unknown as { __vgMap?: MlMap }).__vgMap = map; // dev-only debugging handle
+    // Follow the container's size (tabs and panels resize it without a window resize).
+    const sizeWatch = new ResizeObserver(() => map.resize());
+    sizeWatch.observe(el.current!);
+    offs.push(() => sizeWatch.disconnect());
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
     map.addControl(new maplibregl.ScaleControl({ unit: 'imperial' }), 'bottom-left');
 

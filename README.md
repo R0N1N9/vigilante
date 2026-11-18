@@ -337,8 +337,13 @@ cd src-tauri && cargo test
 
 ## Phones: iPhone and Android, no install
 
-The **phone page** (`https://r0n1n9.github.io/vigilance/?view=field`) runs in any phone browser, iPhone included,
-so teammates don't need the Vigil Android app:
+The **Field Agent** phone app (`https://r0n1n9.github.io/vigilance/?view=field`) runs in any phone browser, iPhone included,
+so teammates don't need the Vigil Android app. It has four tabs, like Vigil:
+
+- **Now:** scans where you are (GPS) with the console's sources: SITREP, active situations, stability, insights, news, neighborhoods, crime trend, cameras, posters, feed status, and every rail list (alerts, news, city, hazards, cameras, sky).
+- **Map:** the console's live map with every layer and every team node (teammates, marks, waypoints, photos). Press and hold for the ring menu.
+- **Radio:** push-to-talk, team frequencies, and scanner feeds for the area, with links to Broadcastify, RadioReference, OpenMHz and NOAA Weather Radio.
+- **Team:**
 
 - **Create a team** (team name + callsign) or **join** one by opening an invite link or QR code, or pasting it.
 - **Invite people** from the phone: QR code, the phone's share sheet, or copy the link.
