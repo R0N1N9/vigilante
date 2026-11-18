@@ -1,7 +1,8 @@
+import { APP, APP_UPPER } from '../lib/brand';
 import { setState } from '../data/store';
 import { embedUrl } from '../lib/embed';
 import { isWeb } from '../lib/http';
-import { DESKTOP_APP, GITHUB_URL, MOBILE_APP } from '../lib/links';
+import { DESKTOP_APP, GITHUB_URL, MOBILE_APP, WEB_GITHUB_URL } from '../lib/links';
 import { Modal, Qr } from './Modals';
 import appIcon from '../../assets/brand/vigilance-icon.svg?url';
 
@@ -43,13 +44,14 @@ export function AboutModal() {
       <section>
         <div className="about-brand">
           <img src={appIcon} alt="" width={56} height={56} />
-          <b>VIGILANCE</b>
+          <b>{APP_UPPER}</b>
         </div>
         <p className="small-text">
-          <b>Vigilance</b> is an open-source situational-awareness console for asset protection, executive protection, patrol and neighborhood watch. It uses public, keyless data
+          <b>{APP}</b> is an open-source situational-awareness console for asset protection, executive protection, patrol and neighborhood watch. It uses public, keyless data
           sources and never tracks or identifies individuals.
         </p>
         <AppLink url={DESKTOP_APP.url} label={DESKTOP_APP.label} note="Source code, desktop installers and docs. The desktop app adds drone Remote ID scanning, multi-monitor pop-outs and keys kept off the web." />
+        <AppLink url={WEB_GITHUB_URL} label="Vigilante web app on GitHub" note="The live web app and Field Agent phone app at r0n1n9.github.io/vigilante." />
         <AppLink url={MOBILE_APP.url} label={MOBILE_APP.label} note="Scan with your phone. Until the Play Store listing is live this links to the project page." />
       </section>
       {isWeb() && <EmbedSnippet />}

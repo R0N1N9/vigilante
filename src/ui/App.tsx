@@ -1,3 +1,4 @@
+import { APP_UPPER } from '../lib/brand';
 import { Component, useEffect, useState, type ReactNode } from 'react';
 import { isTauri } from '../lib/http';
 import { applyAppearance } from '../lib/theme';
@@ -27,7 +28,7 @@ function EmbedFooter() {
   return (
     <footer className="embed-foot mono">
       <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" title={DESKTOP_APP.label}>
-        VIGILANCE
+        {APP_UPPER}
       </a>
       <span className="muted hide-xs">open-source situational awareness</span>
       <span className="spacer" />

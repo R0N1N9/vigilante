@@ -4,6 +4,16 @@ A neighborhood situational-awareness console for your laptop. It watches the are
 
 Built for people who keep watch over a place: physical security and asset protection teams, executive protection details, security patrol, neighborhood watch, and anyone who wants their own operations desk.
 
+**One family, three apps:**
+
+| App | What | Where |
+|---|---|---|
+| **Vigilance** (this repo) | Desktop app for Mac, Linux and Windows | [R0N1N9/vigilance](https://github.com/R0N1N9/vigilance) |
+| **Vigilante** | Live web app and the Field Agent phone app (iPhone and Android, nothing to install) | [r0n1n9.github.io/vigilante](https://r0n1n9.github.io/vigilante/) · [R0N1N9/vigilante](https://github.com/R0N1N9/vigilante) |
+| **Vigil** | Android app | [R0N1N9/vigil](https://github.com/R0N1N9/vigil) |
+
+All three join the same teams (same invites, same encrypted team protocol: [`docs/TEAM_PROTOCOL.md`](docs/TEAM_PROTOCOL.md)). The desktop and web apps share this codebase: the web build shows the Vigilante name and is published from the `vigilante` repo. This repo's GitHub Pages site only forwards the old `r0n1n9.github.io/vigilance/` address there.
+
 > **Status: Phase 1.** Live aircraft, drones, no-fly zones, weather, roads, cameras and local news for **Denver** and **Atlanta**, merged into developing-incident cards, a morning brief and phone alerts. The full roadmap is in [`docs/PLAN.md`](docs/PLAN.md).
 
 ## What it does
@@ -68,7 +78,7 @@ Built for people who keep watch over a place: physical security and asset protec
 **Team chat** (Team tab, or Pop out → Team chat)
 - **ntfy channels** (internet): a group chat on an ntfy topic. Free, no accounts. Teammates join from Vigilance or just read and reply in the free **ntfy** phone app. On the public ntfy.sh server the topic name is the only lock, so the app makes a long random one; for a private team, run your own ntfy server and add an access token.
 - **Meshtastic channels** (off-grid radio): connect a Meshtastic LoRa radio to the laptop by **Bluetooth, USB cable or local Wi-Fi** and chat with the team over the mesh, with no cell service or internet. Messages are encrypted with the channel key on the radio (about 200 characters each). Teammates' radios that share GPS show up on the map as **team positions**.
-- **Invites:** every channel has an **Invite** button with **QR codes** and a link. Copy it, email it, text it or use the system share sheet. For ntfy, the second QR opens the topic in the ntfy app (no Vigilance needed). For Meshtastic, paste the channel's share link from the Meshtastic app into the channel settings; the invite then includes it so teammates' radios join the encrypted channel. To join, paste any invite link, `VG1.` code, ntfy topic URL or Meshtastic channel link into **Join with an invite**. Invite links open the hosted web app at https://r0n1n9.github.io/vigilance/ (published by `.github/workflows/pages.yml`; turn it on once in Settings → Pages → Source: GitHub Actions).
+- **Invites:** every channel has an **Invite** button with **QR codes** and a link. Copy it, email it, text it or use the system share sheet. For ntfy, the second QR opens the topic in the ntfy app (no Vigilance needed). For Meshtastic, paste the channel's share link from the Meshtastic app into the channel settings; the invite then includes it so teammates' radios join the encrypted channel. To join, paste any invite link, `VG1.` code, ntfy topic URL or Meshtastic channel link into **Join with an invite**. Invite links open the hosted web app at https://r0n1n9.github.io/vigilante/ (published by `.github/workflows/pages.yml`; turn it on once in Settings → Pages → Source: GitHub Actions).
 - **Phone check-in (live team tracking):** the channel's **Invite** shows a **phone QR code**. A teammate scans it with their phone camera and it opens a page in their browser, with nothing to install. From there they can:
   - chat with the team
   - tap **SOS**, **Backup**, **On scene** or **All clear**
@@ -202,7 +212,7 @@ No API keys are built into the bundle or stored in the repo.
 Paste one tag where the console should appear. It inserts a responsive, sandboxed `<iframe>`:
 
 ```html
-<script src="https://r0n1n9.github.io/vigilance/embed.js" data-city="denver" data-view="dashboard" async></script>
+<script src="https://r0n1n9.github.io/vigilante/embed.js" data-city="denver" data-view="dashboard" async></script>
 ```
 
 | Attribute | Values | Default |
@@ -217,13 +227,13 @@ More examples:
 
 ```html
 <!-- Map of Atlanta in amber -->
-<script src="https://r0n1n9.github.io/vigilance/embed.js" data-city="atlanta" data-view="map" data-theme="amber" data-height="70vh" async></script>
+<script src="https://r0n1n9.github.io/vigilante/embed.js" data-city="atlanta" data-view="map" data-theme="amber" data-height="70vh" async></script>
 
 <!-- Any US location -->
-<script src="https://r0n1n9.github.io/vigilance/embed.js" data-city="40.0150,-105.2705" data-view="map" async></script>
+<script src="https://r0n1n9.github.io/vigilante/embed.js" data-city="40.0150,-105.2705" data-view="map" async></script>
 
 <!-- Plain iframe, no script -->
-<iframe src="https://r0n1n9.github.io/vigilance/embed.html?view=dashboard&city=denver&theme=nightvision"
+<iframe src="https://r0n1n9.github.io/vigilante/embed.html?view=dashboard&city=denver&theme=nightvision"
         title="Vigilance" style="width:100%;height:620px;border:0" loading="lazy"
         sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
 ```
@@ -337,7 +347,7 @@ cd src-tauri && cargo test
 
 ## Phones: iPhone and Android, no install
 
-The **Field Agent** phone app (`https://r0n1n9.github.io/vigilance/?view=field`) runs in any phone browser, iPhone included,
+The **Field Agent** phone app (`https://r0n1n9.github.io/vigilante/?view=field`) runs in any phone browser, iPhone included,
 so teammates don't need the Vigil Android app. It has four tabs, like Vigil:
 
 - **Now:** scans where you are (GPS) with the console's sources: SITREP, active situations, stability, insights, news, neighborhoods, crime trend, cameras, posters, feed status, and every rail list (alerts, news, city, hazards, cameras, sky).

@@ -1,3 +1,4 @@
+import { APP, APP_UPPER } from '../lib/brand';
 import { openDeploy } from './Deploy';
 import { PttButton, usePttHotkey } from './Voice';
 import { useEffect, useRef, useState } from 'react';
@@ -152,7 +153,7 @@ export function CommandBar({ view, embed = false }: { view: View; embed?: boolea
     <header className="cmdbar">
       <div className="brand">
         <BrandMark />
-        <span className="brand-text">VIGILANCE</span>
+        <span className="brand-text">{APP_UPPER}</span>
       </div>
       <LocationPicker />
       <div className="clock mono">
@@ -193,7 +194,7 @@ export function CommandBar({ view, embed = false }: { view: View; embed?: boolea
             )}
           </svg>
         </button>
-        <button className="icon-btn" onClick={() => setState({ modal: 'about' })} title="About Vigilance · get the desktop and mobile app" aria-label="Get the app">
+        <button className="icon-btn" onClick={() => setState({ modal: 'about' })} title={`About ${APP} · get the desktop and mobile app`} aria-label="Get the app">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <rect x="7" y="3" width="10" height="18" rx="2" />
             <path d="M11 17.5h2" />

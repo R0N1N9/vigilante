@@ -1,3 +1,4 @@
+import { APP, APP_UPPER } from '../lib/brand';
 import { feedAgent } from './fieldBridge';
 import { FieldFreqs } from './FieldFreqs';
 import { PhotoComposer, PhotoStrip, PhotoViewer, useFieldPhotos, type FieldPhoto } from './FieldPhotos';
@@ -116,7 +117,7 @@ function NoTeam({ onJoin, callsign }: { onJoin: (ch: NtfyChannel, callsign: stri
       </div>
       <div className="field-card">
         <h2>Or create a team</h2>
-        <p>Makes a new private team channel, the same kind Vigilance makes. Invite people with a QR code or link next. Locations shared in it are end-to-end encrypted.</p>
+        <p>Makes a new private team channel, the same kind {APP} makes. Invite people with a QR code or link next. Locations shared in it are end-to-end encrypted.</p>
         <label>
           <span>Team name</span>
           <input value={name} onChange={(e) => setName(e.target.value.slice(0, 60))} placeholder="e.g. Night shift" />
@@ -149,10 +150,10 @@ function InviteCard({ ch, callsign, open }: { ch: NtfyChannel; callsign: string;
       live = false;
     };
   }, [link, open]);
-  const text = `${callsign ? `${callsign} invited you` : "You're invited"} to the "${ch.name}" team on Vigilance.\n\nOpen on your phone (iPhone or Android, nothing to install): ${link}\n\nHave the Vigil app? ${vigilLink(ch)}\n\nThis link works like a key: please don't forward it.`;
+  const text = `${callsign ? `${callsign} invited you` : "You're invited"} to the "${ch.name}" team on ${APP}.\n\nOpen on your phone (iPhone or Android, nothing to install): ${link}\n\nHave the Vigil app? ${vigilLink(ch)}\n\nThis link works like a key: please don't forward it.`;
   const share = async () => {
     try {
-      if (navigator.share) await navigator.share({ title: `Join "${ch.name}" on Vigilance`, text });
+      if (navigator.share) await navigator.share({ title: `Join "${ch.name}" on ${APP}`, text });
       else {
         await navigator.clipboard.writeText(text);
         setCopied(true);
@@ -570,7 +571,7 @@ function FieldTeam({ tab, radioSlot }: { tab: AgentTab; radioSlot?: React.ReactN
       <div className="fieldapp noteam" data-tab={tab}>
         <header className="field-head">
           <FieldMark />
-          <b>VIGILANCE</b>
+          <b>{APP_UPPER}</b>
           <span>FIELD AGENT</span>
         </header>
         {meshInvite ? (
@@ -594,7 +595,7 @@ function FieldTeam({ tab, radioSlot }: { tab: AgentTab; radioSlot?: React.ReactN
     <div className="fieldapp" data-tab={tab}>
       <header className="field-head">
         <FieldMark />
-        <b>VIGILANCE</b>
+        <b>{APP_UPPER}</b>
         <span>FIELD AGENT</span>
         <em className={connected ? 'ok' : ''}>● {ch.name}</em>
       </header>
@@ -1062,7 +1063,7 @@ export function FieldApp() {
     <div className={`agent-app tab-${tab}`}>
       <header className="fa-head">
         <BrandMark className="field-mark" />
-        <b>VIGILANCE</b>
+        <b>{APP_UPPER}</b>
         <span>FIELD AGENT</span>
         {channelName && <em className="mono">● {channelName}</em>}
       </header>

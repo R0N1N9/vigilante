@@ -2,12 +2,14 @@
  * Team channels: group chat over ntfy topics (internet) and Meshtastic
  * radios (off-grid LoRa mesh), plus invite links and shared map spots.
  */
+import { APP } from './brand';
 import type { LonLat } from './geo';
 import type { Severity } from './signals';
 import { isPosKey, newPosKey } from './poscrypt';
 
 /** Where the hosted web app lives; invite links open it (or paste the code into the desktop app). */
-export const WEB_APP_URL = 'https://r0n1n9.github.io/vigilance/';
+/** The live web app (Vigilante, R0N1N9/vigilante on GitHub Pages). Every invite link and QR code points here. */
+export const WEB_APP_URL = 'https://r0n1n9.github.io/vigilante/';
 export const MESHTASTIC_APP_URL = 'https://meshtastic.org/downloads/';
 export const NTFY_APP_URL = 'https://ntfy.sh/';
 
@@ -267,7 +269,7 @@ export function ntfyToMessage(e: NtfyEvent, channelId: string, installId: string
     remoteId: e.id,
     channelId,
     at: e.time * 1000,
-    from: e.title?.trim() || (e.tags?.some((t) => t === 'vigilance' || t === 'vigilante') ? 'Vigilance' : 'ntfy app'),
+    from: e.title?.trim() || (e.tags?.some((t) => t === 'vigilance' || t === 'vigilante') ? APP : 'ntfy app'),
     text,
     mine: !!e.tags?.includes(installTag(installId)),
     spot,
