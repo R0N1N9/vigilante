@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { setShared } from '../data/bus';
 import { getState, useStore } from '../data/store';
 import { buildPack, deviceLocation, reverseGeocode, searchPlaces, type GeoResult } from '../lib/locate';
-import { getPack, PACKS } from '../lib/packs';
+import { getPack, hasLocalSources, PACKS } from '../lib/packs';
 import { Icon } from './Icon';
 
 /** Current watch location + search, device location and saved places. */
@@ -12,6 +12,11 @@ export function LocationPicker() {
   const pack = getPack(packId);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
+  // Built-in cities: those with full local sources first, then A–Z; typing filters them.
+  const cities = useMemo(() => {
+    const t = q.trim().toLowerCase();
+    return PACKS.filter((p) => !t || `${p.name} ${p.region} ${p.power.state}`.toLowerCase().includes(t)).sort((a, b) => Number(hasLocalSources(b)) - Number(hasLocalSources(a)) || a.name.localeCompare(b.name) || a.region.localeCompare(b.region));
+  }, [q]);
   const [results, setResults] = useState<GeoResult[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -106,8 +111,32 @@ export function LocationPicker() {
               <small>{r.label}</small>
             </button>
           ))}
-          <div className="menu-hint">SAVED</div>
-          {[...PACKS, ...locations].map((p) => (
+          {locations.length > 0 && <div className="menu-hint">SAVED</div>}
+          {locations.map((p) => (
+            <div key={p.id} className={`loc-row saved ${p.id === packId ? 'on' : ''}`}>
+              <button
+                onClick={() => {
+                  setShared({ packId: p.id });
+                  setOpen(false);
+                }}
+              >
+                <b>{p.name}</b>
+                <small>{p.region}</small>
+              </button>
+              <button
+                className="x"
+                title="Remove"
+                onClick={() => {
+                  const rest = getState().locations.filter((l) => l.id !== p.id);
+                  setShared({ locations: rest, ...(packId === p.id ? { packId: 'denver' } : {}) });
+                }}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+          <div className="menu-hint">CITIES · {cities.length}</div>
+          {cities.map((p) => (
             <div key={p.id} className={`loc-row saved ${p.id === packId ? 'on' : ''}`}>
               <button
                 onClick={() => {
@@ -118,23 +147,12 @@ export function LocationPicker() {
                 <b>{p.name}</b>
                 <small>
                   {p.region}
-                  {p.custom ? '' : ' · full local sources'}
+                  {hasLocalSources(p) ? ' · full local sources' : ''}
                 </small>
               </button>
-              {p.custom && (
-                <button
-                  className="x"
-                  title="Remove"
-                  onClick={() => {
-                    const rest = getState().locations.filter((l) => l.id !== p.id);
-                    setShared({ locations: rest, ...(packId === p.id ? { packId: 'denver' } : {}) });
-                  }}
-                >
-                  ×
-                </button>
-              )}
             </div>
           ))}
+          {!cities.length && <div className="loc-note">No built-in city matches. Press Go to search everywhere.</div>}
           <div className="menu-hint">Search by OpenStreetMap Nominatim</div>
         </div>
       )}

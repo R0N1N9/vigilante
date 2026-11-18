@@ -1,0 +1,3448 @@
+[
+ {
+  "id": "huntsville",
+  "name": "Huntsville",
+  "region": "AL",
+  "timezone": "America/Chicago",
+  "center": [
+   -86.5861,
+   34.7304
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 659,
+  "nwsOffice": "HUN",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Alabama",
+    "agency": "Live police, fire and EMS audio by county in Alabama (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/1",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Huntsville area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Huntsville preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Huntsville feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Huntsville\" AL (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Huntsville",
+     -86.5861,
+     34.7304
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Alabama",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "birmingham",
+   "airports": [
+    "HSV"
+   ]
+  }
+ },
+ {
+  "id": "birmingham",
+  "name": "Birmingham",
+  "region": "AL",
+  "timezone": "America/Chicago",
+  "center": [
+   -86.8104,
+   33.5186
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 548,
+  "nwsOffice": "BMX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Alabama",
+    "agency": "Live police, fire and EMS audio by county in Alabama (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/1",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Birmingham area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Birmingham preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Birmingham feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Birmingham\" AL (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Birmingham",
+     -86.8104,
+     33.5186
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Alabama",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "birmingham",
+   "airports": [
+    "BHM"
+   ]
+  }
+ },
+ {
+  "id": "anchorage",
+  "name": "Anchorage",
+  "region": "AK",
+  "timezone": "America/Anchorage",
+  "center": [
+   -149.9003,
+   61.2181
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 98,
+  "nwsOffice": "AER",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Alaska",
+    "agency": "Live police, fire and EMS audio by county in Alaska (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/2",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Anchorage area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Anchorage preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Anchorage feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Anchorage\" AK (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Anchorage",
+     -149.9003,
+     61.2181
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Alaska",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "anchorage",
+   "airports": [
+    "ANC",
+    "MRI"
+   ]
+  }
+ },
+ {
+  "id": "phoenix",
+  "name": "Phoenix",
+  "region": "AZ",
+  "timezone": "America/Phoenix",
+  "center": [
+   -112.074,
+   33.4484
+  ],
+  "zoom": 9.7,
+  "radiusNm": 25,
+  "fieldElevationFt": 1132,
+  "nwsOffice": "PSR",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Arizona",
+    "agency": "Live police, fire and EMS audio by county in Arizona (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/4",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Phoenix area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Phoenix preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Phoenix feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Phoenix\" AZ (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Phoenix",
+     -112.074,
+     33.4484
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Arizona",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "phoenix",
+   "airports": [
+    "PHX",
+    "DVT",
+    "SDL"
+   ]
+  }
+ },
+ {
+  "id": "little-rock",
+  "name": "Little Rock",
+  "region": "AR",
+  "timezone": "America/Chicago",
+  "center": [
+   -92.2896,
+   34.7465
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 233,
+  "nwsOffice": "LZK",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Arkansas",
+    "agency": "Live police, fire and EMS audio by county in Arkansas (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/5",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Little Rock area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Little Rock preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Little Rock feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Little Rock\" AR (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Little Rock",
+     -92.2896,
+     34.7465
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Arkansas",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "littlerock",
+   "airports": [
+    "LIT"
+   ]
+  }
+ },
+ {
+  "id": "los-angeles",
+  "name": "Los Angeles",
+  "region": "CA",
+  "timezone": "America/Los_Angeles",
+  "center": [
+   -118.2437,
+   34.0522
+  ],
+  "zoom": 9.5,
+  "radiusNm": 25,
+  "fieldElevationFt": 377,
+  "nwsOffice": "LOX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · California",
+    "agency": "Live police, fire and EMS audio by county in California (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/6",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Los Angeles area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Los Angeles preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Los Angeles feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Los Angeles\" CA (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Los Angeles",
+     -118.2437,
+     34.0522
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "California",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "losangeles",
+   "airports": [
+    "LAX",
+    "BUR",
+    "VNY"
+   ]
+  }
+ },
+ {
+  "id": "san-francisco",
+  "name": "San Francisco",
+  "region": "CA",
+  "timezone": "America/Los_Angeles",
+  "center": [
+   -122.4194,
+   37.7749
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 131,
+  "nwsOffice": "MTR",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · California",
+    "agency": "Live police, fire and EMS audio by county in California (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/6",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · San Francisco area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "San Francisco preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a San Francisco feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"San Francisco\" CA (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "San Francisco",
+     -122.4194,
+     37.7749
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "California",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "sanfrancisco",
+   "airports": [
+    "SFO",
+    "OAK"
+   ]
+  }
+ },
+ {
+  "id": "san-diego",
+  "name": "San Diego",
+  "region": "CA",
+  "timezone": "America/Los_Angeles",
+  "center": [
+   -117.1611,
+   32.7157
+  ],
+  "zoom": 10,
+  "radiusNm": 25,
+  "fieldElevationFt": 118,
+  "nwsOffice": "SGX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · California",
+    "agency": "Live police, fire and EMS audio by county in California (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/6",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · San Diego area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "San Diego preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a San Diego feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"San Diego\" CA (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "San Diego",
+     -117.1611,
+     32.7157
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "California",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "sandiego",
+   "airports": [
+    "SAN",
+    "MYF"
+   ]
+  }
+ },
+ {
+  "id": "bridgeport",
+  "name": "Bridgeport",
+  "region": "CT",
+  "timezone": "America/New_York",
+  "center": [
+   -73.1952,
+   41.1865
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 95,
+  "nwsOffice": "OKX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Connecticut",
+    "agency": "Live police, fire and EMS audio by county in Connecticut (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/9",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Bridgeport area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Bridgeport preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Bridgeport feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Bridgeport\" CT (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Bridgeport",
+     -73.1952,
+     41.1865
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Connecticut",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "newhaven",
+   "airports": [
+    "BDR",
+    "HVN"
+   ]
+  }
+ },
+ {
+  "id": "wilmington",
+  "name": "Wilmington",
+  "region": "DE",
+  "timezone": "America/New_York",
+  "center": [
+   -75.5398,
+   39.7391
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 66,
+  "nwsOffice": "PHI",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Delaware",
+    "agency": "Live police, fire and EMS audio by county in Delaware (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/10",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Wilmington area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Wilmington preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Wilmington feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Wilmington\" DE (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Wilmington",
+     -75.5398,
+     39.7391
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Delaware",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "baltimore",
+   "airports": [
+    "ILG",
+    "PHL"
+   ]
+  }
+ },
+ {
+  "id": "washington",
+  "name": "Washington",
+  "region": "DC",
+  "timezone": "America/New_York",
+  "center": [
+   -77.0369,
+   38.9072
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 89,
+  "nwsOffice": "LWX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · District of Columbia",
+    "agency": "Live police, fire and EMS audio by county in District of Columbia (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/11",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Washington area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Washington preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Washington feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Washington\" DC (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Washington",
+     -77.0369,
+     38.9072
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "District of Columbia",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "washingtondc",
+   "airports": [
+    "DCA",
+    "IAD"
+   ]
+  }
+ },
+ {
+  "id": "jacksonville",
+  "name": "Jacksonville",
+  "region": "FL",
+  "timezone": "America/New_York",
+  "center": [
+   -81.6557,
+   30.3322
+  ],
+  "zoom": 9.7,
+  "radiusNm": 25,
+  "fieldElevationFt": 20,
+  "nwsOffice": "JAX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Florida",
+    "agency": "Live police, fire and EMS audio by county in Florida (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/12",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Jacksonville area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Jacksonville preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Jacksonville feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Jacksonville\" FL (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Jacksonville",
+     -81.6557,
+     30.3322
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Florida",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "jacksonville",
+   "airports": [
+    "JAX",
+    "CRG"
+   ]
+  }
+ },
+ {
+  "id": "miami",
+  "name": "Miami",
+  "region": "FL",
+  "timezone": "America/New_York",
+  "center": [
+   -80.1918,
+   25.7617
+  ],
+  "zoom": 10,
+  "radiusNm": 25,
+  "fieldElevationFt": 3,
+  "nwsOffice": "MFL",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Florida",
+    "agency": "Live police, fire and EMS audio by county in Florida (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/12",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Miami area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Miami preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Miami feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Miami\" FL (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Miami",
+     -80.1918,
+     25.7617
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Florida",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "miami",
+   "airports": [
+    "MIA",
+    "FLL",
+    "OPF"
+   ]
+  }
+ },
+ {
+  "id": "honolulu",
+  "name": "Honolulu",
+  "region": "HI",
+  "timezone": "Pacific/Honolulu",
+  "center": [
+   -157.8583,
+   21.3069
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 59,
+  "nwsOffice": "HFO",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Hawaii",
+    "agency": "Live police, fire and EMS audio by county in Hawaii (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/15",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Honolulu area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Honolulu preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Honolulu feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Honolulu\" HI (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Honolulu",
+     -157.8583,
+     21.3069
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Hawaii",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "honolulu",
+   "airports": [
+    "HNL"
+   ]
+  }
+ },
+ {
+  "id": "boise",
+  "name": "Boise",
+  "region": "ID",
+  "timezone": "America/Boise",
+  "center": [
+   -116.2023,
+   43.615
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 2710,
+  "nwsOffice": "BOI",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Idaho",
+    "agency": "Live police, fire and EMS audio by county in Idaho (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/16",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Boise area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Boise preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Boise feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Boise\" ID (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Boise",
+     -116.2023,
+     43.615
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Idaho",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "saltlakecity",
+   "airports": [
+    "BOI"
+   ]
+  }
+ },
+ {
+  "id": "chicago",
+  "name": "Chicago",
+  "region": "IL",
+  "timezone": "America/Chicago",
+  "center": [
+   -87.6298,
+   41.8781
+  ],
+  "zoom": 9.7,
+  "radiusNm": 25,
+  "fieldElevationFt": 591,
+  "nwsOffice": "LOT",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Illinois",
+    "agency": "Live police, fire and EMS audio by county in Illinois (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/17",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Chicago area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Chicago preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Chicago feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Chicago\" IL (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Chicago",
+     -87.6298,
+     41.8781
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Illinois",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "chicago",
+   "airports": [
+    "ORD",
+    "MDW"
+   ]
+  }
+ },
+ {
+  "id": "indianapolis",
+  "name": "Indianapolis",
+  "region": "IN",
+  "timezone": "America/Indiana/Indianapolis",
+  "center": [
+   -86.1581,
+   39.7684
+  ],
+  "zoom": 10,
+  "radiusNm": 25,
+  "fieldElevationFt": 728,
+  "nwsOffice": "IND",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Indiana",
+    "agency": "Live police, fire and EMS audio by county in Indiana (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/18",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Indianapolis area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Indianapolis preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Indianapolis feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Indianapolis\" IN (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Indianapolis",
+     -86.1581,
+     39.7684
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Indiana",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "indianapolis",
+   "airports": [
+    "IND"
+   ]
+  }
+ },
+ {
+  "id": "des-moines",
+  "name": "Des Moines",
+  "region": "IA",
+  "timezone": "America/Chicago",
+  "center": [
+   -93.625,
+   41.5868
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 807,
+  "nwsOffice": "DMX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Iowa",
+    "agency": "Live police, fire and EMS audio by county in Iowa (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/19",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Des Moines area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Des Moines preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Des Moines feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Des Moines\" IA (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Des Moines",
+     -93.625,
+     41.5868
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Iowa",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "omaha",
+   "airports": [
+    "DSM"
+   ]
+  }
+ },
+ {
+  "id": "wichita",
+  "name": "Wichita",
+  "region": "KS",
+  "timezone": "America/Chicago",
+  "center": [
+   -97.3301,
+   37.6872
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 1319,
+  "nwsOffice": "ICT",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Kansas",
+    "agency": "Live police, fire and EMS audio by county in Kansas (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/20",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Wichita area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Wichita preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Wichita feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Wichita\" KS (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Wichita",
+     -97.3301,
+     37.6872
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Kansas",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "kansascity",
+   "airports": [
+    "ICT"
+   ]
+  }
+ },
+ {
+  "id": "louisville",
+  "name": "Louisville",
+  "region": "KY",
+  "timezone": "America/New_York",
+  "center": [
+   -85.7585,
+   38.2527
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 420,
+  "nwsOffice": "LMK",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Kentucky",
+    "agency": "Live police, fire and EMS audio by county in Kentucky (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/21",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Louisville area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Louisville preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Louisville feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Louisville\" KY (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Louisville",
+     -85.7585,
+     38.2527
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Kentucky",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "louisville",
+   "airports": [
+    "SDF"
+   ]
+  }
+ },
+ {
+  "id": "new-orleans",
+  "name": "New Orleans",
+  "region": "LA",
+  "timezone": "America/Chicago",
+  "center": [
+   -90.0715,
+   29.9511
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 3,
+  "nwsOffice": "LIX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Louisiana",
+    "agency": "Live police, fire and EMS audio by county in Louisiana (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/22",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · New Orleans area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "New Orleans preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a New Orleans feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"New Orleans\" LA (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "New Orleans",
+     -90.0715,
+     29.9511
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Louisiana",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "neworleans",
+   "airports": [
+    "MSY"
+   ]
+  }
+ },
+ {
+  "id": "portland-me",
+  "name": "Portland",
+  "region": "ME",
+  "timezone": "America/New_York",
+  "center": [
+   -70.2568,
+   43.6591
+  ],
+  "zoom": 10.5,
+  "radiusNm": 25,
+  "fieldElevationFt": 7,
+  "nwsOffice": "GYX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Maine",
+    "agency": "Live police, fire and EMS audio by county in Maine (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/23",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Portland area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Portland preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Portland feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Portland\" ME (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Portland",
+     -70.2568,
+     43.6591
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Maine",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "boston",
+   "airports": [
+    "PWM"
+   ]
+  }
+ },
+ {
+  "id": "baltimore",
+  "name": "Baltimore",
+  "region": "MD",
+  "timezone": "America/New_York",
+  "center": [
+   -76.6122,
+   39.2904
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 7,
+  "nwsOffice": "LWX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Maryland",
+    "agency": "Live police, fire and EMS audio by county in Maryland (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/24",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Baltimore area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Baltimore preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Baltimore feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Baltimore\" MD (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Baltimore",
+     -76.6122,
+     39.2904
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Maryland",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "baltimore",
+   "airports": [
+    "BWI"
+   ]
+  }
+ },
+ {
+  "id": "boston",
+  "name": "Boston",
+  "region": "MA",
+  "timezone": "America/New_York",
+  "center": [
+   -71.0589,
+   42.3601
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 13,
+  "nwsOffice": "BOX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Massachusetts",
+    "agency": "Live police, fire and EMS audio by county in Massachusetts (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/25",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Boston area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Boston preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Boston feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Boston\" MA (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Boston",
+     -71.0589,
+     42.3601
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Massachusetts",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "boston",
+   "airports": [
+    "BOS"
+   ]
+  }
+ },
+ {
+  "id": "detroit",
+  "name": "Detroit",
+  "region": "MI",
+  "timezone": "America/Detroit",
+  "center": [
+   -83.0458,
+   42.3314
+  ],
+  "zoom": 10,
+  "radiusNm": 25,
+  "fieldElevationFt": 571,
+  "nwsOffice": "DTX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Michigan",
+    "agency": "Live police, fire and EMS audio by county in Michigan (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/26",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Detroit area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Detroit preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Detroit feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Detroit\" MI (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Detroit",
+     -83.0458,
+     42.3314
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Michigan",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "detroit",
+   "airports": [
+    "DTW",
+    "DET"
+   ]
+  }
+ },
+ {
+  "id": "minneapolis",
+  "name": "Minneapolis",
+  "region": "MN",
+  "timezone": "America/Chicago",
+  "center": [
+   -93.265,
+   44.9778
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 850,
+  "nwsOffice": "MPX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Minnesota",
+    "agency": "Live police, fire and EMS audio by county in Minnesota (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/27",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Minneapolis area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Minneapolis preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Minneapolis feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Minneapolis\" MN (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Minneapolis",
+     -93.265,
+     44.9778
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Minnesota",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "minneapolis",
+   "airports": [
+    "MSP"
+   ]
+  }
+ },
+ {
+  "id": "jackson-ms",
+  "name": "Jackson",
+  "region": "MS",
+  "timezone": "America/Chicago",
+  "center": [
+   -90.1848,
+   32.2988
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 348,
+  "nwsOffice": "JAN",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Mississippi",
+    "agency": "Live police, fire and EMS audio by county in Mississippi (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/28",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Jackson area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Jackson preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Jackson feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Jackson\" MS (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Jackson",
+     -90.1848,
+     32.2988
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Mississippi",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "jackson",
+   "airports": [
+    "JAN"
+   ]
+  }
+ },
+ {
+  "id": "kansas-city",
+  "name": "Kansas City",
+  "region": "MO",
+  "timezone": "America/Chicago",
+  "center": [
+   -94.5786,
+   39.0997
+  ],
+  "zoom": 10,
+  "radiusNm": 25,
+  "fieldElevationFt": 899,
+  "nwsOffice": "EAX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Missouri",
+    "agency": "Live police, fire and EMS audio by county in Missouri (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/29",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Kansas City area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Kansas City preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Kansas City feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Kansas City\" MO (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Kansas City",
+     -94.5786,
+     39.0997
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Missouri",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "kansascity",
+   "airports": [
+    "MCI",
+    "MKC"
+   ]
+  }
+ },
+ {
+  "id": "st-louis",
+  "name": "St. Louis",
+  "region": "MO",
+  "timezone": "America/Chicago",
+  "center": [
+   -90.1994,
+   38.627
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 446,
+  "nwsOffice": "LSX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Missouri",
+    "agency": "Live police, fire and EMS audio by county in Missouri (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/29",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · St. Louis area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "St. Louis preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a St. Louis feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"St. Louis\" MO (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "St. Louis",
+     -90.1994,
+     38.627
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Missouri",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "stlouis",
+   "airports": [
+    "STL"
+   ]
+  }
+ },
+ {
+  "id": "billings",
+  "name": "Billings",
+  "region": "MT",
+  "timezone": "America/Denver",
+  "center": [
+   -108.5007,
+   45.7833
+  ],
+  "zoom": 10.5,
+  "radiusNm": 25,
+  "fieldElevationFt": 3199,
+  "nwsOffice": "BYZ",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Montana",
+    "agency": "Live police, fire and EMS audio by county in Montana (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/30",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Billings area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Billings preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Billings feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Billings\" MT (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Billings",
+     -108.5007,
+     45.7833
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Montana",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "saltlakecity",
+   "airports": [
+    "BIL"
+   ]
+  }
+ },
+ {
+  "id": "omaha",
+  "name": "Omaha",
+  "region": "NE",
+  "timezone": "America/Chicago",
+  "center": [
+   -95.9345,
+   41.2565
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 991,
+  "nwsOffice": "OAX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Nebraska",
+    "agency": "Live police, fire and EMS audio by county in Nebraska (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/31",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Omaha area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Omaha preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Omaha feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Omaha\" NE (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Omaha",
+     -95.9345,
+     41.2565
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Nebraska",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "omaha",
+   "airports": [
+    "OMA"
+   ]
+  }
+ },
+ {
+  "id": "las-vegas",
+  "name": "Las Vegas",
+  "region": "NV",
+  "timezone": "America/Los_Angeles",
+  "center": [
+   -115.1398,
+   36.1699
+  ],
+  "zoom": 10,
+  "radiusNm": 25,
+  "fieldElevationFt": 1969,
+  "nwsOffice": "VEF",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Nevada",
+    "agency": "Live police, fire and EMS audio by county in Nevada (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/32",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Las Vegas area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Las Vegas preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Las Vegas feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Las Vegas\" NV (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Las Vegas",
+     -115.1398,
+     36.1699
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Nevada",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "lasvegas",
+   "airports": [
+    "LAS",
+    "VGT",
+    "HND"
+   ]
+  }
+ },
+ {
+  "id": "manchester",
+  "name": "Manchester",
+  "region": "NH",
+  "timezone": "America/New_York",
+  "center": [
+   -71.4548,
+   42.9956
+  ],
+  "zoom": 10.5,
+  "radiusNm": 25,
+  "fieldElevationFt": 187,
+  "nwsOffice": "GYX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · New Hampshire",
+    "agency": "Live police, fire and EMS audio by county in New Hampshire (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/33",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Manchester area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Manchester preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Manchester feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Manchester\" NH (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Manchester",
+     -71.4548,
+     42.9956
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "New Hampshire",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "boston",
+   "airports": [
+    "MHT"
+   ]
+  }
+ },
+ {
+  "id": "newark",
+  "name": "Newark",
+  "region": "NJ",
+  "timezone": "America/New_York",
+  "center": [
+   -74.1724,
+   40.7357
+  ],
+  "zoom": 10.5,
+  "radiusNm": 25,
+  "fieldElevationFt": 121,
+  "nwsOffice": "OKX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · New Jersey",
+    "agency": "Live police, fire and EMS audio by county in New Jersey (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/34",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Newark area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Newark preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Newark feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Newark\" NJ (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Newark",
+     -74.1724,
+     40.7357
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "New Jersey",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "newark",
+   "airports": [
+    "EWR"
+   ]
+  }
+ },
+ {
+  "id": "albuquerque",
+  "name": "Albuquerque",
+  "region": "NM",
+  "timezone": "America/Denver",
+  "center": [
+   -106.6504,
+   35.0844
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 4951,
+  "nwsOffice": "ABQ",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · New Mexico",
+    "agency": "Live police, fire and EMS audio by county in New Mexico (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/35",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Albuquerque area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Albuquerque preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Albuquerque feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Albuquerque\" NM (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Albuquerque",
+     -106.6504,
+     35.0844
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "New Mexico",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "albuquerque",
+   "airports": [
+    "ABQ"
+   ]
+  }
+ },
+ {
+  "id": "new-york",
+  "name": "New York",
+  "region": "NY",
+  "timezone": "America/New_York",
+  "center": [
+   -74.006,
+   40.7128
+  ],
+  "zoom": 10,
+  "radiusNm": 25,
+  "fieldElevationFt": 7,
+  "nwsOffice": "OKX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · New York",
+    "agency": "Live police, fire and EMS audio by county in New York (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/36",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · New York area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "New York preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a New York feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"New York\" NY (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "New York",
+     -74.006,
+     40.7128
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "New York",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "newyork",
+   "airports": [
+    "JFK",
+    "LGA",
+    "EWR"
+   ]
+  }
+ },
+ {
+  "id": "charlotte",
+  "name": "Charlotte",
+  "region": "NC",
+  "timezone": "America/New_York",
+  "center": [
+   -80.8431,
+   35.2271
+  ],
+  "zoom": 10,
+  "radiusNm": 25,
+  "fieldElevationFt": 725,
+  "nwsOffice": "GSP",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · North Carolina",
+    "agency": "Live police, fire and EMS audio by county in North Carolina (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/37",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Charlotte area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Charlotte preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Charlotte feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Charlotte\" NC (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Charlotte",
+     -80.8431,
+     35.2271
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "North Carolina",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "charlotte",
+   "airports": [
+    "CLT"
+   ]
+  }
+ },
+ {
+  "id": "fargo",
+  "name": "Fargo",
+  "region": "ND",
+  "timezone": "America/Chicago",
+  "center": [
+   -96.7898,
+   46.8772
+  ],
+  "zoom": 10.5,
+  "radiusNm": 25,
+  "fieldElevationFt": 899,
+  "nwsOffice": "FGF",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · North Dakota",
+    "agency": "Live police, fire and EMS audio by county in North Dakota (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/38",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Fargo area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Fargo preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Fargo feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Fargo\" ND (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Fargo",
+     -96.7898,
+     46.8772
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "North Dakota",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "minneapolis",
+   "airports": [
+    "FAR"
+   ]
+  }
+ },
+ {
+  "id": "columbus",
+  "name": "Columbus",
+  "region": "OH",
+  "timezone": "America/New_York",
+  "center": [
+   -82.9988,
+   39.9612
+  ],
+  "zoom": 10,
+  "radiusNm": 25,
+  "fieldElevationFt": 771,
+  "nwsOffice": "ILN",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Ohio",
+    "agency": "Live police, fire and EMS audio by county in Ohio (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/39",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Columbus area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Columbus preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Columbus feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Columbus\" OH (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Columbus",
+     -82.9988,
+     39.9612
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Ohio",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "cincinnati",
+   "airports": [
+    "CMH",
+    "LCK"
+   ]
+  }
+ },
+ {
+  "id": "oklahoma-city",
+  "name": "Oklahoma City",
+  "region": "OK",
+  "timezone": "America/Chicago",
+  "center": [
+   -97.5164,
+   35.4676
+  ],
+  "zoom": 10,
+  "radiusNm": 25,
+  "fieldElevationFt": 1211,
+  "nwsOffice": "OUN",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Oklahoma",
+    "agency": "Live police, fire and EMS audio by county in Oklahoma (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/40",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Oklahoma City area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Oklahoma City preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Oklahoma City feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Oklahoma City\" OK (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Oklahoma City",
+     -97.5164,
+     35.4676
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Oklahoma",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "oklahomacity",
+   "airports": [
+    "OKC"
+   ]
+  }
+ },
+ {
+  "id": "portland",
+  "name": "Portland",
+  "region": "OR",
+  "timezone": "America/Los_Angeles",
+  "center": [
+   -122.6784,
+   45.5152
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 200,
+  "nwsOffice": "PQR",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Oregon",
+    "agency": "Live police, fire and EMS audio by county in Oregon (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/41",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Portland area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Portland preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Portland feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Portland\" OR (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Portland",
+     -122.6784,
+     45.5152
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Oregon",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "portland",
+   "airports": [
+    "PDX"
+   ]
+  }
+ },
+ {
+  "id": "philadelphia",
+  "name": "Philadelphia",
+  "region": "PA",
+  "timezone": "America/New_York",
+  "center": [
+   -75.1652,
+   39.9526
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 26,
+  "nwsOffice": "PHI",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Pennsylvania",
+    "agency": "Live police, fire and EMS audio by county in Pennsylvania (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/42",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Philadelphia area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Philadelphia preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Philadelphia feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Philadelphia\" PA (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Philadelphia",
+     -75.1652,
+     39.9526
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Pennsylvania",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "philadelphia",
+   "airports": [
+    "PHL"
+   ]
+  }
+ },
+ {
+  "id": "pittsburgh",
+  "name": "Pittsburgh",
+  "region": "PA",
+  "timezone": "America/New_York",
+  "center": [
+   -79.9959,
+   40.4406
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 814,
+  "nwsOffice": "PBZ",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Pennsylvania",
+    "agency": "Live police, fire and EMS audio by county in Pennsylvania (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/42",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Pittsburgh area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Pittsburgh preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Pittsburgh feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Pittsburgh\" PA (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Pittsburgh",
+     -79.9959,
+     40.4406
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Pennsylvania",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "pittsburgh",
+   "airports": [
+    "PIT"
+   ]
+  }
+ },
+ {
+  "id": "providence",
+  "name": "Providence",
+  "region": "RI",
+  "timezone": "America/New_York",
+  "center": [
+   -71.4128,
+   41.824
+  ],
+  "zoom": 10.5,
+  "radiusNm": 25,
+  "fieldElevationFt": 98,
+  "nwsOffice": "BOX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Rhode Island",
+    "agency": "Live police, fire and EMS audio by county in Rhode Island (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/44",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Providence area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Providence preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Providence feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Providence\" RI (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Providence",
+     -71.4128,
+     41.824
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Rhode Island",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "boston",
+   "airports": [
+    "PVD"
+   ]
+  }
+ },
+ {
+  "id": "charleston-sc",
+  "name": "Charleston",
+  "region": "SC",
+  "timezone": "America/New_York",
+  "center": [
+   -79.9311,
+   32.7765
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 3,
+  "nwsOffice": "CHS",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · South Carolina",
+    "agency": "Live police, fire and EMS audio by county in South Carolina (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/45",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Charleston area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Charleston preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Charleston feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Charleston\" SC (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Charleston",
+     -79.9311,
+     32.7765
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "South Carolina",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "columbia",
+   "airports": [
+    "CHS"
+   ]
+  }
+ },
+ {
+  "id": "sioux-falls",
+  "name": "Sioux Falls",
+  "region": "SD",
+  "timezone": "America/Chicago",
+  "center": [
+   -96.7311,
+   43.5446
+  ],
+  "zoom": 10.5,
+  "radiusNm": 25,
+  "fieldElevationFt": 1453,
+  "nwsOffice": "FSD",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · South Dakota",
+    "agency": "Live police, fire and EMS audio by county in South Dakota (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/46",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Sioux Falls area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Sioux Falls preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Sioux Falls feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Sioux Falls\" SD (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Sioux Falls",
+     -96.7311,
+     43.5446
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "South Dakota",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "minneapolis",
+   "airports": [
+    "FSD"
+   ]
+  }
+ },
+ {
+  "id": "nashville",
+  "name": "Nashville",
+  "region": "TN",
+  "timezone": "America/Chicago",
+  "center": [
+   -86.7816,
+   36.1627
+  ],
+  "zoom": 10,
+  "radiusNm": 25,
+  "fieldElevationFt": 479,
+  "nwsOffice": "OHX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Tennessee",
+    "agency": "Live police, fire and EMS audio by county in Tennessee (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/47",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Nashville area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Nashville preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Nashville feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Nashville\" TN (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Nashville",
+     -86.7816,
+     36.1627
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Tennessee",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "memphis",
+   "airports": [
+    "BNA"
+   ]
+  }
+ },
+ {
+  "id": "memphis",
+  "name": "Memphis",
+  "region": "TN",
+  "timezone": "America/Chicago",
+  "center": [
+   -90.049,
+   35.1495
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 197,
+  "nwsOffice": "MEG",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Tennessee",
+    "agency": "Live police, fire and EMS audio by county in Tennessee (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/47",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Memphis area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Memphis preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Memphis feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Memphis\" TN (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Memphis",
+     -90.049,
+     35.1495
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Tennessee",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "memphis",
+   "airports": [
+    "MEM"
+   ]
+  }
+ },
+ {
+  "id": "houston",
+  "name": "Houston",
+  "region": "TX",
+  "timezone": "America/Chicago",
+  "center": [
+   -95.3698,
+   29.7604
+  ],
+  "zoom": 9.7,
+  "radiusNm": 25,
+  "fieldElevationFt": 43,
+  "nwsOffice": "HGX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Texas",
+    "agency": "Live police, fire and EMS audio by county in Texas (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/48",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Houston area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Houston preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Houston feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Houston\" TX (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Houston",
+     -95.3698,
+     29.7604
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Texas",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "houston",
+   "airports": [
+    "IAH",
+    "HOU"
+   ]
+  }
+ },
+ {
+  "id": "dallas",
+  "name": "Dallas",
+  "region": "TX",
+  "timezone": "America/Chicago",
+  "center": [
+   -96.797,
+   32.7767
+  ],
+  "zoom": 9.9,
+  "radiusNm": 25,
+  "fieldElevationFt": 449,
+  "nwsOffice": "FWD",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Texas",
+    "agency": "Live police, fire and EMS audio by county in Texas (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/48",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Dallas area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Dallas preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Dallas feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Dallas\" TX (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Dallas",
+     -96.797,
+     32.7767
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Texas",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "dallas",
+   "airports": [
+    "DFW",
+    "DAL"
+   ]
+  }
+ },
+ {
+  "id": "austin",
+  "name": "Austin",
+  "region": "TX",
+  "timezone": "America/Chicago",
+  "center": [
+   -97.7431,
+   30.2672
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 509,
+  "nwsOffice": "EWX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Texas",
+    "agency": "Live police, fire and EMS audio by county in Texas (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/48",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Austin area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Austin preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Austin feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Austin\" TX (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Austin",
+     -97.7431,
+     30.2672
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Texas",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "sanantonio",
+   "airports": [
+    "AUS"
+   ]
+  }
+ },
+ {
+  "id": "san-antonio",
+  "name": "San Antonio",
+  "region": "TX",
+  "timezone": "America/Chicago",
+  "center": [
+   -98.4936,
+   29.4241
+  ],
+  "zoom": 10,
+  "radiusNm": 25,
+  "fieldElevationFt": 630,
+  "nwsOffice": "EWX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Texas",
+    "agency": "Live police, fire and EMS audio by county in Texas (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/48",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · San Antonio area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "San Antonio preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a San Antonio feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"San Antonio\" TX (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "San Antonio",
+     -98.4936,
+     29.4241
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Texas",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "sanantonio",
+   "airports": [
+    "SAT"
+   ]
+  }
+ },
+ {
+  "id": "salt-lake-city",
+  "name": "Salt Lake City",
+  "region": "UT",
+  "timezone": "America/Denver",
+  "center": [
+   -111.891,
+   40.7608
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 4285,
+  "nwsOffice": "SLC",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Utah",
+    "agency": "Live police, fire and EMS audio by county in Utah (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/49",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Salt Lake City area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Salt Lake City preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Salt Lake City feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Salt Lake City\" UT (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Salt Lake City",
+     -111.891,
+     40.7608
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Utah",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "saltlakecity",
+   "airports": [
+    "SLC"
+   ]
+  }
+ },
+ {
+  "id": "burlington",
+  "name": "Burlington",
+  "region": "VT",
+  "timezone": "America/New_York",
+  "center": [
+   -73.2121,
+   44.4759
+  ],
+  "zoom": 10.5,
+  "radiusNm": 25,
+  "fieldElevationFt": 292,
+  "nwsOffice": "BTV",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Vermont",
+    "agency": "Live police, fire and EMS audio by county in Vermont (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/50",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Burlington area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Burlington preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Burlington feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Burlington\" VT (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Burlington",
+     -73.2121,
+     44.4759
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Vermont",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "albany",
+   "airports": [
+    "BTV"
+   ]
+  }
+ },
+ {
+  "id": "virginia-beach",
+  "name": "Virginia Beach",
+  "region": "VA",
+  "timezone": "America/New_York",
+  "center": [
+   -75.978,
+   36.8529
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 10,
+  "nwsOffice": "AKQ",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Virginia",
+    "agency": "Live police, fire and EMS audio by county in Virginia (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/51",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Virginia Beach area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Virginia Beach preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Virginia Beach feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Virginia Beach\" VA (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Virginia Beach",
+     -75.978,
+     36.8529
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Virginia",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "norfolk",
+   "airports": [
+    "ORF"
+   ]
+  }
+ },
+ {
+  "id": "seattle",
+  "name": "Seattle",
+  "region": "WA",
+  "timezone": "America/Los_Angeles",
+  "center": [
+   -122.3321,
+   47.6062
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 240,
+  "nwsOffice": "SEW",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Washington",
+    "agency": "Live police, fire and EMS audio by county in Washington (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/53",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Seattle area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Seattle preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Seattle feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Seattle\" WA (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Seattle",
+     -122.3321,
+     47.6062
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Washington",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "seattle",
+   "airports": [
+    "SEA",
+    "BFI"
+   ]
+  }
+ },
+ {
+  "id": "charleston-wv",
+  "name": "Charleston",
+  "region": "WV",
+  "timezone": "America/New_York",
+  "center": [
+   -81.6326,
+   38.3498
+  ],
+  "zoom": 10.5,
+  "radiusNm": 25,
+  "fieldElevationFt": 594,
+  "nwsOffice": "RLX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · West Virginia",
+    "agency": "Live police, fire and EMS audio by county in West Virginia (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/54",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Charleston area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Charleston preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Charleston feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Charleston\" WV (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Charleston",
+     -81.6326,
+     38.3498
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "West Virginia",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "pittsburgh",
+   "airports": [
+    "CRW"
+   ]
+  }
+ },
+ {
+  "id": "milwaukee",
+  "name": "Milwaukee",
+  "region": "WI",
+  "timezone": "America/Chicago",
+  "center": [
+   -87.9065,
+   43.0389
+  ],
+  "zoom": 10.2,
+  "radiusNm": 25,
+  "fieldElevationFt": 600,
+  "nwsOffice": "MKX",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Wisconsin",
+    "agency": "Live police, fire and EMS audio by county in Wisconsin (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/55",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Milwaukee area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Milwaukee preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Milwaukee feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Milwaukee\" WI (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Milwaukee",
+     -87.9065,
+     43.0389
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Wisconsin",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "milwaukee",
+   "airports": [
+    "MKE"
+   ]
+  }
+ },
+ {
+  "id": "cheyenne",
+  "name": "Cheyenne",
+  "region": "WY",
+  "timezone": "America/Denver",
+  "center": [
+   -104.8202,
+   41.14
+  ],
+  "zoom": 10.5,
+  "radiusNm": 25,
+  "fieldElevationFt": 6096,
+  "nwsOffice": "CYS",
+  "radioFeeds": [
+   {
+    "name": "Scanner feeds · Wyoming",
+    "agency": "Live police, fire and EMS audio by county in Wyoming (Broadcastify)",
+    "url": "https://www.broadcastify.com/listen/stid/56",
+    "coverage": null
+   },
+   {
+    "name": "Recorded dispatch · Cheyenne area",
+    "agency": "Trunked-radio call recordings (OpenMHz)",
+    "url": "https://openmhz.com/systems",
+    "coverage": null
+   }
+  ],
+  "notes": "Cheyenne preset: national sources (aircraft, NWS, fires, quakes, rivers, air quality, outages, FBI) plus local news. Use the Broadcastify state list to pick a Cheyenne feed.",
+  "traffic": {
+   "provider": "none"
+  },
+  "news": {
+   "feeds": [],
+   "googleQuery": "\"Cheyenne\" WY (police OR shooting OR fire OR crash OR arrested OR missing OR stabbing OR SWAT OR evacuation) when:1d",
+   "localTerms": [
+    [
+     "Cheyenne",
+     -104.8202,
+     41.14
+    ]
+   ]
+  },
+  "liveTv": [],
+  "places": [],
+  "transit": null,
+  "power": {
+   "state": "Wyoming",
+   "utilities": []
+  },
+  "intel": {
+   "crime": null,
+   "s311": null,
+   "fbiOffice": "denver",
+   "airports": [
+    "CYS"
+   ]
+  }
+ }
+]

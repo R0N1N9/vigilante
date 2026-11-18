@@ -1,11 +1,12 @@
 /** The console (and pop-out windows): store, data engine and the full UI. Loaded only off the phone page. */
+import { deviceLocation } from './lib/locate';
 import { createRoot } from 'react-dom/client';
 import { startBus } from './data/bus';
-import { getState, setState, subscribe } from './data/store';
+import { getState, hasChosenCity, setState, subscribe } from './data/store';
 import { parseEmbed } from './lib/embed';
 import { packForCoords } from './lib/embedPack';
 import { storeRead, storeWrite } from './lib/http';
-import { registerPacks, type CityPack } from './lib/packs';
+import { nearestPack, packForTimezone, registerPacks, type CityPack } from './lib/packs';
 import { DEFAULT_SETTINGS } from './lib/settings';
 import { withTheme } from './lib/theme';
 import { startEngine } from './data/engine';
@@ -43,10 +44,22 @@ export function boot(param: string | null) {
     }
   });
 
+  /** First launch: the built-in city nearest the device, else the one in this time zone, else Denver. */
+  async function nearestCity() {
+    try {
+      // An unanswered permission prompt never times out on its own: don't hold the app's start for it.
+      const at = await Promise.race([deviceLocation(6000), new Promise<never>((_, rej) => setTimeout(() => rej(new Error('no answer')), 8000))]);
+      return nearestPack(at);
+    } catch {
+      return packForTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    }
+  }
+
   /** ?city= picks the watch location before the sources start, so nothing polls the wrong city first. */
   async function start() {
     const city = opts.city;
     if (city?.kind === 'pack') setState({ packId: city.id });
+    else if (!city && !hasChosenCity()) setState({ packId: (await nearestCity()).id });
     else if (city?.kind === 'coords') {
       const p = await packForCoords(city.at);
       const saved = (await storeRead<CityPack[]>('locations')) ?? [];
