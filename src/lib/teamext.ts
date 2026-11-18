@@ -168,3 +168,10 @@ export const RECON_PREFIX = 'Recon: ';
 export const RECON_NOTE = 'Photos requested: go and look, post what you see.';
 export const isReconName = (name: string) => name.startsWith(RECON_PREFIX);
 export const reconName = (what: string) => RECON_PREFIX + (what.trim() || 'this spot').slice(0, 60 - RECON_PREFIX.length);
+
+// ---------------------------------------------------------------- shared scanner feeds
+
+/** "📻 LISTEN Denver Fire Alerting & EMS · Denver Fire — Unit 7", with the player link as the message's click URL. */
+export const LISTEN = '📻 LISTEN';
+export const listenText = (name: string, agency: string, callsign: string) => `${LISTEN} ${name}${agency ? ` · ${agency}` : ''} — ${callsign}`;
+export const isListen = (text: string) => text.startsWith(LISTEN);

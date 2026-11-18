@@ -1,9 +1,34 @@
+import { useState } from 'react';
+import { postToChannel } from '../data/engine/comms';
+import { listenText } from '../lib/teamext';
 import { APP } from '../lib/brand';
 import { setShared } from '../data/bus';
 import { useStore } from '../data/store';
 import { getPack } from '../lib/packs';
 import { openRadio } from './popout';
 import { Icon } from './Icon';
+
+/** Post a scanner feed to the team: teammates tap the link in chat to open the player and listen. */
+export function ShareFeed({ name, agency, url }: { name: string; agency: string; url: string }) {
+  const ch = useStore((s) => s.channels.find((c) => c.enabled));
+  const callsign = useStore((s) => s.settings.team.callsign);
+  const [done, setDone] = useState(false);
+  if (!ch) return null;
+  return (
+    <button
+      className="btn small share-feed"
+      onClick={() => {
+        postToChannel(ch.id, listenText(name, agency, callsign || 'Ops'), { url });
+        setDone(true);
+        window.setTimeout(() => setDone(false), 2000);
+      }}
+      title={`Share with ${ch.name}: teammates tap it to listen`}
+    >
+      <Icon name="share" />
+      {done ? 'Shared' : 'Share'}
+    </button>
+  );
+}
 
 export function RadioTab() {
   const pack = useStore((s) => getPack(s.packId));
@@ -28,6 +53,7 @@ export function RadioTab() {
             </div>
             <div className="muted small-text">{f.agency}</div>
           </div>
+          <ShareFeed name={f.name} agency={f.agency} url={f.url} />
           {f.coverage && (
             <button className="btn small" onClick={() => setShared({ focus: { at: Date.now(), center: [f.coverage![0], f.coverage![1]], zoom: 10.5 } })} title="Show coverage on map">
               <Icon name="locate" />

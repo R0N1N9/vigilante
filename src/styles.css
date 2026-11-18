@@ -1212,3 +1212,8 @@ fieldset.plain:disabled { opacity: .5; }
 .seg .team-btn .team-count { display: inline-flex; align-items: center; gap: 3px; font: 600 11px var(--mono); color: var(--muted); }
 .seg .team-btn .team-count.on { color: #2BD47D; }
 .seg .team-btn .team-count i { font-style: normal; color: var(--dim); }
+.share-feed { white-space: nowrap; }
+.agent-link-row { display: flex; gap: 8px; align-items: stretch; }
+.agent-link-row a { flex: 1; min-width: 0; }
+.agent-link-row .share-feed { align-self: center; }
+.fmsg a + a { margin-left: 12px; }

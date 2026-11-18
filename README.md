@@ -16,7 +16,7 @@ All three join the same teams: same invites and QR codes, same end-to-end encryp
 
 Open **[r0n1n9.github.io/vigilante/?view=field](https://r0n1n9.github.io/vigilante/?view=field)** on a phone, or scan a team's **Deploy** QR code from the console. Tabs:
 
-- **Now:** scans where you are: SITREP, active situations, alerts, news, hazards, city incidents, cameras and aircraft.
+- **Intel:** scans where you are: SITREP, active situations, alerts, news, hazards, city incidents, cameras and aircraft.
 - **Map:** the live map with every layer and every teammate, mark, waypoint and photo. Press and hold for the ring menu: Ping, Mark, Recon, Waypoint, Backup, Photo, Go, Info, Zone, Radio.
 - **Radio:** push-to-talk with the team, shared frequencies, scanner feeds for your area.
 - **Team:** chat, opt-in encrypted location sharing, SOS and status codes, marks, recon requests, photos and invites.
