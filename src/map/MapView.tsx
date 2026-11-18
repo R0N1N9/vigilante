@@ -11,7 +11,7 @@ import { openExternal, openRadio } from '../ui/popout';
 import { openWaypoint } from '../ui/Waypoints';
 import { markColor, openMark } from '../ui/Marks';
 import { openPhoto } from '../ui/Photos';
-import { closeRing, MapRing, openRing, ringMove, ringOpen, ringRelease } from '../ui/MapRing';
+import { closeRing, MapRing, openRing, ringMove, ringOpen, ringRelease, setRingSettle } from '../ui/MapRing';
 import { distanceM } from '../lib/geo';
 import { memberColor } from '../lib/teamext';
 import { deviceOf, hasStatus, markLive, markStateLabel } from '../lib/waypoints';
@@ -452,7 +452,7 @@ export function MapView() {
         if (Math.hypot(p.x - hold.x, p.y - hold.y) > 8) cancelHold();
       } else if (ringOpen()) {
         const p = local(e);
-        ringMove(p.x, p.y);
+        ringMove(p.x, p.y, e.buttons);
       }
     });
     const up = (e: PointerEvent) => {
@@ -469,12 +469,28 @@ export function MapView() {
     on('pointercancel', up);
     // Only a pan or zoom the user started cancels a hold; the map's own fly-to animations don't.
     map.on('movestart', (e) => e.originalEvent && cancelHold());
-    map.on('contextmenu', (e) => {
-      e.preventDefault();
-      if (getState().drawing || ringOpen()) return;
-      cancelHold();
-      openRing({ x: e.point.x, y: e.point.y, at: [e.lngLat.lng, e.lngLat.lat], mode: 'open' });
+    // Whenever the ring closes or stops following the pointer, the map must pan again.
+    setRingSettle(() => {
+      if (!map.dragPan.isEnabled()) map.dragPan.enable();
     });
+    on('blur', () => {
+      cancelHold();
+      if (!map.dragPan.isEnabled()) map.dragPan.enable();
+    });
+    // Right-click: the same actions as a rectangular menu at the cursor (and no browser menu on top).
+    // Listened for on the map's own element, so it works whatever the page does with the browser menu.
+    const onContext = (e: MouseEvent) => {
+      e.preventDefault();
+      if (getState().drawing) return;
+      cancelHold();
+      // A long press on a touchscreen also fires contextmenu; keep the ring it opened.
+      if (ringOpen()) return;
+      const p = local(e);
+      const ll = map.unproject([p.x, p.y]);
+      openRing({ x: p.x, y: p.y, at: [ll.lng, ll.lat], mode: 'open', shape: 'list' });
+    };
+    container.addEventListener('contextmenu', onContext);
+    offs.push(() => container.removeEventListener('contextmenu', onContext));
     map.on('dblclick', (e) => {
       const d = getState().drawing;
       if (d) e.preventDefault();
@@ -606,6 +622,7 @@ export function MapView() {
     return () => {
       offs.forEach((f) => f());
       closeRing();
+      setRingSettle(null);
       unsub();
       ro.disconnect();
       cancelAnimationFrame(raf);

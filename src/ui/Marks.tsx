@@ -226,7 +226,7 @@ export function MarkModal() {
                   {k === 'marker' && 'A point of interest everyone on the team can see until it’s cleared.'}
                   {k === 'area' && 'A circle of interest: a perimeter, a search area, a zone to avoid.'}
                   {k === 'objective' && 'A goal for the team, with a status: active, in progress, done.'}
-                  {k === 'investigate' && 'A “?” on a place someone should go and look at. Whoever checks it marks it resolved and says what they found.'}
+                  {k === 'investigate' && !recon && 'A “?” on a place someone should go and look at. Whoever checks it marks it resolved and says what they found.'}
                 </p>
                 {recon && <p className="muted small-text">Ask the team to go and look, and post photos of what they see. Everyone sees it as a “?” to check.</p>}
                 {k !== 'ping' && !recon && (

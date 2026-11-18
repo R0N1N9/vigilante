@@ -157,6 +157,17 @@ function Solo({ title, children }: { title: string; children: React.ReactNode })
 export function App({ view, embed = false }: { view: View; embed?: boolean }) {
   const mainView = useStore((s) => s.mainView);
   const appearance = useStore((s) => s.settings.appearance);
+  // Desktop app: no WebKit Back/Reload/Inspect menu on right-click (the map has its own menu); text fields keep copy and paste.
+  useEffect(() => {
+    if (!isTauri()) return;
+    const block = (e: MouseEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t?.closest('input, textarea, [contenteditable="true"]')) return;
+      e.preventDefault();
+    };
+    window.addEventListener('contextmenu', block);
+    return () => window.removeEventListener('contextmenu', block);
+  }, []);
   useEffect(() => {
     applyAppearance(appearance);
   }, [appearance]);

@@ -462,6 +462,16 @@ function InviteModal() {
 
 export function Modals() {
   const modal = useStore((s) => s.modal);
+  // Esc closes whatever dialog is open, including the ones with their own layout (mark, waypoint, photo).
+  useEffect(() => {
+    if (!modal) return;
+    const esc = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || e.defaultPrevented) return;
+      setState({ modal: null, markDraft: null, waypointDraft: null, photoId: null, photoDraft: null });
+    };
+    window.addEventListener('keydown', esc);
+    return () => window.removeEventListener('keydown', esc);
+  }, [modal]);
   if (modal === 'invite') return <InviteModal />;
   if (modal === 'poster') return <PosterModal />;
   if (modal === 'agent') return <AgentModal />;
