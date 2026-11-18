@@ -7,7 +7,7 @@ import type { Severity } from './signals';
 import { isPosKey, newPosKey } from './poscrypt';
 
 /** Where the hosted web app lives; invite links open it (or paste the code into the desktop app). */
-export const WEB_APP_URL = 'https://r0n1n9.github.io/vigilante/';
+export const WEB_APP_URL = 'https://r0n1n9.github.io/vigilance/';
 export const MESHTASTIC_APP_URL = 'https://meshtastic.org/downloads/';
 export const NTFY_APP_URL = 'https://ntfy.sh/';
 

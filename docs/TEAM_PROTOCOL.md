@@ -20,7 +20,7 @@ An invite is a string `VG1.<payload>`, where `<payload>` is unpadded base64url o
 
 Invites reach a phone in any of these forms. Find `VG1.` followed by `[A-Za-z0-9_-]+` anywhere in the text:
 
-- `https://r0n1n9.github.io/vigilante/?view=field#join=VG1.…`: the phone check-in QR code. Opens the web page in a browser. Vigil's own QR scanner should accept it directly.
+- `https://r0n1n9.github.io/vigilance/?view=field#join=VG1.…`: the phone check-in QR code. Opens the web page in a browser. Vigil's own QR scanner should accept it directly.
 - `vigil://join?code=VG1.…`: the deep link the web page and the console offer for Vigil. **Vigil should register an intent filter for the `vigil` scheme, host `join`.**
 - A bare `VG1.…` code pasted by hand.
 

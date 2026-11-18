@@ -16,6 +16,7 @@ describe('team protocol test vectors', () => {
     const ch = parseInvite(INVITE)!;
     expect(ch).toMatchObject({ kind: 'ntfy', name: 'North patrol', server: 'https://ntfy.sh', topic: 'vg-team-k2m9x4q7r1p8w3z5c6', posKey: KEY });
     expect(parseInvite(`https://r0n1n9.github.io/vigilante/?view=field#join=${INVITE}`)).toMatchObject({ posKey: KEY });
+    expect(parseInvite(`https://r0n1n9.github.io/vigilance/?view=field#join=${INVITE}`)).toMatchObject({ posKey: KEY });
     expect(parseInvite(`vigil://join?code=${INVITE}`)).toMatchObject({ posKey: KEY });
     expect(vigilLink(ch)).toMatch(/^vigil:\/\/join\?code=VG1\./);
   });

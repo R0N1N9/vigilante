@@ -68,7 +68,7 @@ Built for people who keep watch over a place: physical security and asset protec
 **Team chat** (Team tab, or Pop out → Team chat)
 - **ntfy channels** (internet): a group chat on an ntfy topic. Free, no accounts. Teammates join from Vigilance or just read and reply in the free **ntfy** phone app. On the public ntfy.sh server the topic name is the only lock, so the app makes a long random one; for a private team, run your own ntfy server and add an access token.
 - **Meshtastic channels** (off-grid radio): connect a Meshtastic LoRa radio to the laptop by **Bluetooth, USB cable or local Wi-Fi** and chat with the team over the mesh, with no cell service or internet. Messages are encrypted with the channel key on the radio (about 200 characters each). Teammates' radios that share GPS show up on the map as **team positions**.
-- **Invites:** every channel has an **Invite** button with **QR codes** and a link. Copy it, email it, text it or use the system share sheet. For ntfy, the second QR opens the topic in the ntfy app (no Vigilance needed). For Meshtastic, paste the channel's share link from the Meshtastic app into the channel settings; the invite then includes it so teammates' radios join the encrypted channel. To join, paste any invite link, `VG1.` code, ntfy topic URL or Meshtastic channel link into **Join with an invite**. Invite links open the hosted web app at https://r0n1n9.github.io/vigilante/ (published by `.github/workflows/pages.yml`; turn it on once in Settings → Pages → Source: GitHub Actions).
+- **Invites:** every channel has an **Invite** button with **QR codes** and a link. Copy it, email it, text it or use the system share sheet. For ntfy, the second QR opens the topic in the ntfy app (no Vigilance needed). For Meshtastic, paste the channel's share link from the Meshtastic app into the channel settings; the invite then includes it so teammates' radios join the encrypted channel. To join, paste any invite link, `VG1.` code, ntfy topic URL or Meshtastic channel link into **Join with an invite**. Invite links open the hosted web app at https://r0n1n9.github.io/vigilance/ (published by `.github/workflows/pages.yml`; turn it on once in Settings → Pages → Source: GitHub Actions).
 - **Phone check-in (live team tracking):** the channel's **Invite** shows a **phone QR code**. A teammate scans it with their phone camera and it opens a page in their browser, with nothing to install. From there they can:
   - chat with the team
   - tap **SOS**, **Backup**, **On scene** or **All clear**
@@ -186,7 +186,7 @@ No API keys are built into the bundle or stored in the repo.
 Paste one tag where the console should appear. It inserts a responsive, sandboxed `<iframe>`:
 
 ```html
-<script src="https://r0n1n9.github.io/vigilante/embed.js" data-city="denver" data-view="dashboard" async></script>
+<script src="https://r0n1n9.github.io/vigilance/embed.js" data-city="denver" data-view="dashboard" async></script>
 ```
 
 | Attribute | Values | Default |
@@ -201,13 +201,13 @@ More examples:
 
 ```html
 <!-- Map of Atlanta in amber -->
-<script src="https://r0n1n9.github.io/vigilante/embed.js" data-city="atlanta" data-view="map" data-theme="amber" data-height="70vh" async></script>
+<script src="https://r0n1n9.github.io/vigilance/embed.js" data-city="atlanta" data-view="map" data-theme="amber" data-height="70vh" async></script>
 
 <!-- Any US location -->
-<script src="https://r0n1n9.github.io/vigilante/embed.js" data-city="40.0150,-105.2705" data-view="map" async></script>
+<script src="https://r0n1n9.github.io/vigilance/embed.js" data-city="40.0150,-105.2705" data-view="map" async></script>
 
 <!-- Plain iframe, no script -->
-<iframe src="https://r0n1n9.github.io/vigilante/embed.html?view=dashboard&city=denver&theme=nightvision"
+<iframe src="https://r0n1n9.github.io/vigilance/embed.html?view=dashboard&city=denver&theme=nightvision"
         title="Vigilance" style="width:100%;height:620px;border:0" loading="lazy"
         sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
 ```
@@ -321,7 +321,7 @@ cd src-tauri && cargo test
 
 ## Phones: iPhone and Android, no install
 
-The **phone page** (`https://r0n1n9.github.io/vigilante/?view=field`) runs in any phone browser, iPhone included,
+The **phone page** (`https://r0n1n9.github.io/vigilance/?view=field`) runs in any phone browser, iPhone included,
 so teammates don't need the Vigil Android app:
 
 - **Create a team** (team name + callsign) or **join** one by opening an invite link or QR code, or pasting it.
