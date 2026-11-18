@@ -1197,3 +1197,18 @@ fieldset.plain:disabled { opacity: .5; }
 .ring-item:hover, .ring-item:focus-visible { background: rgba(var(--accent-rgb), .12); border-color: rgba(var(--accent-rgb), .35); outline: none; }
 .ring-item.needs-team { opacity: .6; }
 .ring-list-note { margin: 6px 6px 2px; font-size: 11px; color: var(--muted); }
+
+/* SITREP stats: click steps through the items on the map; website links show on hover */
+.kpi { position: relative; padding: 0; }
+.kpi-main { all: unset; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; width: 100%; height: 100%; padding: 4px 10px; cursor: default; }
+.kpi.act .kpi-main { cursor: pointer; }
+.kpi-main:focus-visible { outline: 1px solid var(--accent); }
+.kpi-step { font-style: normal; color: var(--accent); letter-spacing: .08em; }
+.kpi-link { position: absolute; right: 4px; top: 4px; opacity: 0; pointer-events: none; transition: opacity .12s; font: 600 9.5px var(--mono); letter-spacing: .06em; color: var(--accent); background: rgba(var(--panel-rgb), .95); border: 1px solid rgba(var(--accent-rgb), .45); border-radius: 4px; padding: 2px 6px; cursor: pointer; }
+.kpi:hover .kpi-link, .kpi:focus-within .kpi-link { opacity: 1; pointer-events: auto; }
+@media (hover: none) { .kpi-link { opacity: 1; pointer-events: auto; } }
+/* Team view button carries the team counter */
+.seg .team-btn { display: inline-flex; align-items: center; gap: 6px; }
+.seg .team-btn .team-count { display: inline-flex; align-items: center; gap: 3px; font: 600 11px var(--mono); color: var(--muted); }
+.seg .team-btn .team-count.on { color: #2BD47D; }
+.seg .team-btn .team-count i { font-style: normal; color: var(--dim); }

@@ -61,6 +61,36 @@ export function AgentsChip() {
   );
 }
 
+/** The Team view button, with the team counter (online / total) beside the word. Also flashes the team on the map. */
+export function TeamViewButton({ on }: { on: boolean }) {
+  const team = useStore((s) => s.team);
+  const now = useNow();
+  const total = team.length;
+  const online = team.filter((m) => agentStatus(m, now) === 'online').length;
+  return (
+    <button
+      className={`team-btn ${on ? 'on' : ''}`}
+      onClick={() => {
+        setState({ mainView: 'team' });
+        if (total) highlightTeam();
+      }}
+      title={total ? `Team: ${online} of ${total} agents online` : 'Team: no agents yet. Use Deploy to add field agents.'}
+    >
+      Team
+      <span className={`team-count ${online ? 'on' : ''}`}>
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
+          <circle cx="9" cy="8" r="3.2" />
+          <path d="M3 19c.6-3.3 3-5 6-5s5.4 1.7 6 5" />
+          <circle cx="17" cy="9" r="2.4" />
+          <path d="M16 14.2c2.6.2 4.4 1.8 5 4.8" />
+        </svg>
+        {online}
+        <i>/{total}</i>
+      </span>
+    </button>
+  );
+}
+
 /** Top bar: ONLINE light. Green = connected and data flowing; amber = connected but sources failing; red = offline. */
 export function OnlineIndicator() {
   const feeds = useStore((s) => s.feeds);

@@ -59,8 +59,8 @@ export function publishData() {
   publishQueued = true;
   queueMicrotask(() => {
     publishQueued = false;
-    const { aircraft, trails, orbiting, alerts, incidents, clusters, tfrs, traffic, cameras, transit, outages, fires, webcams, crimes, requests311, hotspots, quakes, wanted, gauges, air, airportDelays, storms, ships, stability, stabilityHistory, insights, ai, news, drones, brief, log, feeds } = getState();
-    send({ type: 'data', from: windowId, data: { aircraft, trails, orbiting, alerts, incidents, clusters, tfrs, traffic, cameras, transit, outages, fires, webcams, crimes, requests311, hotspots, quakes, wanted, gauges, air, airportDelays, storms, ships, stability, stabilityHistory, insights, ai, news, drones, brief, log, feeds } });
+    const { aircraft, trails, orbiting, alerts, incidents, clusters, tfrs, traffic, cameras, transit, outages, fires, webcams, crimes, requests311, hotspots, quakes, wanted, gauges, air, airPoints, airportDelays, storms, ships, stability, stabilityHistory, insights, ai, news, drones, brief, log, feeds } = getState();
+    send({ type: 'data', from: windowId, data: { aircraft, trails, orbiting, alerts, incidents, clusters, tfrs, traffic, cameras, transit, outages, fires, webcams, crimes, requests311, hotspots, quakes, wanted, gauges, air, airPoints, airportDelays, storms, ships, stability, stabilityHistory, insights, ai, news, drones, brief, log, feeds } });
   });
 }
 

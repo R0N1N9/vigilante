@@ -10,7 +10,7 @@ import { LocationPicker } from './LocationPicker';
 import { fmtAgo, fmtTime, tzAbbr } from './format';
 import { POPOUT_VIEWS, popOut, type View } from './popout';
 import { BrandMark } from './BrandMark';
-import { AgentsChip, OnlineIndicator } from './Agents';
+import { OnlineIndicator, TeamViewButton } from './Agents';
 import { Icon } from './Icon';
 
 const FEED_LABEL: Record<FeedName, string> = {
@@ -124,9 +124,7 @@ function MainViewSwitch({ embed = false }: { embed?: boolean }) {
         Dashboard
       </button>
       {!embed && (
-        <button className={mainView === 'team' ? 'on' : ''} onClick={() => setState({ mainView: 'team' })}>
-          Team
-        </button>
+        <TeamViewButton on={mainView === 'team'} />
       )}
     </div>
   );
@@ -165,7 +163,6 @@ export function CommandBar({ view, embed = false }: { view: View; embed?: boolea
         {count} ALERT{count === 1 ? '' : 'S'}
       </button>
       <FeedStatus />
-      {!embed && <AgentsChip />}
       {!embed && <PttButton compact />}
       {!embed && (
         <button className="btn deploy-btn" onClick={openDeploy} title="Deploy field agents: QR code for phones (iPhone and Android) to join the team">
