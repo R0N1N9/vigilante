@@ -1,3 +1,4 @@
+import { FieldRadio } from './FieldRadio';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import QRCode from 'qrcode';
 import { CHECKIN_TAG, FIELD_CODES, fieldLink, newNtfyChannel, vigilLink, ntfyPublishBody, ntfyStreamUrl, ntfyToMessage, parseInvite, spotUrl, type ChatMessage, type NtfyChannel, type NtfyEvent } from '../lib/comms';
@@ -798,6 +799,8 @@ export function FieldApp() {
             </div>
           ))}
       </div>
+
+      {ch.posKey && <FieldRadio ch={ch} callsign={saved.callsign} deviceId={saved.deviceId} />}
 
       <div className="field-quick">
         <button className="q sos" onClick={() => void quick('sos')}>

@@ -1,3 +1,4 @@
+import { PttButton, usePttHotkey } from './Voice';
 import { useEffect, useRef, useState } from 'react';
 import { setShared } from '../data/bus';
 import { setState, useStore, type Feed, type FeedName } from '../data/store';
@@ -126,6 +127,7 @@ function MainViewSwitch() {
 }
 
 export function CommandBar({ view }: { view: View }) {
+  usePttHotkey();
   const packId = useStore((s) => s.packId);
   const muted = useStore((s) => s.muted);
   const incidents = useStore((s) => s.incidents);
@@ -158,6 +160,7 @@ export function CommandBar({ view }: { view: View }) {
       </button>
       <FeedStatus />
       <AgentsChip />
+      <PttButton compact />
       {view === 'console' && <MainViewSwitch />}
       <div className="spacer" />
       <div className="actions">

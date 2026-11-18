@@ -29,6 +29,8 @@ tauri-plugin-opener = "2"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libc = "0.2"
+# Microphone for push-to-talk: WebKitGTK ships with media capture off.
+webkit2gtk = { version = "2.0", features = ["v2_8"] }
 
 [profile.release]
 codegen-units = 1

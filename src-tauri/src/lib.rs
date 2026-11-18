@@ -161,6 +161,32 @@ fn store_write(app: tauri::AppHandle, name: String, contents: String) -> Result<
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
+/// Push-to-talk needs the microphone. WebKitGTK disables media capture by
+/// default and denies permission requests nobody answers, so turn capture on
+/// for our own bundled UI and grant audio-only requests (never camera or screen).
+#[cfg(target_os = "linux")]
+fn enable_microphone(w: &tauri::WebviewWindow) {
+    let _ = w.with_webview(|wv| {
+        use webkit2gtk::glib::prelude::Cast;
+        use webkit2gtk::{PermissionRequestExt, SettingsExt, UserMediaPermissionRequest, UserMediaPermissionRequestExt, WebViewExt};
+        let view = wv.inner();
+        if let Some(settings) = WebViewExt::settings(&view) {
+            settings.set_enable_media_stream(true);
+        }
+        view.connect_permission_request(|_, req| {
+            if let Some(m) = req.downcast_ref::<UserMediaPermissionRequest>() {
+                if m.is_for_audio_device() && !m.is_for_video_device() {
+                    req.allow();
+                } else {
+                    req.deny();
+                }
+                return true;
+            }
+            false
+        });
+    });
+}
+
 pub fn run() {
     let client = reqwest::Client::builder()
         .user_agent(USER_AGENT)
@@ -182,6 +208,13 @@ pub fn run() {
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
         .manage(client)
+        .setup(|_app| {
+            #[cfg(target_os = "linux")]
+            if let Some(w) = _app.get_webview_window("main") {
+                enable_microphone(&w);
+            }
+            Ok(())
+        })
         .manage(drones::DroneScanner::default())
         .manage(wifi_rid::WifiScanner::default())
         .manage(ais::AisStream::default())

@@ -1,3 +1,4 @@
+import { RadioPanel } from './Voice';
 import { useEffect, useMemo, useState } from 'react';
 import { setShared } from '../data/bus';
 import { getState, setState, useStore } from '../data/store';
@@ -333,6 +334,7 @@ export function TeamView({ map }: { map: React.ReactNode }) {
       <div className="tv-body">
         <div className="tv-map tile">{map}</div>
         <div className="tv-side">
+          <RadioPanel />
           <WaypointList />
           <MarkList />
           {alerts.length > 0 && (
