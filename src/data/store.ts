@@ -314,7 +314,8 @@ let state: State = {
   teamDraft: null,
   joinCode: typeof location !== 'undefined' && /#join=VG1\./.test(location.hash) ? decodeURIComponent(location.hash.slice(6)) : null,
   tvChannel: null,
-  mainView: prefs.mainView ?? 'map',
+  // The desktop app (Vigilance) always opens on the Dashboard; the web app remembers the last view.
+  mainView: import.meta.env.VITE_WEB ? (prefs.mainView ?? 'map') : 'dashboard',
   teamHighlight: 0,
   agentId: null,
   voiceChannelId: null,
