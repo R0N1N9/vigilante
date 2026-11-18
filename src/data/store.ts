@@ -1,4 +1,5 @@
 import type { VoiceClip } from './engine/voice';
+import type { PhotoInfo } from './engine/photos';
 import { useSyncExternalStore } from 'react';
 import type { Aircraft } from '../lib/adsb';
 import type { WatchArea } from '../lib/areas';
@@ -166,6 +167,8 @@ export interface SharedUi {
   marks: Mark[];
   /** Push-to-talk clips heard this session (metadata only; audio is fetched again to replay). */
   voice: VoiceClip[];
+  /** Team photos (metadata; the JPEGs live in IndexedDB on this device). */
+  photos: PhotoInfo[];
   /** Someone is talking right now (shown in every window). */
   voiceRx: { by: string; until: number } | null;
   meshStatus: { state: 'off' | 'connecting' | 'connected' | 'error' | 'disconnected'; detail: string; node?: string; radioChannels?: { index: number; name: string }[] };
@@ -181,11 +184,14 @@ export interface LocalUi {
   drawing: LonLat[] | null;
   /** Monitor id waiting for a map click to set its center. */
   pickPoint: string | null;
-  modal: 'settings' | 'brief' | 'invite' | 'poster' | 'agent' | 'waypoint' | 'mark' | 'about' | null;
+  modal: 'settings' | 'brief' | 'invite' | 'poster' | 'agent' | 'waypoint' | 'mark' | 'about' | 'photo' | 'photo-send' | 'freq' | null;
+  /** Photo open in the viewer, or what a new photo is attached to. */
+  photoId: string | null;
+  photoDraft: { at?: [number, number]; mark?: string } | null;
   /** Mark being placed (new, with a kind) or viewed (existing id). */
-  markDraft: { at: [number, number]; kind?: import('../lib/waypoints').MarkKind; id?: string } | null;
+  markDraft: { at: [number, number]; kind?: import('../lib/waypoints').MarkKind; id?: string; recon?: boolean } | null;
   /** Waypoint being placed (new) or viewed (existing id). */
-  waypointDraft: { at: [number, number]; id?: string } | null;
+  waypointDraft: { at: [number, number]; id?: string; name?: string; note?: string; urgent?: boolean } | null;
   /** FBI poster open in the poster view. */
   posterId: string | null;
   /** Channel whose invite is open. */
@@ -287,6 +293,7 @@ let state: State = {
   waypoints: [],
   marks: [],
   voice: [],
+  photos: [],
   voiceRx: null,
   basemap: prefs.basemap ?? 'dark',
   tab: typeof location !== 'undefined' && /#join=VG1\./.test(location.hash) ? 'team' : (prefs.tab ?? 'alerts'),
@@ -306,6 +313,8 @@ let state: State = {
   teamHighlight: 0,
   agentId: null,
   voiceChannelId: null,
+  photoId: null,
+  photoDraft: null,
 };
 
 const listeners = new Set<() => void>();

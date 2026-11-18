@@ -1,3 +1,6 @@
+import { deviceOf } from '../lib/waypoints';
+import { AgentIntel, Avatar, intelSummary, TeamIntel, useAgentIntel } from './Intel';
+import { describeDevice, describeListening } from '../lib/teamext';
 import { RadioPanel } from './Voice';
 import { useEffect, useMemo, useState } from 'react';
 import { setShared } from '../data/bus';
@@ -115,16 +118,26 @@ export function AgentCard({ m, now }: { m: TeamMember; now: number }) {
   const ch = useStore((s) => s.channels.find((c) => c.id === m.channelId));
   const st = agentStatus(m, now);
   const t = telemetry(m, pack.center);
+  const intel = intelSummary(useAgentIntel(m));
+  const listening = describeListening(m.radio);
   return (
     <button className={`agent-card ${st}`} onClick={() => openAgent(m.id)}>
       <div className="ac-top">
         <i className={`led-dot ${st}`} />
+        {m.source === 'phone' && <Avatar id={deviceOf(m.id) ?? m.id} name={m.name} size={20} />}
         <b>{m.name}</b>
         <span className="ac-kind">{kindOf(m)}</span>
       </div>
+      {m.source === 'phone' && <div className="ac-line">{describeDevice(m.device, m.app)}</div>}
+      {listening && (
+        <div className="ac-line listening">
+          <Icon name="radio" size={11} /> {listening}
+        </div>
+      )}
       <div className="ac-sub">
         {[m.profile?.role, m.profile?.unit, ch?.name].filter(Boolean).join(' · ') || '—'}
       </div>
+      {intel && <div className="ac-line intel mono">INTEL · {intel}</div>}
       {st === 'dark' ? (
         <div className="ac-dark">Went dark {ageText(now - m.at)} ago · no location kept</div>
       ) : (
@@ -175,8 +188,14 @@ export function AgentModal() {
               </div>
               <div className="fact">
                 <span>Device</span>
-                <b>{kindOf(m)}</b>
+                <b>{m.source === 'phone' ? describeDevice(m.device, m.app) : kindOf(m)}</b>
               </div>
+              {m.radio && (
+                <div className="fact">
+                  <span>Listening to</span>
+                  <b>{describeListening(m.radio)}</b>
+                </div>
+              )}
               <div className="fact">
                 <span>Channel</span>
                 <b>{ch?.name ?? (m.source === 'mesh' ? 'Meshtastic mesh' : '—')}</b>
@@ -211,6 +230,12 @@ export function AgentModal() {
             )}
             {!m.profile && st !== 'dark' && <p className="muted small-text">No contact details shared. People choose whether to share them from their phone.</p>}
           </section>
+          {m.source === 'phone' && (
+            <section>
+              <h3 className="mono small-text muted">INTEL</h3>
+              <AgentIntel m={m} />
+            </section>
+          )}
           {st === 'dark' ? (
             <section>
               <p>
@@ -337,6 +362,7 @@ export function TeamView({ map }: { map: React.ReactNode }) {
           <RadioPanel />
           <WaypointList />
           <MarkList />
+          <TeamIntel />
           {alerts.length > 0 && (
             <div className="tv-alerts">
               {alerts.map((h) => (

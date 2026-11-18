@@ -87,6 +87,9 @@ export interface TeamMember {
   env?: { lux?: number; hpa?: number; db?: number };
   /** Role and contact details the person chose to share. */
   profile?: { role?: string; unit?: string; phone?: string; email?: string };
+  /** What they're listening to, and their device, if they share those. */
+  radio?: import('./teamext').Listening;
+  device?: import('./teamext').DeviceInfo;
   /** Stealth: the person hid themselves; no location is kept. */
   dark?: boolean;
 }

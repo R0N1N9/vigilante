@@ -5,6 +5,8 @@ import type { NtfyChannel } from '../lib/comms';
 import { ageText } from '../lib/team';
 import { audioCtx, MAX_CLIP_S, PttRecorder } from '../lib/voice';
 import { Icon } from './Icon';
+import { Avatar } from './Intel';
+import { memberColor } from '../lib/teamext';
 
 const rec = new PttRecorder();
 type Phase = 'idle' | 'opening' | 'tx' | 'sending' | 'error';
@@ -173,6 +175,10 @@ export function RadioPanel() {
       <PttButton />
       <p className="muted small-text">{p === 'error' ? <span className="crit">{err}</span> : 'Hold the button or the V key, talk, release to send. Encrypted; heard by everyone on the channel.'}</p>
       {replayErr && <p className="crit small-text">{replayErr}</p>}
+      <button className="btn small" onClick={() => setState({ modal: 'freq' })}>
+        <Icon name="radio" />
+        Share a frequency
+      </button>
       {shown.map((c) => (
         <button
           key={c.id}
@@ -186,8 +192,8 @@ export function RadioPanel() {
           }}
           title="Play again"
         >
-          <Icon name="play" size={12} />
-          <b>{c.mine ? 'You' : c.by}</b>
+          <Avatar id={c.byId} name={c.by} size={20} />
+          <b style={{ color: memberColor(c.byId) }}>{c.mine ? 'You' : c.by}</b>
           <span className="mono muted">
             {(c.ms / 1000).toFixed(1)} s · {ageText(Date.now() - c.at)} ago
           </span>

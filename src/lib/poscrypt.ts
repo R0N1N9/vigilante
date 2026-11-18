@@ -1,3 +1,4 @@
+import { cleanDevice, cleanListening, type DeviceInfo, type Listening } from './teamext';
 /**
  * End-to-end encrypted position reports for phone check-in.
  *
@@ -7,9 +8,9 @@
  */
 
 /** What a device can choose to share. Each category is a separate opt-in on the phone. */
-export type ShareCategory = 'loc' | 'bat' | 'motion' | 'hr' | 'env' | 'profile';
+export type ShareCategory = 'loc' | 'bat' | 'motion' | 'hr' | 'env' | 'profile' | 'radio' | 'device';
 
-export const SHARE_LABEL: Record<ShareCategory, string> = { loc: 'location', bat: 'battery', motion: 'motion', hr: 'heart rate', env: 'environment', profile: 'contact' };
+export const SHARE_LABEL: Record<ShareCategory, string> = { loc: 'location', bat: 'battery', motion: 'motion', hr: 'heart rate', env: 'environment', profile: 'contact', radio: 'what I’m listening to', device: 'device type' };
 
 /** Role and contact details a person chose to share with their team (category 'profile'). */
 export interface Profile {
@@ -52,6 +53,10 @@ export interface PositionReport {
   env?: { lux?: number; hpa?: number; db?: number };
   /** Role and contact details (with 'profile'). */
   prof?: Profile;
+  /** What they're listening to (with 'radio'). */
+  radio?: Listening;
+  /** Their device (with 'device'). */
+  dev?: DeviceInfo;
   /** Accuracy in meters. */
   acc?: number;
   /** Speed m/s and heading degrees, when the phone knows them. */
@@ -144,6 +149,10 @@ export async function openPosition(key: string, text: string): Promise<PositionR
     if (!perm.includes('env')) delete out.env;
     if (!perm.includes('profile') || typeof r.prof !== 'object' || !r.prof) delete out.prof;
     else out.prof = cleanProfile(r.prof);
+    if (!perm.includes('radio')) delete out.radio;
+    else if (!(out.radio = cleanListening(r.radio))) delete out.radio;
+    if (!perm.includes('device')) delete out.dev;
+    else if (!(out.dev = cleanDevice(r.dev))) delete out.dev;
     if (r.s === 'dark') return { v: 1, id: out.id, n: out.n, t: r.t, s: 'dark', app: r.app };
     return out;
   } catch {

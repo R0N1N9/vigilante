@@ -1064,3 +1064,68 @@ fieldset.plain:disabled { opacity: .5; }
 .chips .chip:disabled { opacity: .45; cursor: default; }
 .about-brand { display: flex; align-items: center; gap: 12px; margin: 10px 0 4px; letter-spacing: .2em; color: var(--accent); }
 .about-brand img { border-radius: 12px; }
+
+/* Press-and-hold ring menu */
+.map-ring { position: absolute; inset: 0; z-index: 40; touch-action: none; user-select: none; -webkit-user-select: none; }
+.map-ring.hold { pointer-events: none; }
+.map-ring.hold .ring-opt { pointer-events: none; }
+.ring-disc { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(var(--bg-rgb), .55) 0 30%, rgba(var(--bg-rgb), .78) 31% 100%); border: 1px solid rgba(var(--accent-rgb), .35); box-shadow: 0 10px 40px rgba(0,0,0,.45); backdrop-filter: blur(3px); pointer-events: none; animation: ring-in .14s ease-out; }
+@keyframes ring-in { from { transform: scale(.6); opacity: 0; } }
+.ring-spot { position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; border: 2px solid var(--accent); box-shadow: 0 0 0 4px rgba(var(--accent-rgb), .25); pointer-events: none; }
+.ring-center { position: absolute; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line-2); background: rgba(var(--panel-rgb), .9); color: var(--muted); font-size: 22px; line-height: 1; cursor: pointer; }
+.ring-opt { position: absolute; width: 52px; height: 52px; border-radius: 50%; border: 1.5px solid currentColor; background: rgba(var(--panel-rgb), .95); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; cursor: pointer; transition: transform .08s, background .08s; animation: ring-in .16s ease-out; }
+.ring-opt span { font: 600 9.5px/1 var(--mono); letter-spacing: .04em; color: var(--text); }
+.ring-opt.hot, .ring-opt:hover { transform: scale(1.18); background: currentColor; }
+.ring-opt.hot span, .ring-opt:hover span, .ring-opt.hot svg, .ring-opt:hover svg { color: #0B0F14; }
+.ring-opt.off { opacity: .35; cursor: not-allowed; }
+.ring-coords { position: absolute; transform: translateX(-50%); font-size: 11px; color: var(--muted); background: rgba(var(--bg-rgb), .8); padding: 2px 8px; border-radius: 4px; white-space: nowrap; pointer-events: none; }
+
+/* Photos */
+.photo-thumb { position: relative; padding: 0; border: 2px solid var(--line-2); border-radius: 6px; overflow: hidden; background: var(--bg); color: var(--muted); cursor: pointer; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
+.photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-thumb.add { border-style: dashed; }
+.photo-thumb small { font-size: 10px; }
+.mark-photos { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 8px; }
+.photo-full { display: block; max-width: 100%; max-height: 62vh; margin: 0 auto 8px; border-radius: 6px; }
+.photo-drop { display: flex; align-items: center; justify-content: center; min-height: 160px; border: 1.5px dashed var(--line-2); border-radius: 8px; cursor: pointer; overflow: hidden; margin-bottom: 8px; color: var(--muted); }
+.photo-drop img { max-width: 100%; max-height: 280px; }
+.photo-drop input { display: none; }
+.photo-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+.photo-board figure { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.photo-board figcaption { font-size: 11px; color: var(--muted); }
+.photo-board figcaption span { display: block; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.avatar { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font: 700 10px/1 var(--mono); color: #0B0F14; flex-shrink: 0; vertical-align: middle; }
+.recon-note { color: #C4B5FD; font-family: var(--mono); letter-spacing: .04em; }
+
+/* Frequencies */
+.freq-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.freq-list { display: flex; flex-direction: column; gap: 6px; }
+.freq-item { display: grid; grid-template-columns: auto auto 1fr auto; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid var(--line); font-size: 13px; }
+.freq-item small { grid-column: 1 / 4; }
+.freq-item .btn { grid-row: 1; grid-column: 4; }
+.ac-line { font-size: 11.5px; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ac-line.listening { color: #FFD84D; }
+.ac-line.intel { font-size: 10.5px; letter-spacing: .04em; color: var(--accent); }
+.ac-top .avatar { margin-right: 2px; }
+.agent-intel { display: flex; flex-direction: column; gap: 10px; }
+.intel-group small { display: block; font: 600 10px var(--mono); letter-spacing: .1em; color: var(--muted); margin-bottom: 4px; }
+.intel-row { display: grid; grid-template-columns: auto auto 1fr auto; gap: 8px; align-items: center; width: 100%; text-align: left; background: none; border: 0; border-top: 1px solid var(--line); padding: 6px 2px; color: var(--text); font-size: 13px; cursor: pointer; }
+.intel-row .link { background: none; border: 0; padding: 0; color: var(--text); cursor: pointer; text-align: left; }
+.team-intel details { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; margin-bottom: 8px; }
+.team-intel summary { cursor: pointer; padding: 4px 0; }
+/* Phone page: photos and frequencies */
+.photos-card .marks-head, .freq-card .marks-head { display: flex; align-items: center; gap: 10px; min-height: 40px; }
+.photos-card .marks-head h3, .freq-card .marks-head h3 { margin: 0; }
+.photos-card .ping-btn, .freq-card .ping-btn { margin-left: auto; padding: 9px 12px; font-size: 14px; }
+.field-photostrip { display: flex; gap: 8px; overflow-x: auto; padding: 6px 0; -webkit-overflow-scrolling: touch; }
+.fieldapp .photo-drop { min-height: 140px; }
+.fieldapp .freq-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fieldapp .freq-row label { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.fieldapp .freq-row input, .fieldapp .freq-row select { width: 100%; box-sizing: border-box; }
+.freq-card .mark-item { grid-template-columns: 16px 1fr auto; }
+.field-viewer { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.92); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+.field-viewer img { max-width: 100%; max-height: 78vh; border-radius: 6px; }
+.fv-cap { color: #E6EDF3; font-size: 14px; margin-top: 10px; text-align: center; }
+.fv-cap p { margin: 4px 0 0; }
+.fieldapp .mark-actions { flex-wrap: wrap; }
+.fieldapp .wp-acks { flex-wrap: wrap; }

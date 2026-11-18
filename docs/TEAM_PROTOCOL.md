@@ -75,7 +75,7 @@ Reports go on a sibling topic (`<t>-pos`) so people following the chat in the nt
 | `t` | number | | Fix time, epoch **ms** |
 | `s` | `"on"`/`"off"`/`"dark"` | | See states below |
 | `app`, `ver` | string | | `"vigil"` and its version (the web page sends `"field"`) |
-| `perm` | string[] | | Categories being shared **right now**: `loc`, `bat`, `motion`, `hr`, `env`, `profile` |
+| `perm` | string[] | | Categories being shared **right now**: `loc`, `bat`, `motion`, `hr`, `env`, `profile`, `radio`, `device` |
 | `lat`, `lon` | number | `loc` | WGS-84 degrees (full precision: this is the opt-in exception to Vigil's 2-decimal rule) |
 | `acc` | number | `loc` | Horizontal accuracy, m |
 | `alt` | number | `loc` | Altitude, m |
@@ -85,6 +85,8 @@ Reports go on a sibling topic (`<t>-pos`) so people following the chat in the nt
 | `hr` | number | `hr` | Heart rate, bpm, from a paired wearable |
 | `env` | object | `env` | `lux` (light), `hpa` (pressure), `db` (noise level, never audio) |
 | `prof` | object | `profile` | `role` (≤40), `unit` (≤40), `phone` (`+`, digits, spaces, `().-`), `email`. Shown on the console's agent profile with call, text and email buttons. Invalid values are dropped |
+| `radio` | object | `radio` | What they're listening to: `f` (MHz, 0.01–300000), `mode` (≤8), `label` (≤40), `sys` / `sysName` (scanner system, ≤40 / ≤60). Shown under their name |
+| `dev` | object | `device` | Their device: `type` (`android`, `ios`, `web`, `desktop`), `os` (≤40, e.g. `iOS 18`), `model` (≤60, e.g. `Safari`, `Google Pixel 8`). Without it, apps show the platform implied by `app` (`vigil` = Android app, `field` = web browser) |
 
 **The console enforces `perm`.** Fields outside the listed categories are thrown away on receipt, and a missing `perm` means `["loc"]`. A report without `loc` is still valid: the person shows as present, with no location.
 
@@ -92,6 +94,11 @@ Reports go on a sibling topic (`<t>-pos`) so people following the chat in the nt
 
 **States:**
 - `on`: sharing. Send when moved more than 20 m (at most every 8 s), otherwise every 30 to 60 s as a heartbeat.
+  The user can pick an update rate. Each preset is move threshold / minimum interval / heartbeat, and the heartbeat always stays under 60 s:
+  - Live: 10 m / 3 s / 30 s
+  - Normal: 20 m / 8 s / 45 s
+  - Battery saver: 50 m / 30 s / 55 s
+  - Low: 100 m / 60 s / 58 s
 - `off`: stopped sharing. The console removes the person from the map and roster.
 - `dark`: **stealth**. The console removes the marker and trail **immediately**, keeps no last position, and lists the person as "DARK". Send it once, with no location, when the user taps a stealth button, then send nothing. A fully silent stealth (sending nothing at all) is also fine; the console then just ages the person out.
 
@@ -183,6 +190,59 @@ Walkie-talkie style: **hold to talk, release to send**. Each transmission is one
 - ntfy.sh also caps attachment storage per visitor, roughly 100 MB a day. That's plenty for push-to-talk: 30 s is 240 KB.
 - A self-hosted server needs `attachment-cache-dir` set.
 - Voice isn't sent over Meshtastic: LoRa carries about 200 bytes per packet, which is far too little for audio.
+
+## 4c. Team photos (topic `t` + `-photo`)
+
+Photos use the same transport as voice: a `PUT` with the sealed JPEG as the body.
+
+**Send:** `PUT https://<server>/<t>-photo`
+- **Body:** `iv(12) ‖ AES-256-GCM(JPEG)`, using the channel key `p`.
+- **Headers:**
+  - `Filename: photo.vgi`
+  - `X-Message: VGI1.<sealed metadata>`
+  - `X-Tags: vigilance-photo`
+  - `Authorization` if the invite has a token
+- **Metadata:**
+```json
+{"v":1,"id":"p8k2m1x0","n":"Unit 7","byId":"vigil-3f9a2c","t":1763400000000,"lat":39.748,"lon":-104.995,"mark":"m7q2xk","cap":"Gate chained shut","w":1600,"h":1200,"mime":"image/jpeg"}
+```
+  - `mark` (optional) is the id of the mark the photo belongs to.
+  - `lat`/`lon` (optional) is the mark's position, or the sender's.
+  - `cap` is up to 200 characters.
+  - `mime` is always `image/jpeg`.
+
+**Before sending:** re-encode to a JPEG with the longest edge ≤ 1600 px and ≤ 1.5 MB. Re-encoding drops EXIF, including camera GPS and device details. Keep the camera's rotation.
+
+**Receive:**
+- Open the metadata, download `attachment.url`, decrypt, and check for the JPEG marker `FF D8 FF`.
+- Drop anything that isn't `image/jpeg`. Ignore invalid lat/lon.
+- **Store photos locally right away:** ntfy.sh deletes attachments after about 3 hours. The apps keep the last 100.
+- Show a photo under its mark, otherwise as a pin in the sender's colour.
+
+UI hint: "Photograph things and places: describe activity, not who someone is."
+
+### Recon requests
+
+A recon request is an `investigate` mark (§4) whose `name` starts with `Recon: `, with category `observation`. Every app shows it as a "?" to check. Vigil and Vigilance badge it **RECON** and offer **Post photo**, which attaches a photo with `mark` set to the request's id.
+
+### Shared frequencies (plain chat)
+
+A frequency is shared as an ordinary chat line, so the ntfy app shows it too:
+
+`📻 FREQ 462.5625 MHz NFM · tone 67.0 · Team channel — Unit 7`
+
+- The mode is optional (`NFM`, `FM`, `AM`, `USB`, `LSB`, `DMR`, `P25`).
+- The ` · tone X` and ` · label` parts are optional.
+- The callsign comes after ` — `.
+- Apps collect these into a team frequency list: newest first, one entry per frequency and mode.
+
+### Teammate colours
+
+Each teammate has a stable colour, the same in every app. Take the 32-bit FNV-1a hash of their device id, mod 10, and index into:
+
+`#4CC9F0 #FF9F1C #B57BFF #3DF2A7 #FF6B9A #FFD84D #5B8CFF #FF6B4A #2EC4B6 #E0A3FF`
+
+Initials are the first letter of the first two words, or the first two letters of a single word.
 
 ## 5. Kotlin reference (Android API 26+)
 

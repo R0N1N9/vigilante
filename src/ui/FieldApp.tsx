@@ -1,3 +1,6 @@
+import { FieldFreqs } from './FieldFreqs';
+import { PhotoComposer, PhotoStrip, PhotoViewer, useFieldPhotos, type FieldPhoto } from './FieldPhotos';
+import { cleanListening, describeDevice, deviceFromUA, isReconName, RATES, reconName, RECON_NOTE, type RateId } from '../lib/teamext';
 import { createRoot } from 'react-dom/client';
 import { FieldRadio } from './FieldRadio';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -25,6 +28,12 @@ interface Saved {
   /** Optional role/contact, sent only when shareProfile is on. */
   profile?: Profile;
   shareProfile?: boolean;
+  /** Share device type (from the browser) and what I'm monitoring (Vigil's 'device' and 'radio' categories). */
+  shareDevice?: boolean;
+  shareRadio?: boolean;
+  listening?: { f?: number; mode?: string; label?: string };
+  /** How often to report while sharing. */
+  rate?: RateId;
 }
 
 function load(): Saved {
@@ -220,10 +229,14 @@ export function FieldApp() {
   const [wps, setWps] = useState<Map<string, Extract<OpsMessage, { type: 'wp' }>>>(new Map());
   const [myAcks, setMyAcks] = useState<Record<string, AckState>>({});
   const [marks, setMarks] = useState<Map<string, MarkMessage>>(new Map());
+  const fieldPhotos = useFieldPhotos(ch, saved.deviceId);
+  const liveMarkList = useMemo(() => [...marks.values()].filter((m) => markLive({ state: m.state, at: m.t, ttlS: m.ttl }) && m.kind !== 'ping').map((m) => ({ id: m.id, name: m.name })), [marks]);
   const [resolveId, setResolveId] = useState('');
   const [foundText, setFoundText] = useState('');
   const [markOpen, setMarkOpen] = useState(false);
-  const [mk, setMk] = useState<{ kind: MarkKind; cat: MarkCategory; name: string; desc: string; r: number }>({ kind: 'marker', cat: 'general', name: '', desc: '', r: 150 });
+  const [photoFor, setPhotoFor] = useState<string | null>(null);
+  const [viewing, setViewing] = useState<FieldPhoto | null>(null);
+  const [mk, setMk] = useState<{ kind: MarkKind | 'recon' | 'waypoint'; cat: MarkCategory; name: string; desc: string; r: number }>({ kind: 'marker', cat: 'general', name: '', desc: '', r: 150 });
   const [inviteOpen, setInviteOpen] = useState(false);
   const sentAt = useRef(0);
   const sentWhere = useRef<LonLat | null>(null);
@@ -333,13 +346,18 @@ export function FieldApp() {
     }
     const loc = pos && state === 'on';
     const prof = saved.shareProfile && saved.profile ? cleanProfile(saved.profile) : undefined;
+    const on = state === 'on';
+    const dev = on && saved.shareDevice ? deviceFromUA(navigator.userAgent) : undefined;
+    const radio = on && saved.shareRadio && saved.listening?.f ? cleanListening(saved.listening) : undefined;
     const r: PositionReport = {
       v: 1,
       id: saved.deviceId,
       n: saved.callsign || 'Phone',
       app: 'field',
-      perm: [...(loc ? (['loc'] as const) : []), ...(bat != null ? (['bat'] as const) : []), ...(prof && state === 'on' ? (['profile'] as const) : [])],
+      perm: [...(loc ? (['loc'] as const) : []), ...(bat != null ? (['bat'] as const) : []), ...(prof && state === 'on' ? (['profile'] as const) : []), ...(dev ? (['device'] as const) : []), ...(radio ? (['radio'] as const) : [])],
       ...(prof && state === 'on' ? { prof } : {}),
+      ...(dev ? { dev } : {}),
+      ...(radio ? { radio } : {}),
       ...(loc
         ? {
             lat: pos.coords.latitude,
@@ -376,15 +394,16 @@ export function FieldApp() {
         const here: LonLat = [p.coords.longitude, p.coords.latitude];
         const moved = sentWhere.current ? distanceM(sentWhere.current, here) : Infinity;
         const since = Date.now() - sentAt.current;
-        if (since > 30_000 || (moved > 20 && since > 8_000)) void report(p).catch((e) => setErr(`Send failed: ${String(e)}`));
+        const rt = RATES[saved.rate ?? 'normal'];
+        if (since > rt.heartbeatS * 1000 || (moved > rt.moveM && since > rt.minS * 1000)) void report(p).catch((e) => setErr(`Send failed: ${String(e)}`));
       },
       (e) => setErr(e.code === e.PERMISSION_DENIED ? 'Location permission was denied. Allow it in your browser settings.' : `Location unavailable: ${e.message}`),
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 },
     );
     const beat = window.setInterval(() => {
       if (Date.now() > until) return stop();
-      if (fixRef.current && Date.now() - sentAt.current > 60_000) void report(fixRef.current).catch(() => {});
-    }, 15_000);
+      if (fixRef.current && Date.now() - sentAt.current > RATES[saved.rate ?? 'normal'].heartbeatS * 1000) void report(fixRef.current).catch(() => {});
+    }, 5_000);
     const lock = async () => {
       try {
         wake.current = (await navigator.wakeLock?.request('screen')) ?? null;
@@ -430,6 +449,28 @@ export function FieldApp() {
   };
 
   /** Place a mark at this phone's position (pings use the same path with kind 'ping'). */
+  /** Send the team here: a waypoint at my location to everyone (Vigil and the console accept it). */
+  const sendWaypointHere = async () => {
+    if (!ch?.posKey) return;
+    let p = fixRef.current;
+    if (!p || Date.now() - p.timestamp > 60_000) {
+      try {
+        p = await new Promise<GeolocationPosition>((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: true, timeout: 15000 }));
+        fixRef.current = p;
+        setFix(p);
+      } catch {
+        return setErr('Location is needed for a waypoint. Allow it in your browser settings.');
+      }
+    }
+    const w = { v: 1 as const, type: 'wp' as const, id: Math.random().toString(36).slice(2, 10), name: (mk.name.trim() || 'Waypoint').slice(0, 60), note: mk.desc.trim().slice(0, 300), lat: p.coords.latitude, lon: p.coords.longitude, to: [], pri: 'routine' as const, state: 'active' as const, by: saved.callsign || 'Phone', t: Date.now() };
+    try {
+      await publish(ch, { topic: opsTopic(ch.topic), message: await sealOps(ch.posKey, w), tags: ['vigilance-ops'] });
+      setMk((x) => ({ ...x, name: '', desc: '' }));
+      setMarkOpen(false);
+    } catch (e) {
+      setErr(`Waypoint not sent: ${String(e)}`);
+    }
+  };
   const placeMark = async (kind: MarkKind, extra: Partial<MarkMessage> = {}) => {
     if (!ch?.posKey) return setErr('This invite is from an older version and can’t carry marks. Ask for a new one.');
     let p = fixRef.current;
@@ -585,6 +626,24 @@ export function FieldApp() {
             <input type="checkbox" checked={!!saved.shareProfile} onChange={(e) => update({ shareProfile: e.target.checked })} />
             <span>Share my role and contact details with the team while I'm sharing</span>
           </label>
+          <label className="check-row">
+            <input type="checkbox" checked={!!saved.shareDevice} onChange={(e) => update({ shareDevice: e.target.checked })} />
+            <span>Share my device type ({describeDevice(deviceFromUA(navigator.userAgent), 'field')})</span>
+          </label>
+          <div className="freq-row">
+            <label>
+              <span>I'm monitoring (MHz)</span>
+              <input inputMode="decimal" value={saved.listening?.f ?? ''} onChange={(e) => update({ listening: { ...saved.listening, f: Number(e.target.value.replace(/[^0-9.]/g, '')) || undefined } })} placeholder="462.5625" />
+            </label>
+            <label>
+              <span>Label</span>
+              <input value={saved.listening?.label ?? ''} onChange={(e) => update({ listening: { ...saved.listening, label: e.target.value.slice(0, 40) } })} placeholder="Team channel" />
+            </label>
+          </div>
+          <label className="check-row">
+            <input type="checkbox" checked={!!saved.shareRadio} onChange={(e) => update({ shareRadio: e.target.checked })} />
+            <span>Share what I'm listening to</span>
+          </label>
         </details>
       </div>
 
@@ -592,13 +651,23 @@ export function FieldApp() {
         {!sharing ? (
           <>
             <h2>Share my location with the team</h2>
-            <p>Your position is sent to everyone in <b>{ch.name}</b> about every 30 seconds while this page is open, encrypted so only people with the invite can read it. You can stop any time.</p>
+            <p>Your position is sent to everyone in <b>{ch.name}</b> while this page is open ({RATES[saved.rate ?? 'normal'].note.toLowerCase()}), encrypted so only people with the invite can read it. You can stop any time.</p>
             <label>
               <span>Stop automatically after</span>
               <select value={hours} onChange={(e) => setHours(Number(e.target.value))}>
                 {DURATIONS.map((d) => (
                   <option key={d.h} value={d.h}>
                     {d.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>Update rate</span>
+              <select value={saved.rate ?? 'normal'} onChange={(e) => update({ rate: e.target.value as RateId })}>
+                {(Object.keys(RATES) as RateId[]).map((k) => (
+                  <option key={k} value={k}>
+                    {RATES[k].label}
                   </option>
                 ))}
               </select>
@@ -703,9 +772,9 @@ export function FieldApp() {
         ) : (
           <div className="mark-form">
             <div className="wp-acks">
-              {(['marker', 'investigate', 'area', 'objective'] as MarkKind[]).map((k) => (
+              {(['marker', 'investigate', 'recon', 'area', 'objective', 'waypoint'] as const).map((k) => (
                 <button key={k} className={`q ${mk.kind === k ? 'on' : ''}`} onClick={() => setMk({ ...mk, kind: k })}>
-                  {MARK_KIND_LABEL[k]}
+                  {k === 'recon' ? 'Recon' : k === 'waypoint' ? 'Waypoint' : MARK_KIND_LABEL[k]}
                 </button>
               ))}
             </div>
@@ -743,7 +812,7 @@ export function FieldApp() {
               <button className="field-btn" onClick={() => setMarkOpen(false)}>
                 Cancel
               </button>
-              <button className="field-btn go" onClick={() => void placeMark(mk.kind)} disabled={!mk.name.trim() && !mk.desc.trim()}>
+              <button className="field-btn go" onClick={() => void (mk.kind === 'waypoint' ? sendWaypointHere() : mk.kind === 'recon' ? placeMark('investigate', { name: reconName(mk.name), cat: 'observation', desc: mk.desc.trim() || RECON_NOTE }) : placeMark(mk.kind))} disabled={!mk.name.trim() && !mk.desc.trim()}>
                 Place at my location
               </button>
             </div>
@@ -763,6 +832,7 @@ export function FieldApp() {
                   {me ? ` · ${fmtDist(distanceM(me, [m.lon, m.lat]))}` : ''} · {m.by} · {fmtAge(m.t)} ago
                 </small>
                 {m.desc && <p>{m.desc}</p>}
+                <PhotoStrip photos={fieldPhotos.photos.filter((p) => p.meta.mark === m.id)} onOpen={setViewing} />
                 {m.res && (
                   <p>
                     <b>Found:</b> {m.res}
@@ -795,11 +865,45 @@ export function FieldApp() {
                 </a>
                 {m.kind === 'investigate' && m.state === 'active' && <button className="hi" onClick={() => void updateMark(m, { state: 'progress' })}>I'll check</button>}
                 {m.kind === 'investigate' && m.state !== 'done' && <button className="hi" onClick={() => setResolveId(m.id)}>Resolve</button>}
+                <button className={isReconName(m.name) ? 'hi' : ''} onClick={() => setPhotoFor(m.id)}>
+                  {isReconName(m.name) ? 'Post photo' : 'Photo'}
+                </button>
                 <button onClick={() => void clearMark(m)}>Clear</button>
               </div>
             </div>
           ))}
       </div>
+
+      {ch.posKey && (
+        <div className="field-card photos-card">
+          <div className="marks-head">
+            <h3>Photos</h3>
+            {photoFor === null && (
+              <button className="field-btn ping-btn" onClick={() => setPhotoFor('')}>
+                <Icon name="camera" size={16} />
+                Take a photo
+              </button>
+            )}
+          </div>
+          {photoFor !== null && (
+            <PhotoComposer
+              marks={liveMarkList}
+              initialMark={photoFor || undefined}
+              onClose={() => setPhotoFor(null)}
+              onPost={async (file, cap, mark) => {
+                const m = mark ? marks.get(mark) : undefined;
+                const here = fixRef.current;
+                await fieldPhotos.post(file, { n: saved.callsign || 'Phone', byId: saved.deviceId, cap: cap.trim(), ...(m ? { mark: m.id, lat: m.lat, lon: m.lon } : here ? { lat: here.coords.latitude, lon: here.coords.longitude } : {}) });
+              }}
+            />
+          )}
+          <PhotoStrip photos={fieldPhotos.photos.slice(0, 24)} onOpen={setViewing} />
+          {!fieldPhotos.photos.length && photoFor === null && <p className="small-text muted">No photos yet.</p>}
+        </div>
+      )}
+      {viewing && <PhotoViewer p={viewing} onClose={() => setViewing(null)} markName={viewing.meta.mark ? marks.get(viewing.meta.mark)?.name : undefined} />}
+
+      <FieldFreqs chat={chat} callsign={saved.callsign} onSend={(t) => sendChat(t)} />
 
       {ch.posKey && <FieldRadio ch={ch} callsign={saved.callsign} deviceId={saved.deviceId} />}
 
