@@ -82,9 +82,10 @@ Built for people who keep watch over a place: physical security and asset protec
 
   Phone browsers pause location when the page is in the background, so the page keeps the screen awake while sharing. For all-day background tracking, use a Meshtastic radio (or, later, the Android app).
 - **Waypoints for agents:** right-click the map → **Place waypoint for agents**, or use **Place waypoint** in the Team view. Name it, add a note, mark it routine or urgent, and send it to everyone or to chosen agents. It's encrypted with the channel key on its own ops topic. Agents get a prompt in Vigil, or a card on the phone check-in page, with **Directions** that opens their maps app. They reply **Acknowledged / En route / Arrived / Can't make it**, and the console also marks someone arrived when their GPS is within 40 m. The map shows the waypoint and dashed lines from assigned agents. Click it for each agent's status, then **Mark complete**, **Cancel** or **Resend**. The wire format is in [`docs/TEAM_PROTOCOL.md`](docs/TEAM_PROTOCOL.md) §4.
-- **Pings and marks:** right-click the map for **Ping here**, **Add marker**, **Area of interest** or **Objective**, or use **Add mark** in the Team view.
+- **Pings and marks:** right-click the map for **Ping here**, **Add marker**, **Investigate (?)**, **Area of interest** or **Objective**, or use **Add mark** in the Team view.
   - Every mark has a category (hazard, entry point, rally point, observation, vehicle, activity, medical, staging, general), a name and a description of what's being marked.
   - Areas have a radius. Objectives move through Active → In progress → Done.
+  - **Investigate** puts a "?" on a place someone should go and look at. Whoever goes taps **I'll check it**, so the team sees who's on it. They then **Resolve** it with what they found, and it can be reopened.
   - Pings pulse on the map and expire after 15 minutes.
   - Agents can place marks too: Vigil, or the phone page's **Ping my location** and **Mark this spot…**. Everyone sees every mark, with **Directions** to it.
   - Anyone can clear a mark, and a marker can be turned into a waypoint with **Send agents here**.

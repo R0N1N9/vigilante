@@ -1,6 +1,6 @@
 import type { State } from '../data/store';
 import { shipTypeName } from '../lib/intel';
-import { MARK_CATEGORIES } from '../lib/waypoints';
+import { MARK_CATEGORIES, markStateLabel } from '../lib/waypoints';
 
 /** Current NEXRAD base reflectivity mosaic tiles (Iowa Environmental Mesonet, keyless). */
 export function radarTiles(): string {
@@ -67,8 +67,8 @@ export function hoverHtml(layer: string, p: Record<string, unknown>, s: State, e
     case 'mark-areas-fill': {
       const m = s.marks.find((x) => x.id === id);
       if (!m) return null;
-      const head = m.kind === 'ping' ? 'PING' : m.kind === 'objective' ? `OBJECTIVE · ${m.state === 'progress' ? 'IN PROGRESS' : m.state.toUpperCase()}` : `${m.kind === 'area' ? 'AREA OF INTEREST' : 'MARKER'} · ${(MARK_CATEGORIES[m.cat] ?? '').toUpperCase()}`;
-      return tip(head, esc(m.name), `${m.desc ? `${esc(m.desc.slice(0, 120))} · ` : ''}by ${esc(m.by)} ${ago(m.at)}`, 'Click for details');
+      const head = m.kind === 'ping' ? 'PING' : m.kind === 'investigate' ? `INVESTIGATE · ${markStateLabel(m.kind, m.state).toUpperCase()}${m.state === 'progress' ? ` · ${esc(m.by).toUpperCase()}` : ''}` : m.kind === 'objective' ? `OBJECTIVE · ${m.state === 'progress' ? 'IN PROGRESS' : m.state.toUpperCase()}` : `${m.kind === 'area' ? 'AREA OF INTEREST' : 'MARKER'} · ${(MARK_CATEGORIES[m.cat] ?? '').toUpperCase()}`;
+      return tip(head, esc(m.name), `${m.found ? `Found: ${esc(m.found.slice(0, 120))} · ` : m.desc ? `${esc(m.desc.slice(0, 120))} · ` : ''}by ${esc(m.by)} ${ago(m.at)}`, 'Click for details');
     }
     case 'waypoints': {
       const w = s.waypoints.find((x) => x.id === id);

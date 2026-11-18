@@ -968,3 +968,15 @@ button.link { background: none; border: 0; padding: 0; color: var(--accent); cur
 .mark-actions { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
 .mark-actions a, .mark-actions button { font-size: 13px; color: var(--accent); background: none; border: 1px solid rgba(var(--accent-rgb), .4); border-radius: 6px; padding: 5px 10px; text-decoration: none; }
 .mark-actions button { color: var(--muted); border-color: var(--line-2); }
+
+/* Investigate marks: a "?" in the dot */
+.mark-dot.q { width: 14px; height: 14px; position: relative; }
+.mark-dot.q::after { content: '?'; position: absolute; inset: 0; display: grid; place-items: center; font: 700 10px/1 var(--mono); color: #0B0F14; }
+.mark-item .mark-dot.q { margin-top: 3px; }
+.mark-found { font-size: 13px; margin: 0 0 6px; padding: 6px 8px; border-left: 2px solid #A78BFA; background: rgba(167,139,250,.08); border-radius: 4px; }
+.mark-actions button.hi { color: #C4B5FD; border-color: rgba(167,139,250,.5); }
+.mark-form textarea { font-family: inherit; width: 100%; box-sizing: border-box; }
+.mark-form textarea:focus { outline: none; border-color: rgba(var(--accent-rgb), .6); }
+.mark-item .mark-form { margin-top: 8px; }
+.mark-item .mark-form .row { display: flex; gap: 8px; }
+.mark-item .mark-form .field-btn { flex: 1; padding: 9px; font-size: 14px; }

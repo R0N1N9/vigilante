@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { deviceOf, directionsLinks, isFor, markFromWire, markLive, markToWire, openOps, PING_TTL_S, reached, sealOps, toWire, type Mark, type Waypoint } from '../src/lib/waypoints';
+import { deviceOf, directionsLinks, hasStatus, isFor, markFromWire, markStateLabel, markLive, markToWire, openOps, PING_TTL_S, reached, sealOps, toWire, type Mark, type Waypoint } from '../src/lib/waypoints';
 import { newPosKey, openPosition } from '../src/lib/poscrypt';
 
 const w: Waypoint = { id: 'w1', channelId: 'c1', name: 'North gate', note: 'Meet here', location: [-104.995, 39.748], to: ['dev-a'], priority: 'urgent', state: 'active', by: 'Ops', at: 1, acks: {} };
@@ -49,6 +49,17 @@ describe('marks', () => {
     expect(await openOps(k, await sealOps(k, { ...area, cat: 'weird' as never }))).toMatchObject({ cat: 'general' });
     expect(await openOps(k, await sealOps(k, { ...area, kind: 'nuke' as never }))).toBeNull();
     expect(await openOps(k, await sealOps(k, { ...area, lat: 99 }))).toBeNull();
+  });
+  it('investigate carries findings and status labels', async () => {
+    const k = newPosKey();
+    const q = { v: 1 as const, type: 'mark' as const, id: 'q1', kind: 'investigate' as const, cat: 'general' as const, name: 'Gate open?', desc: 'After hours', lat: 39.7, lon: -105, state: 'done' as const, by: 'Unit 7', byId: 'web-7', t: 9, res: 'Left open by staff, locked now' };
+    expect(await openOps(k, await sealOps(k, q))).toMatchObject({ kind: 'investigate', state: 'done', res: 'Left open by staff, locked now' });
+    const m = markFromWire(q, 'c');
+    expect(m.found).toBe('Left open by staff, locked now');
+    expect(markToWire(m).res).toBe(m.found);
+    expect(markStateLabel('investigate', 'progress')).toBe('Checking');
+    expect(markStateLabel('objective', 'progress')).toBe('In progress');
+    expect(hasStatus('investigate') && hasStatus('objective') && !hasStatus('marker')).toBe(true);
   });
   it('wire conversion and liveness', () => {
     const m: Mark = { id: 'x', channelId: 'c', kind: 'objective', cat: 'rally', name: 'Secure lot', desc: '', location: [-105, 39.7], state: 'progress', by: 'Ops', byId: 'lap', at: 1000 };

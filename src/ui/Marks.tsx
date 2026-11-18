@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { getState, setState, useStore } from '../data/store';
 import { sendMark } from '../data/engine/comms';
 import { ageText } from '../lib/team';
-import { directionsLinks, markLive, MARK_CATEGORIES, MARK_KIND_LABEL, MARK_STATE_LABEL, PING_TTL_S, type Mark, type MarkCategory, type MarkKind, type MarkState } from '../lib/waypoints';
+import { directionsLinks, hasStatus, markLive, markStateLabel, MARK_CATEGORIES, MARK_KIND_LABEL, PING_TTL_S, type Mark, type MarkCategory, type MarkKind, type MarkState } from '../lib/waypoints';
 import { Icon } from './Icon';
 import { openExternal } from './popout';
 import { placeWaypoint } from './Waypoints';
@@ -23,7 +23,9 @@ export const MARK_COLOR: Record<MarkCategory, string> = {
 };
 export const OBJECTIVE_COLOR = '#FBBF24';
 export const PING_COLOR = '#3DD6F5';
-export const markColor = (m: Pick<Mark, 'kind' | 'cat'>) => (m.kind === 'ping' ? PING_COLOR : m.kind === 'objective' ? OBJECTIVE_COLOR : MARK_COLOR[m.cat] ?? '#E6EDF3');
+export const INVESTIGATE_COLOR = '#A78BFA';
+const KIND_COLOR: Partial<Record<MarkKind, string>> = { ping: PING_COLOR, objective: OBJECTIVE_COLOR, investigate: INVESTIGATE_COLOR };
+export const markColor = (m: Pick<Mark, 'kind' | 'cat'>) => KIND_COLOR[m.kind] ?? MARK_COLOR[m.cat] ?? '#E6EDF3';
 
 export const newMarkAt = (at: [number, number], kind: MarkKind) => setState({ modal: 'mark', markDraft: { at, kind } });
 export const openMark = (id: string) => {
@@ -31,7 +33,8 @@ export const openMark = (id: string) => {
   if (m) setState({ modal: 'mark', markDraft: { at: m.location, id } });
 };
 
-const KINDS: MarkKind[] = ['ping', 'marker', 'area', 'objective'];
+const KINDS: MarkKind[] = ['ping', 'marker', 'investigate', 'area', 'objective'];
+const DEFAULT_NAME: Partial<Record<MarkKind, string>> = { ping: 'Ping', objective: 'Objective', investigate: 'Check this out' };
 const DESC_HINT = 'Describe what is there or what to do. Describe things and activity, not who someone is.';
 
 export function MarkModal() {
@@ -47,6 +50,8 @@ export function MarkModal() {
   const [radius, setRadius] = useState(existing?.radiusM ?? 150);
   const [channelId, setChannelId] = useState(existing?.channelId ?? channels[0]?.id ?? '');
   const [editing, setEditing] = useState(false);
+  const [resolving, setResolving] = useState(false);
+  const [found, setFound] = useState(existing?.found ?? '');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   if (!draft) return null;
@@ -79,7 +84,7 @@ export function MarkModal() {
               <i className="mark-dot" style={{ background: markColor(existing) }} /> {existing.name}
               <span className="wp-state">{MARK_KIND_LABEL[existing.kind].toUpperCase()}</span>
               {existing.kind !== 'ping' && <span className="wp-state">{MARK_CATEGORIES[existing.cat].toUpperCase()}</span>}
-              <span className={`wp-state ${existing.state === 'done' ? 'done' : live ? 'active' : ''}`}>{live ? MARK_STATE_LABEL[existing.state].toUpperCase() : 'EXPIRED'}</span>
+              <span className={`wp-state ${existing.state === 'done' ? 'done' : live ? 'active' : ''}`}>{live ? markStateLabel(existing.kind, existing.state).toUpperCase() : 'EXPIRED'}</span>
             </h2>
             <button className="x" onClick={close} aria-label="Close">
               ×
@@ -88,6 +93,18 @@ export function MarkModal() {
           <div className="modal-body">
             <section>
               {existing.desc ? <p className="mark-desc">{existing.desc}</p> : <p className="muted">No description.</p>}
+              {existing.kind === 'investigate' && existing.state === 'progress' && <p className="small-text accent">{existing.by} is checking it.</p>}
+              {existing.found && (
+                <p className="mark-found">
+                  <b>Found:</b> {existing.found}
+                </p>
+              )}
+              {resolving && (
+                <label className="field">
+                  <span>What did you find?</span>
+                  <textarea autoFocus rows={3} value={found} onChange={(e) => setFound(e.target.value.slice(0, 500))} placeholder="Gate was left open, now locked. Nothing else out of place." />
+                </label>
+              )}
               <p className="mono small-text muted">
                 {lat.toFixed(5)}, {lon.toFixed(5)}
                 {existing.radiusM ? ` · radius ${Math.round(existing.radiusM)} m` : ''} · by {existing.by} {ageText(Date.now() - existing.at)} ago
@@ -121,6 +138,22 @@ export function MarkModal() {
                 In progress
               </button>
             )}
+            {existing.kind === 'investigate' && existing.state === 'active' && !resolving && (
+              <button className="btn small" disabled={busy} onClick={() => update({ state: 'progress' })} title="Let the team know you're going to look">
+                I'll check it
+              </button>
+            )}
+            {existing.kind === 'investigate' && existing.state !== 'done' && (
+              <button className="btn small primary" disabled={busy} onClick={() => (resolving ? update({ state: 'done', found: found.trim() }) : setResolving(true))}>
+                <Icon name="check" />
+                {resolving ? 'Mark resolved' : 'Resolve…'}
+              </button>
+            )}
+            {existing.kind === 'investigate' && existing.state === 'done' && (
+              <button className="btn small" disabled={busy} onClick={() => update({ state: 'active', found: '' })} title="Needs another look">
+                Reopen
+              </button>
+            )}
             {existing.kind === 'objective' && existing.state !== 'done' && (
               <button className="btn small primary" disabled={busy} onClick={() => update({ state: 'done' })}>
                 <Icon name="check" />
@@ -144,7 +177,7 @@ export function MarkModal() {
     void save({
       ...base,
       cat: k === 'ping' ? 'general' : cat,
-      name: (name.trim() || (k === 'ping' ? 'Ping' : k === 'objective' ? 'Objective' : MARK_CATEGORIES[cat])).slice(0, 60),
+      name: (name.trim() || DEFAULT_NAME[k] || MARK_CATEGORIES[cat]).slice(0, 60),
       desc: desc.trim(),
       ...(k === 'area' ? { radiusM: radius } : {}),
       ...(k === 'ping' ? { ttlS: PING_TTL_S } : {}),
@@ -186,6 +219,7 @@ export function MarkModal() {
                   {k === 'marker' && 'A point of interest everyone on the team can see until it’s cleared.'}
                   {k === 'area' && 'A circle of interest: a perimeter, a search area, a zone to avoid.'}
                   {k === 'objective' && 'A goal for the team, with a status: active, in progress, done.'}
+                  {k === 'investigate' && 'A “?” on a place someone should go and look at. Whoever checks it marks it resolved and says what they found.'}
                 </p>
                 {k !== 'ping' && (
                   <div className="field">
@@ -193,7 +227,7 @@ export function MarkModal() {
                     <div className="chips">
                       {(Object.keys(MARK_CATEGORIES) as MarkCategory[]).map((c) => (
                         <button key={c} className={`chip ${cat === c ? 'on' : ''}`} onClick={() => setCat(c)}>
-                          <i className="mark-dot" style={{ background: k === 'objective' ? OBJECTIVE_COLOR : MARK_COLOR[c] }} /> {MARK_CATEGORIES[c]}
+                          <i className="mark-dot" style={{ background: KIND_COLOR[k] ?? MARK_COLOR[c] }} /> {MARK_CATEGORIES[c]}
                         </button>
                       ))}
                     </div>
@@ -201,7 +235,7 @@ export function MarkModal() {
                 )}
                 <label className="field">
                   <span>Name {k === 'ping' && '(optional)'}</span>
-                  <input autoFocus value={name} onChange={(e) => setName(e.target.value.slice(0, 60))} placeholder={k === 'ping' ? 'Look here' : k === 'objective' ? 'Secure the north lot' : 'Side gate, blue van, water main…'} />
+                  <input autoFocus value={name} onChange={(e) => setName(e.target.value.slice(0, 60))} placeholder={k === 'ping' ? 'Look here' : k === 'objective' ? 'Secure the north lot' : k === 'investigate' ? 'Gate open after hours? Odd noise? Light on?' : 'Side gate, blue van, water main…'} />
                 </label>
                 <label className="field">
                   <span>Description</span>
@@ -225,13 +259,13 @@ export function MarkModal() {
                     </select>
                   </label>
                 )}
-                {existing?.kind === 'objective' && (
+                {existing && hasStatus(existing.kind) && (
                   <label className="field">
                     <span>Status</span>
                     <select value={existing.state} onChange={(e) => void save({ ...existing, state: e.target.value as MarkState, ...me, at: Date.now() })}>
                       {(['active', 'progress', 'done'] as MarkState[]).map((st) => (
                         <option key={st} value={st}>
-                          {MARK_STATE_LABEL[st]}
+                          {markStateLabel(existing.kind, st)}
                         </option>
                       ))}
                     </select>
@@ -264,13 +298,13 @@ export function MarkList() {
   const counts = KINDS.map((k) => [k, live.filter((m) => m.kind === k).length] as const).filter(([, n]) => n);
   return (
     <div className="wp-list">
-      <div className="tv-chat-head mono">MARKS · {counts.map(([k, n]) => `${n} ${MARK_KIND_LABEL[k].toUpperCase()}${n > 1 && k !== 'area' ? 'S' : ''}`).join(' · ')}</div>
+      <div className="tv-chat-head mono">MARKS · {counts.map(([k, n]) => `${n} ${MARK_KIND_LABEL[k].toUpperCase()}${n > 1 && k !== 'area' && k !== 'investigate' ? 'S' : ''}`).join(' · ')}</div>
       {live.slice(0, 12).map((m) => (
         <button key={m.id} className={`wp-row mark-row ${m.kind}`} onClick={() => openMark(m.id)} style={{ borderLeftColor: markColor(m) }}>
           <i className="mark-dot" style={{ background: markColor(m) }} />
           <b>{m.name}</b>
           <span className="muted small-text">
-            {m.kind === 'objective' ? MARK_STATE_LABEL[m.state] : m.kind === 'ping' ? 'ping' : MARK_CATEGORIES[m.cat]} · {m.by} · {ageText(Date.now() - m.at)}
+            {hasStatus(m.kind) ? `${m.kind === 'investigate' ? 'Investigate · ' : ''}${markStateLabel(m.kind, m.state)}` : m.kind === 'ping' ? 'ping' : MARK_CATEGORIES[m.cat]} · {m.by} · {ageText(Date.now() - m.at)}
           </span>
         </button>
       ))}

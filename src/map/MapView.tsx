@@ -10,7 +10,7 @@ import { getPack } from '../lib/packs';
 import { openExternal, openRadio } from '../ui/popout';
 import { openWaypoint, placeWaypoint } from '../ui/Waypoints';
 import { markColor, newMarkAt, openMark } from '../ui/Marks';
-import { markLive } from '../lib/waypoints';
+import { hasStatus, markLive, markStateLabel } from '../lib/waypoints';
 import { addIcons, CLASS_COLORS, DRONE_COLOR, RADIO_COLOR } from './icons';
 import { addTerrain, setTerrainOptions } from './terrain';
 import { shipTypeName, stormSeverity } from '../lib/intel';
@@ -62,7 +62,8 @@ function addDataLayers(map: MlMap) {
   L({ id: 'mark-areas-fill', type: 'fill', source: 'mark-areas', paint: { 'fill-color': ['get', 'color'], 'fill-opacity': ['case', ['get', 'done'], 0.03, 0.08] } });
   L({ id: 'mark-areas-line', type: 'line', source: 'mark-areas', paint: { 'line-color': ['get', 'color'], 'line-width': 1.6, 'line-opacity': 0.85, 'line-dasharray': [3, 2] } });
   L({ id: 'marks-ping', type: 'circle', source: 'marks', filter: ['==', ['get', 'kind'], 'ping'], paint: { 'circle-radius': 12, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': ['get', 'color'], 'circle-stroke-width': 2, 'circle-stroke-opacity': 0.8 } });
-  L({ id: 'marks', type: 'circle', source: 'marks', paint: { 'circle-radius': ['match', ['get', 'kind'], 'objective', 8, 'ping', 5, 6], 'circle-color': ['case', ['==', ['get', 'kind'], 'objective'], 'rgba(11,15,20,0.85)', ['get', 'color']], 'circle-stroke-color': ['case', ['==', ['get', 'kind'], 'objective'], ['get', 'color'], '#0B0F14'], 'circle-stroke-width': ['case', ['==', ['get', 'kind'], 'objective'], 3, 1.5], 'circle-opacity': ['case', ['get', 'done'], 0.45, 1], 'circle-stroke-opacity': ['case', ['get', 'done'], 0.45, 1] } });
+  L({ id: 'marks', type: 'circle', source: 'marks', paint: { 'circle-radius': ['match', ['get', 'kind'], 'objective', 8, 'investigate', 9, 'ping', 5, 6], 'circle-color': ['case', ['get', 'ring'], 'rgba(11,15,20,0.85)', ['get', 'color']], 'circle-stroke-color': ['case', ['get', 'ring'], ['get', 'color'], '#0B0F14'], 'circle-stroke-width': ['case', ['get', 'ring'], ['match', ['get', 'kind'], 'investigate', 2, 3], 1.5], 'circle-opacity': ['case', ['get', 'done'], 0.45, 1], 'circle-stroke-opacity': ['case', ['get', 'done'], 0.45, 1] } });
+  L({ id: 'marks-q', type: 'symbol', source: 'marks', filter: ['==', ['get', 'kind'], 'investigate'], layout: { 'text-field': '?', 'text-font': LABEL_FONT, 'text-size': 13, 'text-allow-overlap': true, 'text-ignore-placement': true }, paint: { 'text-color': ['get', 'color'], 'text-opacity': ['case', ['get', 'done'], 0.45, 1] } });
   L({ id: 'marks-label', type: 'symbol', source: 'marks', layout: { 'text-field': ['get', 'label'], 'text-font': LABEL_FONT, 'text-size': 10.5, 'text-offset': [0, 1.3], 'text-anchor': 'top', 'text-letter-spacing': 0.04, 'text-optional': true }, paint: { 'text-color': ['get', 'color'], 'text-halo-color': '#0B0F14', 'text-halo-width': 1.6 } });
   L({ id: 'wp-links', type: 'line', source: 'wp-links', paint: { 'line-color': ['get', 'color'], 'line-width': 1.6, 'line-opacity': 0.75, 'line-dasharray': [2, 2] } });
   L({ id: 'waypoints', type: 'circle', source: 'waypoints', paint: { 'circle-radius': 9, 'circle-color': 'rgba(11,15,20,0.85)', 'circle-stroke-color': ['get', 'color'], 'circle-stroke-width': 2.5, 'circle-opacity': ['case', ['get', 'active'], 1, 0.4], 'circle-stroke-opacity': ['case', ['get', 'active'], 1, 0.4] } });
@@ -158,7 +159,7 @@ function render(map: MlMap, s: State) {
   const TEAM_COLOR = { phone: '#2BD47D', mesh: '#FBBF24', ntfy: '#3DD6F5' } as const;
   setData(map, 'team', fc(s.team.filter((m): m is typeof m & { location: LonLat } => !!m.location && !m.dark).map((m) => ({ type: 'Feature', properties: { id: m.id, name: m.name, color: TEAM_COLOR[m.source], stale: Date.now() - m.at > 10 * 60_000 }, geometry: { type: 'Point', coordinates: m.location } }))));
   const liveMarks = s.marks.filter((m) => markLive(m));
-  setData(map, 'marks', fc(liveMarks.map((m) => ({ type: 'Feature', properties: { id: m.id, kind: m.kind, color: markColor(m), done: m.state === 'done', label: m.kind === 'ping' ? `PING · ${m.by}` : `${m.name}${m.kind === 'objective' && m.state !== 'active' ? ` · ${m.state === 'progress' ? 'in progress' : 'done'}` : ''}` }, geometry: { type: 'Point', coordinates: m.location } }))));
+  setData(map, 'marks', fc(liveMarks.map((m) => ({ type: 'Feature', properties: { id: m.id, kind: m.kind, color: markColor(m), done: m.state === 'done', ring: hasStatus(m.kind), label: m.kind === 'ping' ? `PING · ${m.by}` : `${m.name}${hasStatus(m.kind) && m.state !== 'active' ? ` · ${markStateLabel(m.kind, m.state).toLowerCase()}` : ''}` }, geometry: { type: 'Point', coordinates: m.location } }))));
   setData(map, 'mark-areas', fc(liveMarks.filter((m) => m.kind === 'area' && m.radiusM).map((m) => ({ type: 'Feature', properties: { id: m.id, color: markColor(m), done: m.state === 'done' }, geometry: { type: 'Polygon', coordinates: [circleRing(m.location, m.radiusM!, 72)] } }))));
   const wpColor = (w: (typeof s.waypoints)[number]) => (w.priority === 'urgent' ? '#FF4D4F' : '#3DD6F5');
   const shownWps = s.waypoints.filter((w) => w.state === 'active' || Date.now() - w.at < 30 * 60_000);
@@ -375,6 +376,7 @@ export function MapView() {
       const at: [number, number] = [spot.lon, spot.lat];
       item('Ping here', () => newMarkAt(at, 'ping'));
       item('Add marker', () => newMarkAt(at, 'marker'));
+      item('Investigate (?)', () => newMarkAt(at, 'investigate'));
       item('Area of interest', () => newMarkAt(at, 'area'));
       item('Objective', () => newMarkAt(at, 'objective'));
       item('Place waypoint for agents', () => placeWaypoint(at));

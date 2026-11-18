@@ -3,7 +3,7 @@ import QRCode from 'qrcode';
 import { CHECKIN_TAG, FIELD_CODES, fieldLink, newNtfyChannel, vigilLink, ntfyPublishBody, ntfyStreamUrl, ntfyToMessage, parseInvite, spotUrl, type ChatMessage, type NtfyChannel, type NtfyEvent } from '../lib/comms';
 import { cleanProfile, openPosition, posTopic, sealPosition, type PositionReport, type Profile } from '../lib/poscrypt';
 import { distanceM, type LonLat } from '../lib/geo';
-import { ACK_LABEL, directionsLinks, isFor, markLive, MARK_CATEGORIES, MARK_KIND_LABEL, MARK_STATE_LABEL, openOps, opsTopic, PING_TTL_S, sealOps, type AckState, type MarkCategory, type MarkKind, type MarkMessage, type OpsMessage } from '../lib/waypoints';
+import { ACK_LABEL, directionsLinks, isFor, markLive, MARK_CATEGORIES, MARK_KIND_LABEL, markStateLabel, openOps, opsTopic, PING_TTL_S, sealOps, type AckState, type MarkCategory, type MarkKind, type MarkMessage, type OpsMessage } from '../lib/waypoints';
 
 const MARK_DOT: Record<MarkCategory, string> = { general: '#E6EDF3', hazard: '#FF7A45', entry: '#4C8DFF', rally: '#2BD47D', observation: '#C084FC', vehicle: '#FFD84D', activity: '#FF4D4F', medical: '#FF8FA3', staging: '#7DD3FC' };
 import { BrandMark } from './BrandMark';
@@ -218,6 +218,8 @@ export function FieldApp() {
   const [wps, setWps] = useState<Map<string, Extract<OpsMessage, { type: 'wp' }>>>(new Map());
   const [myAcks, setMyAcks] = useState<Record<string, AckState>>({});
   const [marks, setMarks] = useState<Map<string, MarkMessage>>(new Map());
+  const [resolveId, setResolveId] = useState('');
+  const [foundText, setFoundText] = useState('');
   const [markOpen, setMarkOpen] = useState(false);
   const [mk, setMk] = useState<{ kind: MarkKind; cat: MarkCategory; name: string; desc: string; r: number }>({ kind: 'marker', cat: 'general', name: '', desc: '', r: 150 });
   const [inviteOpen, setInviteOpen] = useState(false);
@@ -444,7 +446,7 @@ export function FieldApp() {
       id: Math.random().toString(36).slice(2, 10),
       kind,
       cat: kind === 'ping' ? 'general' : mk.cat,
-      name: (kind === 'ping' ? 'Ping' : mk.name.trim() || (kind === 'objective' ? 'Objective' : MARK_CATEGORIES[mk.cat])).slice(0, 60),
+      name: (kind === 'ping' ? 'Ping' : mk.name.trim() || (kind === 'objective' ? 'Objective' : kind === 'investigate' ? 'Check this out' : MARK_CATEGORIES[mk.cat])).slice(0, 60),
       desc: (kind === 'ping' ? mk.desc : mk.desc).trim().slice(0, 500),
       lat: p.coords.latitude,
       lon: p.coords.longitude,
@@ -465,9 +467,10 @@ export function FieldApp() {
       setErr(`Mark not sent: ${String(e)}`);
     }
   };
-  const clearMark = async (m: MarkMessage) => {
+  const clearMark = (m: MarkMessage) => updateMark(m, { state: 'cleared' });
+  const updateMark = async (m: MarkMessage, patch: Partial<MarkMessage>) => {
     if (!ch?.posKey) return;
-    const next: MarkMessage = { ...m, state: 'cleared', by: saved.callsign || 'Phone', byId: saved.deviceId, t: Date.now() };
+    const next: MarkMessage = { ...m, ...patch, by: saved.callsign || 'Phone', byId: saved.deviceId, t: Date.now() };
     setMarks((cur) => new Map(cur).set(m.id, next));
     await publish(ch, { topic: opsTopic(ch.topic), message: await sealOps(ch.posKey, next), tags: ['vigilance-ops'] }).catch(() => {});
   };
@@ -698,7 +701,7 @@ export function FieldApp() {
         ) : (
           <div className="mark-form">
             <div className="wp-acks">
-              {(['marker', 'area', 'objective'] as MarkKind[]).map((k) => (
+              {(['marker', 'investigate', 'area', 'objective'] as MarkKind[]).map((k) => (
                 <button key={k} className={`q ${mk.kind === k ? 'on' : ''}`} onClick={() => setMk({ ...mk, kind: k })}>
                   {MARK_KIND_LABEL[k]}
                 </button>
@@ -750,19 +753,46 @@ export function FieldApp() {
           .slice(0, 12)
           .map((m) => (
             <div key={m.id} className={`mark-item ${m.kind}`}>
-              <i className="mark-dot" style={{ background: m.kind === 'ping' ? '#3DD6F5' : m.kind === 'objective' ? '#FBBF24' : MARK_DOT[m.cat] }} />
+              <i className={`mark-dot ${m.kind === 'investigate' ? 'q' : ''}`} style={{ background: m.kind === 'ping' ? '#3DD6F5' : m.kind === 'objective' ? '#FBBF24' : m.kind === 'investigate' ? '#A78BFA' : MARK_DOT[m.cat] }} />
               <div>
                 <b>{m.kind === 'ping' && (!m.name || m.name === 'Ping') ? `Ping from ${m.by}` : m.name}</b>
                 <small>
-                  {m.kind === 'ping' ? 'ping' : m.kind === 'objective' ? `objective · ${MARK_STATE_LABEL[m.state].toLowerCase()}` : `${MARK_KIND_LABEL[m.kind].toLowerCase()} · ${MARK_CATEGORIES[m.cat].toLowerCase()}`}
+                  {m.kind === 'ping' ? 'ping' : m.kind === 'objective' || m.kind === 'investigate' ? `${m.kind} · ${markStateLabel(m.kind, m.state).toLowerCase()}${m.kind === 'investigate' && m.state === 'progress' ? ` by ${m.by}` : ''}` : `${MARK_KIND_LABEL[m.kind].toLowerCase()} · ${MARK_CATEGORIES[m.cat].toLowerCase()}`}
                   {me ? ` · ${fmtDist(distanceM(me, [m.lon, m.lat]))}` : ''} · {m.by} · {fmtAge(m.t)} ago
                 </small>
                 {m.desc && <p>{m.desc}</p>}
+                {m.res && (
+                  <p>
+                    <b>Found:</b> {m.res}
+                  </p>
+                )}
+                {resolveId === m.id && (
+                  <div className="mark-form">
+                    <textarea autoFocus rows={2} value={foundText} onChange={(e) => setFoundText(e.target.value.slice(0, 500))} placeholder="What did you find?" />
+                    <div className="row">
+                      <button className="field-btn" onClick={() => setResolveId('')}>
+                        Cancel
+                      </button>
+                      <button
+                        className="field-btn go"
+                        onClick={() => {
+                          void updateMark(m, { state: 'done', res: foundText.trim() || undefined });
+                          setResolveId('');
+                          setFoundText('');
+                        }}
+                      >
+                        Resolved
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="mark-actions">
                 <a href={isApple ? directionsLinks(m.lat, m.lon, m.name).apple : directionsLinks(m.lat, m.lon, m.name).google} target="_blank" rel="noreferrer">
                   Go
                 </a>
+                {m.kind === 'investigate' && m.state === 'active' && <button className="hi" onClick={() => void updateMark(m, { state: 'progress' })}>I'll check</button>}
+                {m.kind === 'investigate' && m.state !== 'done' && <button className="hi" onClick={() => setResolveId(m.id)}>Resolve</button>}
                 <button onClick={() => void clearMark(m)}>Clear</button>
               </div>
             </div>

@@ -140,8 +140,9 @@ Marks are shared map annotations. **Anyone on the team** can place, edit or clea
   - `marker`: a point of interest.
   - `area`: a circle of radius `r` meters, 10–20,000.
   - `objective`: a goal with a status.
+  - `investigate`: a "?" on a place someone should go and look at. States read as `active` = Open, `progress` = Checking (by `by`) and `done` = Resolved. Put the findings in `res` (up to 500 characters) when resolving.
 - `cat`: `general`, `hazard`, `entry`, `rally`, `observation`, `vehicle`, `activity`, `medical`, `staging`. Unknown values are shown as `general`.
-- `state`: `active`, `progress` (objectives), `done`, or `cleared`, which removes the mark everywhere.
+- `state`: `active`, `progress` (objectives and investigate), `done`, or `cleared`, which removes the mark everywhere.
 - `name` up to 60 characters, `desc` up to 500. `by` is the callsign. `byId` is the device id, or the console's install id.
 - Prompt people to **describe things and activity, not who someone is**. Marks aren't for identifying or tracking individuals.
 

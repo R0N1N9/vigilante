@@ -43,9 +43,10 @@ export type OpsMessage =
 /**
  * Marks: shared map annotations anyone on the team can place, edit or clear.
  * ping: "look here", expires on its own · marker: point of interest ·
- * area: circle of interest · objective: a goal with a status.
+ * area: circle of interest · objective: a goal with a status ·
+ * investigate: a "?" on a place someone should go and look at (open → checking → resolved, with findings).
  */
-export type MarkKind = 'ping' | 'marker' | 'area' | 'objective';
+export type MarkKind = 'ping' | 'marker' | 'area' | 'objective' | 'investigate';
 export type MarkState = 'active' | 'progress' | 'done' | 'cleared';
 
 export const MARK_CATEGORIES = {
@@ -61,8 +62,12 @@ export const MARK_CATEGORIES = {
 } as const;
 export type MarkCategory = keyof typeof MARK_CATEGORIES;
 
-export const MARK_KIND_LABEL: Record<MarkKind, string> = { ping: 'Ping', marker: 'Marker', area: 'Area of interest', objective: 'Objective' };
+export const MARK_KIND_LABEL: Record<MarkKind, string> = { ping: 'Ping', marker: 'Marker', area: 'Area of interest', objective: 'Objective', investigate: 'Investigate' };
 export const MARK_STATE_LABEL: Record<MarkState, string> = { active: 'Active', progress: 'In progress', done: 'Done', cleared: 'Cleared' };
+const INVESTIGATE_STATE_LABEL: Record<MarkState, string> = { active: 'Open', progress: 'Checking', done: 'Resolved', cleared: 'Cleared' };
+/** Kinds that move through active → progress → done. */
+export const hasStatus = (k: MarkKind) => k === 'objective' || k === 'investigate';
+export const markStateLabel = (k: MarkKind, s: MarkState) => (k === 'investigate' ? INVESTIGATE_STATE_LABEL : MARK_STATE_LABEL)[s];
 
 /** Pings fade out on their own unless the sender sets another lifetime. */
 export const PING_TTL_S = 15 * 60;
@@ -84,6 +89,8 @@ export interface Mark {
   at: number;
   /** Seconds after `at` when it disappears (pings); 0 or absent = until cleared. */
   ttlS?: number;
+  /** Investigate marks: what was found when it was resolved. */
+  found?: string;
 }
 
 export type MarkMessage = {
@@ -102,6 +109,8 @@ export type MarkMessage = {
   byId: string;
   t: number;
   ttl?: number;
+  /** Findings (investigate). */
+  res?: string;
 };
 
 export const markToWire = (m: Mark): MarkMessage => ({
@@ -120,6 +129,7 @@ export const markToWire = (m: Mark): MarkMessage => ({
   byId: m.byId,
   t: m.at,
   ...(m.ttlS ? { ttl: m.ttlS } : {}),
+  ...(m.found ? { res: m.found } : {}),
 });
 
 export const markFromWire = (m: MarkMessage, channelId: string): Mark => ({
@@ -136,6 +146,7 @@ export const markFromWire = (m: MarkMessage, channelId: string): Mark => ({
   byId: m.byId,
   at: m.t,
   ...(m.ttl ? { ttlS: m.ttl } : {}),
+  ...(m.res ? { found: m.res } : {}),
 });
 
 /** Still worth showing? Cleared marks and expired pings drop off. */
@@ -162,6 +173,7 @@ function validMark(m: MarkMessage): MarkMessage | null {
     byId: String(m.byId ?? '').slice(0, 40),
     t: Number(m.t) || 0,
     ...(ttl ? { ttl } : {}),
+    ...(m.res ? { res: String(m.res).slice(0, 500) } : {}),
   };
 }
 

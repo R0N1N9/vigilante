@@ -136,7 +136,14 @@ function applyOps(ch: NtfyChannel, m: OpsMessage) {
       alertTone(2);
       void desktopNotify(`Ping from ${m.by}`, m.desc || m.name);
       log(`TEAM   Ping from ${m.by}: ${m.desc || m.name}`, 1);
+    } else if (!prev && !mine && m.kind === 'investigate' && Date.now() - m.t < 5 * 60_000) {
+      void desktopNotify(`${m.by}: investigate`, m.desc || m.name);
+      log(`TEAM   ${m.by} flagged a place to investigate: "${m.name}"`, 1);
     } else if (!prev && !mine && Date.now() - m.t < 5 * 60_000) log(`TEAM   ${m.by} marked ${MARK_CATEGORIES[m.cat] ?? ''} "${m.name}"`, 0);
+    else if (prev && !mine && m.kind === 'investigate' && prev.state !== m.state) {
+      if (m.state === 'progress') log(`TEAM   ${m.by} is checking "${m.name}"`, 0);
+      if (m.state === 'done') log(`TEAM   ${m.by} resolved "${m.name}"${m.res ? `: ${m.res}` : ''}`, 0);
+    }
   } else {
     const w = wps.find((x) => x.id === m.wp);
     if (!w || (w.acks[m.id] && w.acks[m.id].at >= m.t)) return;
