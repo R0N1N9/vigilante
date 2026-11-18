@@ -27,6 +27,6 @@ describe('built-in cities', () => {
     expect(packForTimezone('Europe/Paris').id).toBe('denver');
   });
   it('marks only hand-built cities as having full local sources', () => {
-    expect(PACKS.filter(hasLocalSources).map((p) => p.id).sort()).toEqual(['atlanta', 'denver']);
+    expect(PACKS.filter(hasLocalSources).map((p) => p.id).sort()).toEqual(['atlanta', 'chicago', 'dallas', 'denver', 'new-york', 'san-francisco', 'seattle']);
   });
 });

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { setShared } from '../data/bus';
 import { useStore } from '../data/store';
+import { crimeRef } from '../lib/stability';
 import { getPack } from '../lib/packs';
 import { fmtAgo } from './format';
 import { openExternal } from './popout';
@@ -173,7 +174,10 @@ export function InfraTab() {
   const transit = useStore((s) => s.transit.filter((t) => t.severity >= 1).length);
   const power = useStore((s) => s.outages.length);
   const fire = useStore((s) => s.fires.filter((f) => f.severity >= 1).length);
-  const crime = useStore((s) => s.crimes.filter((c) => c.severity >= 2 && Date.now() - c.at < 2 * 86_400_000).length);
+  const crime = useStore((s) => {
+    const ref = crimeRef(s.crimes, Date.now());
+    return s.crimes.filter((c) => c.severity >= 2 && ref - c.at < 2 * 86_400_000).length;
+  });
   const missing = useStore((s) => s.wanted.filter((w) => w.kind === 'missing').length);
   const counts: Record<Section, number> = { crime, s311: 0, roads, transit, power, fire, wanted: missing };
   const LABEL: Record<Section, string> = { crime: 'Crime', s311: '311', roads: 'Roads', transit: 'Transit', power: 'Power', fire: 'Fire', wanted: 'Wanted & missing' };

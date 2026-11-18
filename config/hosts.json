@@ -32,6 +32,11 @@
     "air-quality-api.open-meteo.com",
     "nasstatus.faa.gov",
     "mesonet.agron.iastate.edu",
-    "api.waterdata.usgs.gov"
+    "api.waterdata.usgs.gov",
+    "data.cityofchicago.org",
+    "data.cityofnewyork.us",
+    "data.sf.gov",
+    "data.seattle.gov",
+    "www.dallasopendata.com"
   ]
 }

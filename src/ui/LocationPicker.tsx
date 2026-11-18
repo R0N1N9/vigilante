@@ -147,7 +147,7 @@ export function LocationPicker() {
                 <b>{p.name}</b>
                 <small>
                   {p.region}
-                  {hasLocalSources(p) ? ' · full local sources' : ''}
+                  {hasLocalSources(p) ? (p.transit || p.traffic.provider !== 'none' ? ' · full local sources' : ' · local crime data') : ''}
                 </small>
               </button>
             </div>
