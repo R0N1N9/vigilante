@@ -1,4 +1,5 @@
-import { Component, useEffect, type ReactNode } from 'react';
+import { Component, useEffect, useState, type ReactNode } from 'react';
+import { isTauri } from '../lib/http';
 import { applyAppearance } from '../lib/theme';
 import { setState, useStore, type RailTab } from '../data/store';
 import { MapView } from '../map/MapView';
@@ -160,6 +161,7 @@ export function App({ view, embed = false }: { view: View; embed?: boolean }) {
   }, [appearance]);
   return (
     <div className={`app view-${view}${embed ? ' is-embed' : ''}`}>
+      {view === 'console' && !embed && <PhoneHint />}
       <CommandBar view={view} embed={embed} />
       {view === 'console' && embed && (
         <>
@@ -204,6 +206,38 @@ export function App({ view, embed = false }: { view: View; embed?: boolean }) {
       {view === 'areas' && <Solo title="WATCH AREAS"><AreasTab /></Solo>}
       {view === 'team' && <Solo title="TEAM"><TeamTab /></Solo>}
       <Modals />
+    </div>
+  );
+}
+
+/** On a phone, point people to the phone page (team chat, location, push-to-talk) instead of the console. */
+function PhoneHint() {
+  const [show, setShow] = useState(() => {
+    try {
+      return !isTauri() && window.top === window && matchMedia('(max-width: 700px) and (pointer: coarse)').matches && sessionStorage.getItem('vg.phoneHint') !== 'off';
+    } catch {
+      return false;
+    }
+  });
+  if (!show) return null;
+  const href = `${location.pathname}?view=field${location.hash}`;
+  return (
+    <div className="phone-hint" role="note">
+      <span>On a phone? The phone page is made for it: team chat, location, marks and push-to-talk.</span>
+      <a href={href}>Open phone page</a>
+      <button
+        aria-label="Dismiss"
+        onClick={() => {
+          try {
+            sessionStorage.setItem('vg.phoneHint', 'off');
+          } catch {
+            /* private mode */
+          }
+          setShow(false);
+        }}
+      >
+        ×
+      </button>
     </div>
   );
 }
