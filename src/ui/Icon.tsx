@@ -32,6 +32,7 @@ const P: Record<string, string> = {
   popout: 'M4 8.5h11.5V20H4z M10 4h10v10 M20 4l-8.5 8.5',
   external: 'M14 4h6v6 M20 4l-9 9 M18 14v6H4V6h6',
   chat: 'M4 5h16v11H9.5L5 20v-4H4z',
+  qr: 'M4 4h6v6H4z M14 4h6v6h-6z M4 14h6v6H4z M14 14h2v2h-2z M18 14h2v2h-2z M14 18h2v2h-2z M18 18h2v2h-2z M6.5 6.5h1v1h-1z M16.5 6.5h1v1h-1z M6.5 16.5h1v1h-1z',
   camera: 'M4 8h3.5l1.5-2.5h6L16.5 8H20v11H4z M12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z',
   radio: 'M4 10h16v10H4z M7 10l9-5 M8 15h3 M15.5 15a1.5 1.5 0 1 0 0-.01',
   ring: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',

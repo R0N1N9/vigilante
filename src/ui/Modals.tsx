@@ -1,5 +1,6 @@
 import { PhotoModal, PhotoSendModal } from './Photos';
 import { FreqModal } from './Freqs';
+import { DeployModal } from './Deploy';
 import { useEffect, useState } from 'react';
 import { setShared } from '../data/bus';
 import { getState, setState, useStore } from '../data/store';
@@ -385,9 +386,9 @@ function InviteModal() {
         </p>
         {field && (
           <div className="field-invite">
-            <Qr text={field} caption="Phones: check in + share location" />
+            <Qr text={field} caption="Field Agent web app: scan with a phone" />
             <div>
-              <b>Phone check-in</b>
+              <b>Field Agent web app</b>
               <p className="small-text muted">Teammates scan this with their phone camera. It opens a page in their browser (nothing to install) where they can chat, send SOS or backup calls, and turn on live location sharing. Their position then shows on your map and dashboard. Locations are encrypted end to end with a key that only travels in this invite.</p>
               <div className="copy-row">
                 <input readOnly value={field} onFocus={(e) => e.target.select()} />
@@ -468,6 +469,7 @@ export function Modals() {
   if (modal === 'photo') return <PhotoModal />;
   if (modal === 'photo-send') return <PhotoSendModal />;
   if (modal === 'freq') return <FreqModal />;
+  if (modal === 'deploy') return <DeployModal />;
   if (modal === 'settings') return <SettingsModal />;
   if (modal === 'brief') return <BriefModal />;
   if (modal === 'about') return <AboutModal />;

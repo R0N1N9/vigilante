@@ -184,7 +184,7 @@ export interface LocalUi {
   drawing: LonLat[] | null;
   /** Monitor id waiting for a map click to set its center. */
   pickPoint: string | null;
-  modal: 'settings' | 'brief' | 'invite' | 'poster' | 'agent' | 'waypoint' | 'mark' | 'about' | 'photo' | 'photo-send' | 'freq' | null;
+  modal: 'settings' | 'brief' | 'invite' | 'poster' | 'agent' | 'waypoint' | 'mark' | 'about' | 'photo' | 'photo-send' | 'freq' | 'deploy' | null;
   /** Photo open in the viewer, or what a new photo is attached to. */
   photoId: string | null;
   photoDraft: { at?: [number, number]; mark?: string } | null;
