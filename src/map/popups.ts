@@ -1,5 +1,6 @@
 import type { State } from '../data/store';
 import { shipTypeName } from '../lib/intel';
+import { MARK_CATEGORIES } from '../lib/waypoints';
 
 /** Current NEXRAD base reflectivity mosaic tiles (Iowa Environmental Mesonet, keyless). */
 export function radarTiles(): string {
@@ -46,9 +47,9 @@ export function describeFeature(layer: string, id: string, s: State, esc: (t: st
 
 /** Layers that show a hover tooltip, topmost first. Polygons come last so points win. */
 export const HOVERABLE = [
-  'waypoints', 'team', 'aircraft', 'drones', 'clusters', 'news', 'news-clusters', 'fires', 'traffic', 'transit', 'cameras',
+  'marks', 'waypoints', 'team', 'aircraft', 'drones', 'clusters', 'news', 'news-clusters', 'fires', 'traffic', 'transit', 'cameras',
   'crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'orbit-ring',
-  'monitors-label', 'monitors-line', 'areas-label', 'radio-label', 'areas-line', 'radio-line', 'outages-fill', 'tfr-fill', 'weather-fill',
+  'monitors-label', 'monitors-line', 'areas-label', 'radio-label', 'areas-line', 'radio-line', 'mark-areas-fill', 'outages-fill', 'tfr-fill', 'weather-fill',
 ];
 
 const tip = (kind: string, title: string, detail = '', hint = '') =>
@@ -62,6 +63,13 @@ export function hoverHtml(layer: string, p: Record<string, unknown>, s: State, e
     return m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} d ago`;
   };
   switch (layer) {
+    case 'marks':
+    case 'mark-areas-fill': {
+      const m = s.marks.find((x) => x.id === id);
+      if (!m) return null;
+      const head = m.kind === 'ping' ? 'PING' : m.kind === 'objective' ? `OBJECTIVE · ${m.state === 'progress' ? 'IN PROGRESS' : m.state.toUpperCase()}` : `${m.kind === 'area' ? 'AREA OF INTEREST' : 'MARKER'} · ${(MARK_CATEGORIES[m.cat] ?? '').toUpperCase()}`;
+      return tip(head, esc(m.name), `${m.desc ? `${esc(m.desc.slice(0, 120))} · ` : ''}by ${esc(m.by)} ${ago(m.at)}`, 'Click for details');
+    }
     case 'waypoints': {
       const w = s.waypoints.find((x) => x.id === id);
       if (!w) return null;

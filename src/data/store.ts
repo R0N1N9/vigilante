@@ -3,7 +3,7 @@ import type { Aircraft } from '../lib/adsb';
 import type { WatchArea } from '../lib/areas';
 import type { Monitor, MonitorHit } from '../lib/monitors';
 import type { ChatMessage, SharedSpot, TeamChannel, TeamMember } from '../lib/comms';
-import type { Waypoint } from '../lib/waypoints';
+import type { Mark, Waypoint } from '../lib/waypoints';
 import type { Brief } from '../lib/brief';
 import type { Cluster } from '../lib/correlate';
 import type { LonLat } from '../lib/geo';
@@ -161,6 +161,8 @@ export interface SharedUi {
   team: TeamMember[];
   /** Waypoints sent to agents (shared across windows and consoles on the channel). */
   waypoints: Waypoint[];
+  /** Shared map marks: pings, markers, areas of interest, objectives. */
+  marks: Mark[];
   meshStatus: { state: 'off' | 'connecting' | 'connected' | 'error' | 'disconnected'; detail: string; node?: string; radioChannels?: { index: number; name: string }[] };
 }
 
@@ -174,7 +176,9 @@ export interface LocalUi {
   drawing: LonLat[] | null;
   /** Monitor id waiting for a map click to set its center. */
   pickPoint: string | null;
-  modal: 'settings' | 'brief' | 'invite' | 'poster' | 'agent' | 'waypoint' | null;
+  modal: 'settings' | 'brief' | 'invite' | 'poster' | 'agent' | 'waypoint' | 'mark' | null;
+  /** Mark being placed (new, with a kind) or viewed (existing id). */
+  markDraft: { at: [number, number]; kind?: import('../lib/waypoints').MarkKind; id?: string } | null;
   /** Waypoint being placed (new) or viewed (existing id). */
   waypointDraft: { at: [number, number]; id?: string } | null;
   /** FBI poster open in the poster view. */
@@ -274,6 +278,7 @@ let state: State = {
   team: [],
   meshStatus: { state: 'off', detail: '' },
   waypoints: [],
+  marks: [],
   basemap: prefs.basemap ?? 'dark',
   tab: typeof location !== 'undefined' && /#join=VG1\./.test(location.hash) ? 'team' : (prefs.tab ?? 'alerts'),
   cameraId: null,
@@ -283,6 +288,7 @@ let state: State = {
   inviteChannelId: null,
   posterId: null,
   waypointDraft: null,
+  markDraft: null,
   teamSeenAt: Date.now(),
   teamDraft: null,
   joinCode: typeof location !== 'undefined' && /#join=VG1\./.test(location.hash) ? decodeURIComponent(location.hash.slice(6)) : null,

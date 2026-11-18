@@ -3,7 +3,9 @@ import QRCode from 'qrcode';
 import { CHECKIN_TAG, FIELD_CODES, fieldLink, newNtfyChannel, vigilLink, ntfyPublishBody, ntfyStreamUrl, ntfyToMessage, parseInvite, spotUrl, type ChatMessage, type NtfyChannel, type NtfyEvent } from '../lib/comms';
 import { cleanProfile, openPosition, posTopic, sealPosition, type PositionReport, type Profile } from '../lib/poscrypt';
 import { distanceM, type LonLat } from '../lib/geo';
-import { ACK_LABEL, directionsLinks, isFor, openOps, opsTopic, sealOps, type AckState, type OpsMessage } from '../lib/waypoints';
+import { ACK_LABEL, directionsLinks, isFor, markLive, MARK_CATEGORIES, MARK_KIND_LABEL, MARK_STATE_LABEL, openOps, opsTopic, PING_TTL_S, sealOps, type AckState, type MarkCategory, type MarkKind, type MarkMessage, type OpsMessage } from '../lib/waypoints';
+
+const MARK_DOT: Record<MarkCategory, string> = { general: '#E6EDF3', hazard: '#FF7A45', entry: '#4C8DFF', rally: '#2BD47D', observation: '#C084FC', vehicle: '#FFD84D', activity: '#FF4D4F', medical: '#FF8FA3', staging: '#7DD3FC' };
 import { BrandMark } from './BrandMark';
 import { Icon, RichText } from './Icon';
 
@@ -215,6 +217,9 @@ export function FieldApp() {
   const [ping, setPing] = useState(0);
   const [wps, setWps] = useState<Map<string, Extract<OpsMessage, { type: 'wp' }>>>(new Map());
   const [myAcks, setMyAcks] = useState<Record<string, AckState>>({});
+  const [marks, setMarks] = useState<Map<string, MarkMessage>>(new Map());
+  const [markOpen, setMarkOpen] = useState(false);
+  const [mk, setMk] = useState<{ kind: MarkKind; cat: MarkCategory; name: string; desc: string; r: number }>({ kind: 'marker', cat: 'general', name: '', desc: '', r: 150 });
   const [inviteOpen, setInviteOpen] = useState(false);
   const sentAt = useRef(0);
   const sentWhere = useRef<LonLat | null>(null);
@@ -257,6 +262,15 @@ export function FieldApp() {
               const n = new Map(cur);
               n.set(m.id, m);
               if (!prev && m.state === 'active' && Date.now() - m.t < 10 * 60_000) navigator.vibrate?.(m.pri === 'urgent' ? [300, 120, 300, 120, 300] : [200]);
+              return n;
+            });
+          } else if (m.type === 'mark') {
+            setMarks((cur) => {
+              const prev = cur.get(m.id);
+              if (prev && prev.t >= m.t) return cur;
+              const n = new Map(cur);
+              n.set(m.id, m);
+              if (!prev && m.kind === 'ping' && m.byId !== saved.deviceId && Date.now() - m.t < 5 * 60_000) navigator.vibrate?.([120, 80, 120]);
               return n;
             });
           } else if (m.id === saved.deviceId) setMyAcks((a) => ({ ...a, [m.wp]: m.state }));
@@ -409,6 +423,53 @@ export function FieldApp() {
   const goDark = () => {
     setSharing(false);
     void report(null, 'dark').catch(() => {});
+  };
+
+  /** Place a mark at this phone's position (pings use the same path with kind 'ping'). */
+  const placeMark = async (kind: MarkKind, extra: Partial<MarkMessage> = {}) => {
+    if (!ch?.posKey) return setErr('This invite is from an older version and can’t carry marks. Ask for a new one.');
+    let p = fixRef.current;
+    if (!p || Date.now() - p.timestamp > 60_000) {
+      try {
+        p = await new Promise<GeolocationPosition>((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: true, timeout: 15000 }));
+        fixRef.current = p;
+        setFix(p);
+      } catch {
+        return setErr('Location is needed to place a mark. Allow it in your browser settings.');
+      }
+    }
+    const msg: MarkMessage = {
+      v: 1,
+      type: 'mark',
+      id: Math.random().toString(36).slice(2, 10),
+      kind,
+      cat: kind === 'ping' ? 'general' : mk.cat,
+      name: (kind === 'ping' ? 'Ping' : mk.name.trim() || (kind === 'objective' ? 'Objective' : MARK_CATEGORIES[mk.cat])).slice(0, 60),
+      desc: (kind === 'ping' ? mk.desc : mk.desc).trim().slice(0, 500),
+      lat: p.coords.latitude,
+      lon: p.coords.longitude,
+      ...(kind === 'area' ? { r: mk.r } : {}),
+      state: 'active',
+      by: saved.callsign || 'Phone',
+      byId: saved.deviceId,
+      t: Date.now(),
+      ...(kind === 'ping' ? { ttl: PING_TTL_S } : {}),
+      ...extra,
+    };
+    try {
+      await publish(ch, { topic: opsTopic(ch.topic), message: await sealOps(ch.posKey, msg), tags: ['vigilance-ops'] });
+      setMarks((cur) => new Map(cur).set(msg.id, msg));
+      setMk((x) => ({ ...x, name: '', desc: '' }));
+      setMarkOpen(false);
+    } catch (e) {
+      setErr(`Mark not sent: ${String(e)}`);
+    }
+  };
+  const clearMark = async (m: MarkMessage) => {
+    if (!ch?.posKey) return;
+    const next: MarkMessage = { ...m, state: 'cleared', by: saved.callsign || 'Phone', byId: saved.deviceId, t: Date.now() };
+    setMarks((cur) => new Map(cur).set(m.id, next));
+    await publish(ch, { topic: opsTopic(ch.topic), message: await sealOps(ch.posKey, next), tags: ['vigilance-ops'] }).catch(() => {});
   };
 
   const start = () => {
@@ -620,6 +681,93 @@ export function FieldApp() {
           </div>
         </div>
       )}
+
+      <div className="field-card marks-card">
+        <div className="marks-head">
+          <h3>Marks</h3>
+          <button className="field-btn ping-btn" onClick={() => void placeMark('ping')} disabled={!ch.posKey}>
+            <Icon name="target" size={16} />
+            Ping my location
+          </button>
+        </div>
+        {!markOpen ? (
+          <button className="field-btn" onClick={() => setMarkOpen(true)} disabled={!ch.posKey}>
+            <Icon name="pin" size={16} />
+            Mark this spot…
+          </button>
+        ) : (
+          <div className="mark-form">
+            <div className="wp-acks">
+              {(['marker', 'area', 'objective'] as MarkKind[]).map((k) => (
+                <button key={k} className={`q ${mk.kind === k ? 'on' : ''}`} onClick={() => setMk({ ...mk, kind: k })}>
+                  {MARK_KIND_LABEL[k]}
+                </button>
+              ))}
+            </div>
+            <label>
+              <span>Category</span>
+              <select value={mk.cat} onChange={(e) => setMk({ ...mk, cat: e.target.value as MarkCategory })}>
+                {(Object.keys(MARK_CATEGORIES) as MarkCategory[]).map((c) => (
+                  <option key={c} value={c}>
+                    {MARK_CATEGORIES[c]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>Name</span>
+              <input value={mk.name} onChange={(e) => setMk({ ...mk, name: e.target.value.slice(0, 60) })} placeholder="Side gate, blue van, water main…" />
+            </label>
+            <label>
+              <span>Description</span>
+              <textarea rows={3} value={mk.desc} onChange={(e) => setMk({ ...mk, desc: e.target.value.slice(0, 500) })} placeholder="What is there, or what to do. Describe things and activity, not who someone is." />
+            </label>
+            {mk.kind === 'area' && (
+              <label>
+                <span>Radius</span>
+                <select value={mk.r} onChange={(e) => setMk({ ...mk, r: Number(e.target.value) })}>
+                  {[50, 100, 150, 250, 500, 1000, 2000].map((r) => (
+                    <option key={r} value={r}>
+                      {r < 1000 ? `${r} m` : `${r / 1000} km`}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            <div className="row">
+              <button className="field-btn" onClick={() => setMarkOpen(false)}>
+                Cancel
+              </button>
+              <button className="field-btn go" onClick={() => void placeMark(mk.kind)} disabled={!mk.name.trim() && !mk.desc.trim()}>
+                Place at my location
+              </button>
+            </div>
+          </div>
+        )}
+        {[...marks.values()]
+          .filter((m) => markLive({ state: m.state, at: m.t, ttlS: m.ttl }))
+          .sort((a, b) => (me ? distanceM(me, [a.lon, a.lat]) - distanceM(me, [b.lon, b.lat]) : b.t - a.t))
+          .slice(0, 12)
+          .map((m) => (
+            <div key={m.id} className={`mark-item ${m.kind}`}>
+              <i className="mark-dot" style={{ background: m.kind === 'ping' ? '#3DD6F5' : m.kind === 'objective' ? '#FBBF24' : MARK_DOT[m.cat] }} />
+              <div>
+                <b>{m.kind === 'ping' && (!m.name || m.name === 'Ping') ? `Ping from ${m.by}` : m.name}</b>
+                <small>
+                  {m.kind === 'ping' ? 'ping' : m.kind === 'objective' ? `objective · ${MARK_STATE_LABEL[m.state].toLowerCase()}` : `${MARK_KIND_LABEL[m.kind].toLowerCase()} · ${MARK_CATEGORIES[m.cat].toLowerCase()}`}
+                  {me ? ` · ${fmtDist(distanceM(me, [m.lon, m.lat]))}` : ''} · {m.by} · {fmtAge(m.t)} ago
+                </small>
+                {m.desc && <p>{m.desc}</p>}
+              </div>
+              <div className="mark-actions">
+                <a href={isApple ? directionsLinks(m.lat, m.lon, m.name).apple : directionsLinks(m.lat, m.lon, m.name).google} target="_blank" rel="noreferrer">
+                  Go
+                </a>
+                <button onClick={() => void clearMark(m)}>Clear</button>
+              </div>
+            </div>
+          ))}
+      </div>
 
       <div className="field-quick">
         <button className="q sos" onClick={() => void quick('sos')}>

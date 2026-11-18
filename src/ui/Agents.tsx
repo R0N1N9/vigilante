@@ -10,6 +10,7 @@ import { agentStatus, ageText, STATUS_LABEL, teamBounds, type AgentStatus } from
 import { openSystem } from './popout';
 import { shareToTeam } from './TeamTab';
 import { placeWaypoint, WaypointList } from './Waypoints';
+import { MarkList, newMarkAt } from './Marks';
 import { Icon, RichText } from './Icon';
 
 const useNow = (ms = 10_000) => {
@@ -301,6 +302,10 @@ export function TeamView({ map }: { map: React.ReactNode }) {
           ))}
         </div>
         <div className="tv-actions">
+          <button className="btn small" onClick={() => newMarkAt(getState().focus?.center ?? getPack(getState().packId).center, 'marker')} title="Ping, marker, area of interest or objective. Tip: right-click the map to place one exactly.">
+            <Icon name="target" />
+            Add mark
+          </button>
           <button className="btn small" onClick={() => placeWaypoint(getState().focus?.center ?? getPack(getState().packId).center)} title="Places at the selected spot (or the area center). Tip: right-click the map to place one exactly.">
             <Icon name="pin" />
             Place waypoint
@@ -329,6 +334,7 @@ export function TeamView({ map }: { map: React.ReactNode }) {
         <div className="tv-map tile">{map}</div>
         <div className="tv-side">
           <WaypointList />
+          <MarkList />
           {alerts.length > 0 && (
             <div className="tv-alerts">
               {alerts.map((h) => (
