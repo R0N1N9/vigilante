@@ -47,6 +47,7 @@ export function describeFeature(layer: string, id: string, s: State, esc: (t: st
 
 /** Layers that show a hover tooltip, topmost first. Polygons come last so points win. */
 export const HOVERABLE = [
+  'air',
   'photos',
   'marks', 'waypoints', 'team', 'aircraft', 'drones', 'clusters', 'news', 'news-clusters', 'fires', 'traffic', 'transit', 'cameras',
   'crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'orbit-ring',
@@ -64,6 +65,11 @@ export function hoverHtml(layer: string, p: Record<string, unknown>, s: State, e
     return m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} d ago`;
   };
   switch (layer) {
+    case 'air': {
+      const a = s.airPoints.find((x) => x.id === id);
+      if (!a) return null;
+      return tip(`AIR QUALITY · ${esc(a.name.toUpperCase())}`, `AQI ${a.air.aqi}: ${esc(a.air.label)}`, `PM2.5 ${a.air.pm25.toFixed(0)} µg/m³`, 'Click for AirNow');
+    }
     case 'photos': {
       const ph = s.photos.find((x) => x.id === id);
       if (!ph) return null;

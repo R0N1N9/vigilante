@@ -375,6 +375,42 @@ export interface AirQuality {
 
 export const airUrl = (c: LonLat) => `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${c[1].toFixed(3)}&longitude=${c[0].toFixed(3)}&current=us_aqi,pm2_5,ozone`;
 
+/** Readings at several points in one request (Open-Meteo answers with an array, in the same order). */
+export const airPointsUrl = (pts: LonLat[]) =>
+  `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${pts.map((p) => p[1].toFixed(3)).join(',')}&longitude=${pts.map((p) => p[0].toFixed(3)).join(',')}&current=us_aqi,pm2_5,ozone`;
+
+export interface AirPoint {
+  id: string;
+  name: string;
+  at: LonLat;
+  air: AirQuality;
+}
+
+/** Center plus four points halfway to the edge of the watch area (N, E, S, W). */
+export function airSamplePoints(center: LonLat, radiusM: number): { name: string; at: LonLat }[] {
+  const d = radiusM / 2;
+  const dLat = d / 111_320;
+  const dLon = d / (111_320 * Math.cos((center[1] * Math.PI) / 180));
+  return [
+    { name: 'Center', at: center },
+    { name: 'North', at: [center[0], center[1] + dLat] },
+    { name: 'East', at: [center[0] + dLon, center[1]] },
+    { name: 'South', at: [center[0], center[1] - dLat] },
+    { name: 'West', at: [center[0] - dLon, center[1]] },
+  ];
+}
+
+export function parseAirPoints(d: unknown, pts: { name: string; at: LonLat }[]): AirPoint[] {
+  const arr = Array.isArray(d) ? d : [d];
+  return arr.flatMap((x, i) => {
+    const air = parseAir(x as Parameters<typeof parseAir>[0]);
+    const p = pts[i];
+    return air && p ? [{ id: `air:${i}`, name: p.name, at: p.at, air }] : [];
+  });
+}
+
+export const AIRNOW_URL = 'https://www.airnow.gov/';
+
 export function aqiLabel(aqi: number): string {
   return aqi <= 50 ? 'Good' : aqi <= 100 ? 'Moderate' : aqi <= 150 ? 'Unhealthy for sensitive groups' : aqi <= 200 ? 'Unhealthy' : aqi <= 300 ? 'Very unhealthy' : 'Hazardous';
 }

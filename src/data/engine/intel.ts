@@ -1,8 +1,8 @@
 import { distanceM, NM_TO_M } from '../../lib/geo';
 import { getJsonRetry, getTextRetry } from '../../lib/http';
 import {
-  airSeverity, airUrl, arcgisQuery, arcgisSince, ATLANTA_CRIME, DENVER_311, DENVER_CRIME, FAA_STATUS_URL, fbiUrl, FIRMS_URLS, gaugeSeverity, lsrUrl, nwpsUrl,
-  parseAir, parseAirportStatus, parseAtlantaCrime, parseDenver311, parseDenverCrime, parseFirms, parseGauges, parseLsr, parseQuakes, parseUsgsCams, parseWanted,
+  airPointsUrl, airSamplePoints, airSeverity, arcgisQuery, parseAirPoints, arcgisSince, ATLANTA_CRIME, DENVER_311, DENVER_CRIME, FAA_STATUS_URL, fbiUrl, FIRMS_URLS, gaugeSeverity, lsrUrl, nwpsUrl,
+  parseAirportStatus, parseAtlantaCrime, parseDenver311, parseDenverCrime, parseFirms, parseGauges, parseLsr, parseQuakes, parseUsgsCams, parseWanted,
   QUAKES_URL, quakeSeverity, stormSeverity, USGS_CAMS_URL, type Hotspot,
 } from '../../lib/intel';
 import { getPack } from '../../lib/packs';
@@ -130,13 +130,15 @@ export function startIntel(gen: number) {
 
   // Air quality at the city center (Open-Meteo, US AQI).
   poll(gen, 'air', 30 * 60_000, async (first) => {
-    const air = parseAir(await getJsonRetry(airUrl(c)));
+    const pts = airSamplePoints(c, pack.radiusNm * NM_TO_M);
+    const airPoints = parseAirPoints(await getJsonRetry(airPointsUrl(pts.map((p) => p.at))), pts);
+    const air = airPoints[0]?.air ?? null;
     if (!alive(gen)) return;
     if (air && airSeverity(air) >= 1) {
       upsertIncident({ id: 'air', kind: 'air', severity: airSeverity(air), title: `Air quality: ${air.label}`, detail: `US AQI ${air.aqi} · PM2.5 ${air.pm25.toFixed(0)} µg/m³`, at: air.at, location: null }, !first);
       emitSignal({ id: `air:${airSeverity(air)}:${new Date().toDateString()}`, source: 'air', kind: 'aqi', title: `Air quality ${air.label.toLowerCase()} (AQI ${air.aqi})`, detail: '', severity: airSeverity(air), at: air.at, location: null, packId: ctx.packId }, { quiet: first, regional: true });
     } else removeIncidents((i) => i.kind === 'air');
-    setState({ air });
+    setState({ air, airPoints });
   });
 
   // FAA airport delays / ground stops for this area's airports.

@@ -98,6 +98,8 @@ export interface DataState {
   wanted: Wanted[];
   gauges: Gauge[];
   air: AirQuality | null;
+  /** Air quality at the center and four points around the watch area (map nodes). */
+  airPoints: import('../lib/intel').AirPoint[];
   airportDelays: AirportDelay[];
   storms: StormReport[];
   ships: Ship[];
@@ -259,6 +261,7 @@ export const EMPTY_DATA: Omit<DataState, 'log'> = {
   wanted: [],
   gauges: [],
   air: null,
+  airPoints: [],
   airportDelays: [],
   storms: [],
   ships: [],

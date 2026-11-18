@@ -13,6 +13,7 @@ import { markColor, openMark } from '../ui/Marks';
 import { openPhoto } from '../ui/Photos';
 import { closeRing, MapRing, openRing, ringMove, ringOpen, ringRelease, setRingSettle } from '../ui/MapRing';
 import { distanceM } from '../lib/geo';
+import { AIRNOW_URL } from '../lib/intel';
 import { memberColor } from '../lib/teamext';
 import { deviceOf, hasStatus, markLive, markStateLabel } from '../lib/waypoints';
 import { addIcons, CLASS_COLORS, DRONE_COLOR, RADIO_COLOR } from './icons';
@@ -27,7 +28,7 @@ const fc = (features: GeoJSON.Feature[]): GeoJSON.FeatureCollection => ({ type: 
 const SEVERITY_FILL = ['match', ['get', 'severity'], 'Extreme', '#FF4D4F', 'Severe', '#FF7A45', 'Moderate', '#FFB020', 'Minor', '#4C8DFF', '#8FA3B8'] as unknown as maplibregl.ExpressionSpecification;
 const SEV_NUM = ['match', ['get', 'sev'], 4, '#FF4D4F', 3, '#FF7A45', 2, '#FFB020', 1, '#4C8DFF', '#8FA3B8'] as unknown as maplibregl.ExpressionSpecification;
 
-const SOURCES = ['aoi', 'monitors', 'mark-areas', 'marks', 'photos', 'wp-links', 'waypoints', 'team-trails', 'team', 'crime', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'outages', 'radio', 'transit', 'areas', 'draw', 'weather', 'tfr', 'traffic-lines', 'traffic', 'cameras', 'fires', 'clusters', 'trails', 'orbits', 'drone-links', 'drones', 'aircraft'];
+const SOURCES = ['aoi', 'air', 'monitors', 'mark-areas', 'marks', 'photos', 'wp-links', 'waypoints', 'team-trails', 'team', 'crime', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'outages', 'radio', 'transit', 'areas', 'draw', 'weather', 'tfr', 'traffic-lines', 'traffic', 'cameras', 'fires', 'clusters', 'trails', 'orbits', 'drone-links', 'drones', 'aircraft'];
 
 function addDataLayers(map: MlMap) {
   addIcons(map);
@@ -70,6 +71,8 @@ function addDataLayers(map: MlMap) {
   L({ id: 'marks-q', type: 'symbol', source: 'marks', filter: ['==', ['get', 'kind'], 'investigate'], layout: { 'text-field': '?', 'text-font': LABEL_FONT, 'text-size': 13, 'text-allow-overlap': true, 'text-ignore-placement': true }, paint: { 'text-color': ['get', 'color'], 'text-opacity': ['case', ['get', 'done'], 0.45, 1] } });
   L({ id: 'photos', type: 'circle', source: 'photos', paint: { 'circle-radius': 7, 'circle-color': '#0B0F14', 'circle-stroke-color': ['get', 'color'], 'circle-stroke-width': 2.5 } });
   L({ id: 'photos-dot', type: 'circle', source: 'photos', paint: { 'circle-radius': 2.5, 'circle-color': ['get', 'color'] } });
+  L({ id: 'air', type: 'circle', source: 'air', paint: { 'circle-radius': 11, 'circle-color': ['get', 'color'], 'circle-opacity': 0.22, 'circle-stroke-color': ['get', 'color'], 'circle-stroke-width': 1.5 } });
+  L({ id: 'air-label', type: 'symbol', source: 'air', layout: { 'text-field': ['get', 'aqi'], 'text-font': LABEL_FONT, 'text-size': 10.5, 'text-allow-overlap': true }, paint: { 'text-color': ['get', 'color'], 'text-halo-color': '#0B0F14', 'text-halo-width': 1.4 } });
   L({ id: 'marks-label', type: 'symbol', source: 'marks', layout: { 'text-field': ['get', 'label'], 'text-font': LABEL_FONT, 'text-size': 10.5, 'text-offset': [0, 1.3], 'text-anchor': 'top', 'text-letter-spacing': 0.04, 'text-optional': true }, paint: { 'text-color': ['get', 'color'], 'text-halo-color': '#0B0F14', 'text-halo-width': 1.6 } });
   L({ id: 'wp-links', type: 'line', source: 'wp-links', paint: { 'line-color': ['get', 'color'], 'line-width': 1.6, 'line-opacity': 0.75, 'line-dasharray': [2, 2] } });
   L({ id: 'waypoints', type: 'circle', source: 'waypoints', paint: { 'circle-radius': 9, 'circle-color': 'rgba(11,15,20,0.85)', 'circle-stroke-color': ['get', 'color'], 'circle-stroke-width': 2.5, 'circle-opacity': ['case', ['get', 'active'], 1, 0.4], 'circle-stroke-opacity': ['case', ['get', 'active'], 1, 0.4] } });
@@ -164,6 +167,8 @@ function render(map: MlMap, s: State) {
   setData(map, 'tfr', fc(s.tfrs.map((t) => ({ type: 'Feature', properties: { id: t.id }, geometry: t.geometry }))));
   const TEAM_COLOR = { phone: '#2BD47D', mesh: '#FBBF24', ntfy: '#3DD6F5' } as const;
   setData(map, 'team', fc(s.team.filter((m): m is typeof m & { location: LonLat } => !!m.location && !m.dark).map((m) => ({ type: 'Feature', properties: { id: m.id, name: m.name, color: m.source === 'phone' ? memberColor(deviceOf(m.id) ?? m.id) : TEAM_COLOR[m.source], stale: Date.now() - m.at > 10 * 60_000 }, geometry: { type: 'Point', coordinates: m.location } }))));
+  const aqiColor = (a: number) => (a <= 50 ? '#2BD47D' : a <= 100 ? '#FFD84D' : a <= 150 ? '#FF9F1C' : a <= 200 ? '#FF4D4F' : '#B57BFF');
+  setData(map, 'air', fc(s.airPoints.map((p) => ({ type: 'Feature', properties: { id: p.id, aqi: String(p.air.aqi), color: aqiColor(p.air.aqi) }, geometry: { type: 'Point', coordinates: p.at } }))));
   const liveMarks = s.marks.filter((m) => markLive(m));
   const photoCount = new Map<string, number>();
   for (const p of s.photos) if (p.mark) photoCount.set(p.mark, (photoCount.get(p.mark) ?? 0) + 1);
@@ -264,7 +269,7 @@ function render(map: MlMap, s: State) {
   setData(map, 'draw', fc(drawF));
 }
 
-const CLICKABLE = ['photos', 'marks', 'mark-areas-fill', 'waypoints', 'team', 'aircraft', 'weather-fill', 'tfr-fill', 'crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'cameras', 'fires', 'traffic', 'transit', 'news', 'news-clusters', 'clusters', 'drones', 'outages-fill', 'radio-line', 'radio-label'];
+const CLICKABLE = ['air', 'photos', 'marks', 'mark-areas-fill', 'waypoints', 'team', 'aircraft', 'weather-fill', 'tfr-fill', 'crime-pts', 's311', 'hotspots', 'quakes', 'gauges', 'storms', 'ships', 'cameras', 'fires', 'traffic', 'transit', 'news', 'news-clusters', 'clusters', 'drones', 'outages-fill', 'radio-line', 'radio-label'];
 
 export function MapView() {
   const el = useRef<HTMLDivElement>(null);
@@ -381,6 +386,18 @@ export function MapView() {
           popup.setLngLat(e.lngLat).setHTML(`<small>FAA TFR · ${esc(t.type)} · NOTAM ${esc(t.id)}</small><b>${esc(t.title)}</b><p>${esc(t.description.slice(0, 300))}</p>`).addTo(map);
           if (t.url) void openExternal(t.url, `TFR ${t.id}`);
         }
+      } else if (f.layer.id === 'air') {
+        const a = s.airPoints.find((x) => x.id === p.id);
+        if (a) {
+          const box = document.createElement('div');
+          box.innerHTML = `<small>AIR QUALITY · ${esc(a.name.toUpperCase())} · OPEN-METEO</small><b>US AQI ${a.air.aqi}: ${esc(a.air.label)}</b><p>PM2.5 ${a.air.pm25.toFixed(0)} µg/m³ · ozone ${a.air.ozone.toFixed(0)} µg/m³</p>`;
+          const b = document.createElement('button');
+          b.className = 'btn small';
+          b.textContent = 'Open AirNow ↗';
+          b.onclick = () => void openExternal(AIRNOW_URL, 'AirNow');
+          box.appendChild(b);
+          popup.setLngLat(a.at).setDOMContent(box).addTo(map);
+        }
       } else if (f.layer.id === 'photos') openPhoto(String(p.id));
       else if (f.layer.id === 'marks' || f.layer.id === 'mark-areas-fill') openMark(String(p.id));
       else if (f.layer.id === 'waypoints') openWaypoint(String(p.id));
@@ -425,7 +442,9 @@ export function MapView() {
       if (hold) window.clearTimeout(hold.timer);
       hold = null;
     };
+    let lastPointerType = 'mouse';
     container.addEventListener('pointerdown', (e) => {
+      lastPointerType = e.pointerType;
       pointers.add(e.pointerId);
       const st = getState();
       if (pointers.size > 1 || e.button !== 0 || st.drawing || st.pickPoint || ringOpen()) return cancelHold();
@@ -483,8 +502,8 @@ export function MapView() {
       e.preventDefault();
       if (getState().drawing) return;
       cancelHold();
-      // A long press on a touchscreen also fires contextmenu; keep the ring it opened.
-      if (ringOpen()) return;
+      // Touch screens use the press-and-hold ring only; a long press also fires contextmenu, so ignore it.
+      if (ringOpen() || lastPointerType === 'touch' || lastPointerType === 'pen') return;
       const p = local(e);
       const ll = map.unproject([p.x, p.y]);
       openRing({ x: p.x, y: p.y, at: [ll.lng, ll.lat], mode: 'open', shape: 'list' });

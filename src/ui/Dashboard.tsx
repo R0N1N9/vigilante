@@ -1,3 +1,4 @@
+import { AIRNOW_URL } from '../lib/intel';
 import { useEffect, useMemo, useState } from 'react';
 import { distanceM } from '../lib/geo';
 import { CHECKIN_REQUEST, CHECKIN_TAG, type TeamMember } from '../lib/comms';
@@ -491,32 +492,92 @@ function StatusTile() {
   );
 }
 
+/** Middle of a polygon's bounding box (good enough to fly the map to a warning area). */
+function geomCenter(g: GeoJSON.Geometry): LonLat | null {
+  const pts: number[][] = [];
+  const walk = (c: unknown): void => {
+    if (Array.isArray(c) && typeof c[0] === 'number') pts.push(c as number[]);
+    else if (Array.isArray(c)) c.forEach(walk);
+  };
+  walk('coordinates' in g ? g.coordinates : null);
+  if (!pts.length) return null;
+  const xs = pts.map((p) => p[0]);
+  const ys = pts.map((p) => p[1]);
+  return [(Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...ys) + Math.max(...ys)) / 2];
+}
+
+/** Each SITREP stat steps through its items on the map: one more per click (1/5, 2/5, …). */
+const cursor: Record<string, number> = {};
+interface Stop {
+  key: string;
+  at: LonLat;
+  zoom: number;
+  label: string;
+  hex?: string;
+}
+
 function SitrepBar() {
   const pack = useStore((x) => getPack(x.packId));
   const s = useStore((x) => x.stability);
   const crimes = useStore((x) => x.crimes);
-  const incidents = useStore((x) => x.incidents.length + x.clusters.length);
+  const incidents = useStore((x) => x.incidents);
+  const clusters = useStore((x) => x.clusters);
+  const alerts = useStore((x) => x.alerts);
   const aqi = useStore((x) => x.air?.aqi);
-  const helis = useStore((x) => x.aircraft.filter((a) => a.kind === 'heli').length);
+  const airPoints = useStore((x) => x.airPoints);
+  const aircraft = useStore((x) => x.aircraft);
+  const team = useStore((x) => x.team);
   const feeds = useStore((x) => x.feeds);
+  const [step, setStep] = useState<Record<string, string>>({});
   const live = Object.values(feeds).filter((f) => f.status === 'live').length;
   const total = Object.values(feeds).length;
-  const violent48 = useMemo(() => crimes.filter((c) => c.severity >= 2 && Date.now() - c.at < 2 * 86_400_000).length, [crimes]);
   const color = s ? LEVEL_COLOR[s.level] : 'var(--dim)';
-  const lastViolent = useMemo(() => crimes.filter((c) => c.severity >= 2).sort((a, b) => b.at - a.at)[0], [crimes]);
-  const firstSit = useStore((x) => x.clusters[0]?.center ?? x.incidents.find((i) => i.location)?.location ?? null);
-  const heli = useStore((x) => x.aircraft.find((a) => a.kind === 'heli')?.hex);
-  const heliAt = useStore((x) => {
-    const a = x.aircraft.find((y) => y.kind === 'heli');
-    return a ? `${a.lon},${a.lat}` : '';
-  });
-  const teamOnline = useStore((x) => x.team.filter((m) => !m.dark && Date.now() - m.at < 5 * 60_000).length);
-  const teamFirst = useStore((x) => x.team.find((m) => m.location && !m.dark)?.location ?? null);
-  const kpi = (label: string, value: React.ReactNode, tone = '', go?: () => void) => (
-    <button className={`kpi ${tone}${go ? ' act' : ''}`} onClick={go} disabled={!go}>
-      <b>{value}</b>
-      <span>{label}</span>
-    </button>
+  const now = Date.now();
+  const lists = useMemo(() => {
+    const violent: Stop[] = crimes
+      .filter((c) => c.severity >= 2 && now - c.at < 2 * 86_400_000)
+      .sort((a, b) => b.at - a.at)
+      .map((c) => ({ key: c.id, at: c.location, zoom: 15, label: c.offense }));
+    const sits: Stop[] = [
+      ...clusters.map((c) => ({ key: c.id, at: c.center, zoom: 13, label: c.signals[0]?.title ?? 'Developing situation', sev: Math.max(...c.signals.map((x) => x.severity)) })),
+      // Area-wide ones (weather warnings) go to the middle of their warning area, else the watch area.
+      ...incidents.map((i) => {
+        const g = i.alertId ? alerts.find((x) => x.id === i.alertId)?.geometry : undefined;
+        const at = i.location ?? (g ? geomCenter(g) : null) ?? pack.center;
+        return { key: i.id, at, zoom: i.location ? 13 : g ? 8 : pack.zoom, label: i.title, sev: i.severity };
+      }),
+    ]
+      .sort((a, b) => b.sev - a.sev)
+      .map(({ sev: _sev, ...x }) => x);
+    const helos: Stop[] = aircraft.filter((a) => a.kind === 'heli').map((a) => ({ key: a.hex, at: [a.lon, a.lat] as LonLat, zoom: 12, label: a.callsign || a.hex, hex: a.hex }));
+    const air: Stop[] = airPoints.map((p) => ({ key: p.id, at: p.at, zoom: Math.min(pack.zoom + 1, 13), label: `Air ${p.name}: AQI ${p.air.aqi} ${p.air.label}` }));
+    const mates: Stop[] = team.filter((m) => !m.dark && m.location && now - m.at < 5 * 60_000).map((m) => ({ key: m.id, at: m.location!, zoom: 15, label: m.name }));
+    return { violent, sits, helos, air, mates };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [crimes, clusters, incidents, alerts, aircraft, airPoints, team, pack.zoom, Math.floor(now / 60_000)]);
+  const go = (name: string, list: Stop[]) => {
+    if (!list.length) return;
+    const i = ((cursor[name] ?? -1) + 1) % list.length;
+    cursor[name] = i;
+    const x = list[i];
+    setShared({ focus: { at: Date.now(), center: x.at, zoom: x.zoom, label: `${x.label} (${i + 1}/${list.length})` }, ...(x.hex ? { selectedHex: x.hex } : {}) });
+    setStep((st) => ({ ...st, [name]: `${i + 1}/${list.length}` }));
+  };
+  const kpi = (name: string, label: string, value: React.ReactNode, tone: string, list: Stop[] | null, link?: { url: string; title: string }) => (
+    <div className={`kpi ${tone}${list?.length ? ' act' : ''}`}>
+      <button className="kpi-main" onClick={() => list && go(name, list)} disabled={!list?.length} title={list?.length ? `Show on the map, one at a time (${list.length})` : undefined}>
+        <b>{value}</b>
+        <span>
+          {label}
+          {step[name] && list?.length ? <em className="kpi-step"> · {step[name]}</em> : null}
+        </span>
+      </button>
+      {link && (
+        <button className="kpi-link" onClick={() => void openExternal(link.url, link.title)} title={`Open ${link.title}`}>
+          {link.title} ↗
+        </button>
+      )}
+    </div>
   );
   return (
     <div className="sitrep">
@@ -533,12 +594,12 @@ function SitrepBar() {
         <em>{s ? `${s.score}/100` : ''}</em>
       </div>
       <div className="sr-kpis">
-        {kpi('VIOLENT · 48H', violent48, violent48 > (s?.violentDailyAvg ?? 0) * 2.5 ? 'warn' : '', lastViolent ? () => locate(lastViolent.location, 15, `Latest: ${lastViolent.offense}`, { url: pack.intel.crime ? CRIME_MAP_URL[pack.intel.crime] : undefined, title: 'Crime map' }) : undefined)}
-        {kpi('OPEN SITUATIONS', incidents, incidents ? 'warn' : '', firstSit ? () => locate(firstSit, 13, 'Open situation') : undefined)}
-        {kpi('HELOS AIRBORNE', helis, helis ? 'warn' : '', heli ? () => locate(heliAt.split(',').map(Number) as LonLat, 12, 'Helicopter', { hex: heli }) : undefined)}
-        {kpi('AIR QUALITY', aqi ?? '—', (aqi ?? 0) > 100 ? 'warn' : '', () => locate(pack.center, pack.zoom, 'Air quality', { url: 'https://www.airnow.gov/', title: 'AirNow' }))}
-        {kpi('TEAM ONLINE', teamOnline, '', teamFirst ? () => locate(teamFirst, 14, 'Team') : undefined)}
-        {kpi('FEEDS LIVE', `${live}/${total}`)}
+        {kpi('violent', 'VIOLENT · 48H', lists.violent.length, lists.violent.length > (s?.violentDailyAvg ?? 0) * 2.5 ? 'warn' : '', lists.violent, pack.intel.crime ? { url: CRIME_MAP_URL[pack.intel.crime], title: 'Crime map' } : undefined)}
+        {kpi('sits', 'OPEN SITUATIONS', incidents.length + clusters.length, incidents.length + clusters.length ? 'warn' : '', lists.sits)}
+        {kpi('helos', 'HELOS AIRBORNE', lists.helos.length, lists.helos.length ? 'warn' : '', lists.helos)}
+        {kpi('air', 'AIR QUALITY', aqi ?? '—', (aqi ?? 0) > 100 ? 'warn' : '', lists.air, { url: AIRNOW_URL, title: 'AirNow' })}
+        {kpi('team', 'TEAM ONLINE', lists.mates.length, '', lists.mates)}
+        {kpi('feeds', 'FEEDS LIVE', `${live}/${total}`, '', null)}
       </div>
     </div>
   );
