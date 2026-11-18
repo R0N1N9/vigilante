@@ -1176,3 +1176,12 @@ fieldset.plain:disabled { opacity: .5; }
 .fieldapp[data-tab='radio'] > .radio-card { order: -2; }
 .fieldapp[data-tab='radio'] > .freq-card { order: -1; }
 .agent-radio .callout { display: none; }
+
+/* Deploy field agents */
+.deploy-btn { border-color: rgba(var(--accent-rgb), .55); color: var(--accent); }
+.deploy-main { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: start; }
+.deploy-main h3 { margin: 0 0 6px; }
+.deploy-main ol { margin: 0 0 10px; padding-left: 18px; font-size: 13.5px; line-height: 1.5; }
+.deploy-alt { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.deploy .link { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; text-decoration: underline; font: inherit; }
+@media (max-width: 640px) { .deploy-main { grid-template-columns: 1fr; justify-items: center; } }

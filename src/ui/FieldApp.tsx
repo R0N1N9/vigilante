@@ -53,6 +53,7 @@ function save(s: Saved) {
   } catch {
     /* private mode */
   }
+  window.dispatchEvent(new Event('vg-field-saved'));
 }
 
 async function publish(ch: NtfyChannel, body: object) {
@@ -1023,6 +1024,14 @@ export function FieldApp() {
     }
   });
   const [agent, setAgent] = useState<AgentModule | null>(null);
+  // The Team page saves joins, leaves and callsign changes; follow them here and in the engine.
+  const [saves, setSaves] = useState(0);
+  useEffect(() => {
+    const f = () => setSaves((n) => n + 1);
+    window.addEventListener('vg-field-saved', f);
+    f(); // a #join= link is saved while the page first renders, before this listener exists
+    return () => window.removeEventListener('vg-field-saved', f);
+  }, []);
   const [seen, setSeen] = useState<Set<AgentTab>>(() => new Set([tab]));
   const setTab = (t: AgentTab) => {
     setTabState(t);
@@ -1046,7 +1055,7 @@ export function FieldApp() {
     if (!agent) return;
     const s = load();
     agent.syncAgent({ channel: s.channel, callsign: s.callsign, deviceId: s.deviceId });
-  }, [agent, tab]);
+  }, [agent, tab, saves]);
   const channelName = load().channel?.name;
   const loading = <div className="agent-loading mono">LOADING…</div>;
   return (

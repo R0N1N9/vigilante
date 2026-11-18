@@ -1,3 +1,4 @@
+import { openDeploy } from './Deploy';
 import { deviceOf } from '../lib/waypoints';
 import { AgentIntel, Avatar, intelSummary, TeamIntel, useAgentIntel } from './Intel';
 import { describeDevice, describeListening } from '../lib/teamext';
@@ -344,16 +345,9 @@ export function TeamView({ map }: { map: React.ReactNode }) {
               <Icon name="pin" className="crit" />Request check-in
             </button>
           )}
-          {ntfy && (
-            <button className="btn small primary" onClick={() => setState({ modal: 'invite', inviteChannelId: ntfy.id })}>
-              + Invite agents
-            </button>
-          )}
-          {!channels.length && (
-            <button className="btn small primary" onClick={() => setState({ tab: 'team' })}>
-              Set up a team channel
-            </button>
-          )}
+          <button className="btn small primary" onClick={openDeploy} title="QR code for phones to join as field agents">
+            <Icon name="qr" /> Deploy field agents
+          </button>
         </div>
       </div>
       <div className="tv-body">
@@ -377,7 +371,7 @@ export function TeamView({ map }: { map: React.ReactNode }) {
             {rows.map((m) => (
               <AgentCard key={m.id} m={m} now={now} />
             ))}
-            {!rows.length && <div className="empty">{team.length ? 'No agents in this state.' : 'No agents yet. Invite phones (web check-in or the Vigil app) from + Invite agents.'}</div>}
+            {!rows.length && <div className="empty">{team.length ? 'No agents in this state.' : 'No agents yet. Tap Deploy field agents and have them scan the QR code with their phone (iPhone or Android; or the Vigil app).'}</div>}
           </div>
           <div className="tv-chat">
             <div className="tv-chat-head mono">RECENT TEAM CHAT</div>

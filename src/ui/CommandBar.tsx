@@ -1,3 +1,4 @@
+import { openDeploy } from './Deploy';
 import { PttButton, usePttHotkey } from './Voice';
 import { useEffect, useRef, useState } from 'react';
 import { setShared } from '../data/bus';
@@ -165,6 +166,11 @@ export function CommandBar({ view, embed = false }: { view: View; embed?: boolea
       <FeedStatus />
       {!embed && <AgentsChip />}
       {!embed && <PttButton compact />}
+      {!embed && (
+        <button className="btn deploy-btn" onClick={openDeploy} title="Deploy field agents: QR code for phones (iPhone and Android) to join the team">
+          <Icon name="qr" /> <span className="hide-sm">Deploy</span>
+        </button>
+      )}
       {view === 'console' && <MainViewSwitch embed={embed} />}
       <div className="spacer" />
       <div className="actions">
