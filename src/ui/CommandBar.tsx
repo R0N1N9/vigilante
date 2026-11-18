@@ -115,14 +115,20 @@ function PopoutMenu() {
 /** Embeds are the public view: no Team view (team positions and profiles stay in the full app). */
 function MainViewSwitch({ embed = false }: { embed?: boolean }) {
   const mainView = useStore((s) => s.mainView);
+  const map = (
+    <button key="map" className={mainView === 'map' ? 'on' : ''} onClick={() => setState({ mainView: 'map' })}>
+      Map
+    </button>
+  );
+  const dash = (
+    <button key="dash" className={mainView === 'dashboard' ? 'on' : ''} onClick={() => setState({ mainView: 'dashboard' })}>
+      Dashboard
+    </button>
+  );
   return (
     <div className="seg" aria-label="Main view">
-      <button className={mainView === 'map' ? 'on' : ''} onClick={() => setState({ mainView: 'map' })}>
-        Map
-      </button>
-      <button className={mainView === 'dashboard' ? 'on' : ''} onClick={() => setState({ mainView: 'dashboard' })}>
-        Dashboard
-      </button>
+      {/* Desktop: Dashboard | Map | Team. Web: Map | Dashboard | Team. */}
+      {import.meta.env.VITE_WEB ? [map, dash] : [dash, map]}
       {!embed && (
         <TeamViewButton on={mainView === 'team'} />
       )}
