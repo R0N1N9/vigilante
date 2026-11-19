@@ -1,5 +1,5 @@
 import { APP, APP_UPPER } from '../lib/brand';
-import { RadioDock } from './RadioDock';
+import { RadioBoundary, RadioDock } from './RadioDock';
 import { openDeploy } from './Deploy';
 import { PttButton, usePttHotkey } from './Voice';
 import { useEffect, useRef, useState } from 'react';
@@ -178,7 +178,11 @@ export function CommandBar({ view, embed = false }: { view: View; embed?: boolea
         </button>
       )}
       {view === 'console' && <MainViewSwitch embed={embed} />}
-      {view === 'console' && !embed && <RadioDock />}
+      {view === 'console' && !embed && (
+        <RadioBoundary>
+          <RadioDock />
+        </RadioBoundary>
+      )}
       <div className="spacer" />
       <div className="actions">
         <OnlineIndicator />

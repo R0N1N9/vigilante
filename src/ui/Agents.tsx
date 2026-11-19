@@ -3,6 +3,7 @@ import { deviceOf } from '../lib/waypoints';
 import { AgentIntel, Avatar, intelSummary, TeamIntel, useAgentIntel } from './Intel';
 import { describeDevice, describeListening, memberColor } from '../lib/teamext';
 import { stop as stopRadio, tune as tuneRadio, useTuned } from '../lib/liveRadio';
+import { RadioBoundary } from './RadioDock';
 import { RadioPanel } from './Voice';
 import { useEffect, useMemo, useState } from 'react';
 import { setShared } from '../data/bus';
@@ -385,7 +386,9 @@ export function TeamView({ map }: { map: React.ReactNode }) {
         <div className="tv-map tile">{map}</div>
         <div className="tv-side">
           <RadioPanel />
-          <TeamListening />
+          <RadioBoundary label="Team radio">
+            <TeamListening />
+          </RadioBoundary>
           <WaypointList />
           <MarkList />
           <TeamIntel />

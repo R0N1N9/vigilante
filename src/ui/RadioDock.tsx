@@ -1,5 +1,5 @@
 /** Top-bar radio: what you're tuned to, plus the city's live scanners (OpenMHz) to play in the app. */
-import { useEffect, useRef, useState } from 'react';
+import { Component, useEffect, useRef, useState, type ReactNode } from 'react';
 import { getState, useStore } from '../data/store';
 import { setShared } from '../data/bus';
 import { getJson } from '../lib/http';
@@ -215,4 +215,25 @@ export function RadioDock() {
       )}
     </div>
   );
+}
+
+/** Keeps a radio problem inside the radio: the rest of the app keeps running. */
+export class RadioBoundary extends Component<{ children: ReactNode; label?: string }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch(e: unknown) {
+    console.warn('radio panel', e);
+    stop();
+  }
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <button className="radio-dock-btn err" onClick={() => this.setState({ failed: false })} title="The radio hit a problem and was stopped. Tap to reload it.">
+        <Icon name="radio" />
+        <span className="rd-name">{this.props.label ?? 'Radio'} · retry</span>
+      </button>
+    );
+  }
 }

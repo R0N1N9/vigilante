@@ -47,13 +47,46 @@ function enqueue(calls: OmhzCall[]) {
   }
 }
 
-function playNext(g: number) {
-  if (g !== gen || !audio || tuned?.status === 'loading') return;
+let current = '';
+/** Move to the next call. `from` is the call that just finished or failed, so a call that both errors and rejects advances once. */
+function playNext(g: number, from = current) {
+  if (g !== gen || !audio || tuned?.status === 'loading' || from !== current) return;
   const c = queue.shift();
+  current = c?.id ?? '';
   if (!c) return patch({ status: 'waiting', now: undefined, emergency: false });
   patch({ status: 'playing', now: groups[c.talkgroup] ?? `Talkgroup ${c.talkgroup}`, emergency: c.emergency });
-  audio.src = c.url;
-  void audio.play().catch(() => playNext(g));
+  try {
+    audio.src = c.url;
+    void audio.play().catch(() => window.setTimeout(() => playNext(g, c.id), 250));
+  } catch {
+    window.setTimeout(() => playNext(g, c.id), 250);
+  }
+}
+
+/** Can this browser/webview decode OpenMHz audio (AAC in MP4)? Some Linux setups lack the codec. */
+export function canPlayScanner(): boolean {
+  try {
+    const a = document.createElement('audio');
+    return !!(a.canPlayType('audio/mp4; codecs="mp4a.40.2"') || a.canPlayType('audio/aac') || a.canPlayType('audio/x-m4a'));
+  } catch {
+    return false;
+  }
+}
+
+function setMediaSession(name: string) {
+  try {
+    if (!('mediaSession' in navigator)) return;
+    if (typeof MediaMetadata === 'function') navigator.mediaSession.metadata = new MediaMetadata({ title: name, artist: 'Live scanner' });
+    for (const action of ['pause', 'stop'] as const) {
+      try {
+        navigator.mediaSession.setActionHandler(action, stop);
+      } catch {
+        /* action not supported here */
+      }
+    }
+  } catch {
+    /* media controls are optional */
+  }
 }
 
 async function poll(g: number) {
@@ -67,25 +100,50 @@ async function poll(g: number) {
   if (g === gen) timer = window.setTimeout(() => void poll(g), POLL_MS);
 }
 
-/** Start listening to an OpenMHz system (the last few calls first, then new ones as they arrive). */
-export async function tune(system: string, name: string) {
+let lastTap = 0;
+/** Start listening to an OpenMHz system (the last few calls first, then new ones as they arrive). Never throws. */
+export async function tune(system: string, name: string): Promise<void> {
+  try {
+    await tuneUnsafe(system, name);
+  } catch (e) {
+    console.warn('radio', e);
+    if (tuned?.system === system) patch({ status: 'error', error: e instanceof Error ? e.message : String(e) });
+  }
+}
+
+async function tuneUnsafe(system: string, name: string) {
   if (tuned?.system === system && tuned.status !== 'error') return;
+  // Rapid repeated taps would start and tear down players faster than some webviews handle.
+  if (Date.now() - lastTap < 350) return;
+  lastTap = Date.now();
   stop();
   const g = ++gen;
   tuned = { system, name, status: 'loading' };
   emit();
-  audio = new Audio();
-  audio.volume = volume;
-  audio.addEventListener('ended', () => playNext(g));
-  audio.addEventListener('error', () => playNext(g));
-  // Browsers only allow sound after a tap: start the element now, inside the click.
-  audio.src = SILENCE;
-  void audio.play().catch(() => {});
-  if ('mediaSession' in navigator) {
-    navigator.mediaSession.metadata = new MediaMetadata({ title: name, artist: 'Live scanner' });
-    navigator.mediaSession.setActionHandler('pause', stop);
-    navigator.mediaSession.setActionHandler('stop', stop);
+  if (!canPlayScanner()) {
+    patch({ status: 'error', error: 'this device can’t play scanner audio (AAC). On Linux, install the GStreamer “libav” / “bad” plugins' });
+    return;
   }
+  audio = new Audio();
+  audio.preload = 'auto';
+  audio.volume = volume;
+  const a = audio;
+  // The tap-unlock silence ending or failing must not skip a call.
+  const isCall = () => a === audio && !a.src.startsWith('data:');
+  a.addEventListener('ended', () => isCall() && playNext(g));
+  a.addEventListener('error', () => {
+    if (!isCall()) return;
+    const id = current;
+    window.setTimeout(() => playNext(g, id), 250);
+  });
+  // Browsers only allow sound after a tap: start the element now, inside the click.
+  try {
+    a.src = SILENCE;
+    void a.play().catch(() => {});
+  } catch {
+    /* fine: the first call will try again */
+  }
+  setMediaSession(name);
   try {
     const [calls, tg] = await Promise.all([getJson(callsUrl(system)), getJson(talkgroupsUrl(system)).catch(() => null)]);
     if (g !== gen) return;
@@ -103,11 +161,17 @@ export async function tune(system: string, name: string) {
 
 export function stop() {
   gen++;
+  current = '';
   window.clearTimeout(timer);
-  if (audio) {
-    audio.pause();
-    audio.removeAttribute('src');
-    audio = null;
+  const a = audio;
+  audio = null;
+  if (a) {
+    try {
+      a.pause();
+      a.removeAttribute('src');
+    } catch {
+      /* already gone */
+    }
   }
   queue = [];
   seen = new Set();

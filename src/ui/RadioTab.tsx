@@ -5,7 +5,7 @@ import { APP } from '../lib/brand';
 import { setShared } from '../data/bus';
 import { useStore } from '../data/store';
 import { getPack } from '../lib/packs';
-import { listen, ScannerList } from './RadioDock';
+import { listen, RadioBoundary, ScannerList } from './RadioDock';
 import { stop, useTuned } from '../lib/liveRadio';
 import { Icon } from './Icon';
 
@@ -50,7 +50,9 @@ export function RadioTab() {
         </div>
       )}
       <div className="rd-head">Live scanners (OpenMHz)</div>
-      <ScannerList pack={pack} share />
+      <RadioBoundary label="Live scanners">
+        <ScannerList pack={pack} share />
+      </RadioBoundary>
     </div>
   );
   return (
