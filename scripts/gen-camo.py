@@ -66,5 +66,6 @@ which = sys.argv[1]
 if which == 'nightop':   # multicam black: black base, charcoal/gray brush shapes, gray branches
     print(gen(7, [('#161614', 4, 38), ('#1d1c1a', 5, 27), ('#252420', 5, 18), ('#2e2d29', 6, 11), ('#38372f', 4, 6)], None, '#060606', splotch=True))
 else:                     # field op: OCP-style tones (tan, khaki, olive, brown) darkened for a background, with branches
-    # ground: dark tan; big khaki splotches, olive and green, brown, small light tan flecks; dark brown branches
-    print(gen(23, [('#36321f', 4, 40), ('#2d3220', 5, 26), ('#363a25', 5, 17), ('#3c2f1e', 5, 11), ('#4a4430', 4, 6)], '#1d170e', '#1a150d', splotch=True, ground='#2a2719'))
+    # OCP-style, toned down for a background: khaki ground, large tan and pale-green shapes, olive and
+    # dark green, a neutral (not orange) brown, cream flecks; thin dark branches
+    print(gen(23, [('#575039', 5, 40), ('#4a4f37', 4, 28), ('#3c432e', 5, 19), ('#3b3528', 5, 12), ('#2f3526', 4, 8)], '#2b261d', '#6b6449', splotch=True, ground='#4a4431'))

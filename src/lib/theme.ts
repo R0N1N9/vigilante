@@ -26,7 +26,7 @@ export const THEMES: Record<Exclude<ThemeId, 'custom'>, Palette> = {
   redlight: { label: 'Red low-light', note: 'Keeps night vision in a dark vehicle', accent: '#ff4d4f', bg: '#0b0606', panel: '#140b0b', alert: '#ffb020', critical: '#ff2a9d' },
   steel: { label: 'Steel', note: 'Muted blue-gray', accent: '#9ec9ff', bg: '#0a0d12', panel: '#10151d', alert: '#ffb020', critical: '#ff4d4f' },
   netrunner: { label: 'Netrunner', note: 'Cyan data, red chrome, green signal', accent: '#5df2ee', bg: '#050a0a', panel: '#0a1314', alert: '#f2e04a', critical: '#ff4a55', swatch: '#ff5f5a', skin: 'netrunner' },
-  fieldop: { label: 'Field Op', note: 'Muted green, OCP-style camo', accent: '#c2b893', bg: '#0f110d', panel: '#1a1e17', alert: '#c9a227', critical: '#b0472c', swatch: '#4e5a3c', skin: 'fieldop' },
+  fieldop: { label: 'Field Op', note: 'Muted green, OCP-style camo', accent: '#c2b893', bg: '#0f110d', panel: '#1a1e17', alert: '#c2a64a', critical: '#a5443a', swatch: '#4e5a3c', skin: 'fieldop' },
   nightop: { label: 'Night Op', note: 'Black, flat dark earth, a touch of red', accent: '#c2a77a', bg: '#0b0b0a', panel: '#171614', alert: '#d0a24c', critical: '#b8322a', swatch: '#2e2c28', skin: 'nightop' },
 };
 
