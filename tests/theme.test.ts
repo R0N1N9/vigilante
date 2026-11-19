@@ -51,9 +51,16 @@ describe('Netrunner skin', () => {
     const root = { style: { setProperty() {} }, dataset: {} as Record<string, string> } as unknown as HTMLElement;
     applyAppearance(withTheme(DEFAULT_APPEARANCE, 'netrunner'), root);
     expect(root.dataset.skin).toBe('netrunner');
+    applyAppearance(withTheme(DEFAULT_APPEARANCE, 'fieldmanual'), root);
+    expect(root.dataset.skin).toBe('fieldmanual');
     applyAppearance(withTheme(DEFAULT_APPEARANCE, 'tactical'), root);
     expect(root.dataset.skin).toBeUndefined();
     applyAppearance({ ...withTheme(DEFAULT_APPEARANCE, 'netrunner'), theme: 'custom' }, root);
     expect(root.dataset.skin).toBeUndefined();
   });
+});
+
+it('lists the extra looks after the classic presets, in order', () => {
+  expect(Object.keys(THEMES).slice(-2)).toEqual(['netrunner', 'fieldmanual']);
+  expect(DEFAULT_APPEARANCE.theme).toBe('tactical');
 });

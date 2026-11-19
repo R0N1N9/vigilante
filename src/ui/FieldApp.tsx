@@ -1113,45 +1113,48 @@ export function FieldApp() {
 
 export function mountFieldApp() { createRoot(document.getElementById('root')!).render(<FieldApp />); }
 
-/** Optional Netrunner look for the phone app, kept on this phone. Off leaves the default look untouched. */
+/** Optional looks for the phone app, kept on this phone. The default leaves the page's look untouched. */
 const FIELD_THEME_KEY = 'vigilante.field.theme';
-const readFieldTheme = () => {
+const FIELD_LOOKS = { netrunner: 'Netrunner', fieldmanual: 'Field manual' } as const;
+type FieldLook = keyof typeof FIELD_LOOKS | '';
+const readFieldTheme = (): FieldLook => {
   try {
-    return localStorage.getItem(FIELD_THEME_KEY) === 'netrunner';
+    const v = localStorage.getItem(FIELD_THEME_KEY) ?? '';
+    return v in FIELD_LOOKS ? (v as FieldLook) : '';
   } catch {
-    return false;
+    return '';
   }
 };
-function useFieldTheme(nr: boolean) {
+function useFieldTheme(look: FieldLook) {
   useEffect(() => {
-    if (!nr) return;
+    if (!look) return;
     const root = document.documentElement;
     const before = root.getAttribute('style');
-    applyAppearance(withTheme(DEFAULT_APPEARANCE, 'netrunner'), root);
+    applyAppearance(withTheme(DEFAULT_APPEARANCE, look), root);
     return () => {
       if (before === null) root.removeAttribute('style');
       else root.setAttribute('style', before);
       delete root.dataset.skin;
     };
-  }, [nr]);
+  }, [look]);
 }
 const FIELD_THEME_EVENT = 'vigilante-field-theme';
 /** Applied once for the whole phone app, so it holds whichever tab is open. */
 function useFieldThemeSetting() {
-  const [nr, setNr] = useState(readFieldTheme);
+  const [look, setLook] = useState(readFieldTheme);
   useEffect(() => {
-    const on = () => setNr(readFieldTheme());
+    const on = () => setLook(readFieldTheme());
     window.addEventListener(FIELD_THEME_EVENT, on);
     return () => window.removeEventListener(FIELD_THEME_EVENT, on);
   }, []);
-  useFieldTheme(nr);
+  useFieldTheme(look);
 }
 function FieldThemeOption() {
-  const [nr, setNr] = useState(readFieldTheme);
-  const set = (on: boolean) => {
-    setNr(on);
+  const [look, setLook] = useState(readFieldTheme);
+  const set = (v: FieldLook) => {
+    setLook(v);
     try {
-      if (on) localStorage.setItem(FIELD_THEME_KEY, 'netrunner');
+      if (v) localStorage.setItem(FIELD_THEME_KEY, v);
       else localStorage.removeItem(FIELD_THEME_KEY);
     } catch {
       /* private mode: the choice lasts this visit */
@@ -1159,9 +1162,16 @@ function FieldThemeOption() {
     window.dispatchEvent(new Event(FIELD_THEME_EVENT));
   };
   return (
-    <label className="check-row">
-      <input type="checkbox" checked={nr} onChange={(e) => set(e.target.checked)} />
-      <span>Netrunner theme (red, cyan and green)</span>
+    <label>
+      <span>Theme</span>
+      <select value={look} onChange={(e) => set(e.target.value as FieldLook)}>
+        <option value="">Default</option>
+        {(Object.keys(FIELD_LOOKS) as (keyof typeof FIELD_LOOKS)[]).map((k) => (
+          <option key={k} value={k}>
+            {FIELD_LOOKS[k]}
+          </option>
+        ))}
+      </select>
     </label>
   );
 }
