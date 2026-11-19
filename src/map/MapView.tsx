@@ -7,7 +7,8 @@ import { getState, setState, subscribe, type State } from '../data/store';
 import { passesCeiling } from '../lib/adsb';
 import { circleRing, NM_TO_M, type LonLat } from '../lib/geo';
 import { getPack } from '../lib/packs';
-import { openExternal, openRadio } from '../ui/popout';
+import { openExternal } from '../ui/popout';
+import { listen } from '../ui/RadioDock';
 import { openWaypoint } from '../ui/Waypoints';
 import { markColor, openMark } from '../ui/Marks';
 import { openPhoto } from '../ui/Photos';
@@ -373,7 +374,7 @@ export function MapView() {
         if (html) popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
       } else if (f.layer.id.startsWith('radio-')) {
         const feed = getPack(s.packId).radioFeeds[Number(p.idx)];
-        if (feed) void openRadio(feed);
+        if (feed) listen(feed);
       } else if (f.layer.id === 'clusters') {
         const c = s.clusters.find((x) => x.id === p.id);
         if (c) popup.setLngLat(c.center).setHTML(`<small>DEVELOPING · ${c.sources.join(', ')}</small>${c.signals.map((x) => `<p>${esc(x.title)}</p>`).join('')}`).addTo(map);

@@ -1,4 +1,5 @@
 import { APP, APP_UPPER } from '../lib/brand';
+import { RadioDock } from './RadioDock';
 import { openDeploy } from './Deploy';
 import { PttButton, usePttHotkey } from './Voice';
 import { useEffect, useRef, useState } from 'react';
@@ -127,8 +128,9 @@ function MainViewSwitch({ embed = false }: { embed?: boolean }) {
   );
   return (
     <div className="seg" aria-label="Main view">
-      {/* Desktop: Dashboard | Map | Team. Web: Map | Dashboard | Team. */}
-      {import.meta.env.VITE_WEB ? [map, dash] : [dash, map]}
+      {/* Dashboard | Map | Team, on desktop and web. */}
+      {dash}
+      {map}
       {!embed && (
         <TeamViewButton on={mainView === 'team'} />
       )}
@@ -176,6 +178,7 @@ export function CommandBar({ view, embed = false }: { view: View; embed?: boolea
         </button>
       )}
       {view === 'console' && <MainViewSwitch embed={embed} />}
+      {view === 'console' && !embed && <RadioDock />}
       <div className="spacer" />
       <div className="actions">
         <OnlineIndicator />

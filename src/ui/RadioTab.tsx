@@ -5,7 +5,8 @@ import { APP } from '../lib/brand';
 import { setShared } from '../data/bus';
 import { useStore } from '../data/store';
 import { getPack } from '../lib/packs';
-import { openRadio } from './popout';
+import { listen, ScannerList } from './RadioDock';
+import { stop, useTuned } from '../lib/liveRadio';
 import { Icon } from './Icon';
 
 /** Post a scanner feed to the team: teammates tap the link in chat to open the player and listen. */
@@ -32,18 +33,35 @@ export function ShareFeed({ name, agency, url }: { name: string; agency: string;
 
 export function RadioTab() {
   const pack = useStore((s) => getPack(s.packId));
+  const tuned = useTuned();
   return (
     <div className="list">
       <div className="callout">
         <b>Scanner radio</b>
         <p>
-          Feeds play inside {APP} in a small player window (Broadcastify's own player), so you can park it on another monitor and keep listening. Dashed circles on the map show each feed's approximate coverage; click one to tune in.
+          Live scanners play right here in {APP}: each radio call plays seconds after it's made. The Radio button in the top bar shows what's on and has volume and stop. Broadcastify feeds open in their own player. Dashed circles on the map show each feed's approximate coverage; click one to tune in.
         </p>
         <p className="muted">{pack.notes}</p>
       </div>
+      <div className="radio-live">
+        {tuned && (
+          <div className="rd-now">
+            <div>
+              <small className={tuned.emergency ? 'emerg' : ''}>{tuned.status === 'playing' ? (tuned.emergency ? 'EMERGENCY CALL' : 'ON AIR') : tuned.status === 'waiting' ? 'LISTENING · QUIET' : tuned.status === 'loading' ? 'TUNING…' : 'NO SIGNAL'}</small>
+              <b>{tuned.name}</b>
+              {tuned.now && <em>{tuned.now}</em>}
+            </div>
+            <button className="btn small" onClick={stop}>
+              ■ Stop
+            </button>
+          </div>
+        )}
+        <div className="rd-head">Live scanners (OpenMHz)</div>
+        <ScannerList pack={pack} share />
+      </div>
       {pack.radioFeeds.map((f) => (
         <article key={f.url} className="radio-row">
-          <button className="radio-play" onClick={() => void openRadio(f)} title={`Listen to ${f.name}`}>
+          <button className="radio-play" onClick={() => listen(f)} title={`Listen to ${f.name}`}>
             ▶
           </button>
           <div className="radio-body">

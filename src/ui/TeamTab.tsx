@@ -11,7 +11,8 @@ import { isTauri } from '../lib/http';
 import type { Severity } from '../lib/signals';
 import { fmtTime } from './format';
 import { getPack } from '../lib/packs';
-import { openExternal, openRadio } from './popout';
+import { openExternal } from './popout';
+import { listen } from './RadioDock';
 import { Icon, RichText } from './Icon';
 
 const saveChannels = (channels: TeamChannel[]) => setShared({ channels });
@@ -66,7 +67,7 @@ function Message({ m, channel, showChannel, tz }: { m: ChatMessage; channel?: Te
           {m.url && (
             <button
               className="btn small"
-              onClick={() => void (isListen(m.text) && /^https:\/\/www\.broadcastify\.com\//.test(m.url!) ? openRadio({ name: m.text.replace(/^📻 LISTEN /, '').split(' — ')[0], url: m.url! }) : openExternal(m.url!, m.from))}
+              onClick={() => void (isListen(m.text) && /^https:\/\/www\.broadcastify\.com\//.test(m.url!) ? listen({ name: m.text.replace(/^📻 LISTEN /, '').split(' — ')[0], url: m.url! }) : openExternal(m.url!, m.from))}
             >
               {isListen(m.text) ? 'Listen ↗' : 'Open link ↗'}
             </button>
