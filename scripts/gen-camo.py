@@ -38,8 +38,8 @@ def blob(pts):
     for i in range(n):
         c = pts[i]; e = mid(pts[i], pts[(i+1) % n]); s += 'Q%.0f %.0f %.0f %.0f' % (c + e)
     return s + 'Z'
-def gen(seed, tones, twig, speck, splotch=False):
-    rng = random.Random(seed); body=[]
+def gen(seed, tones, twig, speck, splotch=False, ground=None):
+    rng = random.Random(seed); body=[f"<rect width='{W}' height='{W}' fill='{ground}'/>"] if ground else []
     for tone, grid, size in tones:
         cell = W / grid; d = ''
         for gx in range(grid):
@@ -54,7 +54,7 @@ def gen(seed, tones, twig, speck, splotch=False):
                     for q in wrapped(shape(rng, cx, cy, size*rng.uniform(.7,1.3), rng.uniform(-.7,.7))): d += path(q)
         body.append(f"<path fill='{tone}' d='{d}'/>")
     d=''
-    for _ in range(0 if twig is None else 5):
+    for _ in range(0 if twig is None else 6):
         for seg in branch(rng, rng.uniform(0,W), rng.uniform(0,W), rng.uniform(-math.pi, math.pi), rng.uniform(60,100), 2):
             for q in wrapped(seg): d += path(q, False)
     if d: body.append(f"<path fill='none' stroke='{twig}' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='{d}'/>")
@@ -65,5 +65,6 @@ def gen(seed, tones, twig, speck, splotch=False):
 which = sys.argv[1]
 if which == 'nightop':   # multicam black: black base, charcoal/gray brush shapes, gray branches
     print(gen(7, [('#161614', 4, 38), ('#1d1c1a', 5, 27), ('#252420', 5, 18), ('#2e2d29', 6, 11), ('#38372f', 4, 6)], None, '#060606', splotch=True))
-else:                     # field manual: flat dark earth / coyote tones, very low contrast
-    print(gen(11, [('#2a2418', 5, 34), ('#332b1d', 6, 24), ('#3d3322', 5, 17), ('#473b27', 4, 10)], '#4a3e2a', '#17130c'))
+else:                     # field op: OCP-style tones (tan, khaki, olive, brown) darkened for a background, with branches
+    # ground: dark tan; big khaki splotches, olive and green, brown, small light tan flecks; dark brown branches
+    print(gen(23, [('#36321f', 4, 40), ('#2d3220', 5, 26), ('#363a25', 5, 17), ('#3c2f1e', 5, 11), ('#4a4430', 4, 6)], '#1d170e', '#1a150d', splotch=True, ground='#2a2719'))

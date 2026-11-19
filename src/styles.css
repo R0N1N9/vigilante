@@ -1309,85 +1309,85 @@ fieldset.plain:disabled { opacity: .5; }
 [data-skin='netrunner'] .app::after { content: ''; position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: var(--texture); background: repeating-linear-gradient(0deg, rgba(var(--accent-rgb), .025) 0 1px, transparent 1px 3px); }
 [data-skin='netrunner'] :is(.field-card h2, .field-card h3, .field-card summary) { font-family: var(--hud); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--chrome); }
 
-/* ================= Field manual skin =================
-   Picked in Settings > Appearance. Modern field-manual print look: flat dark earth,
-   coyote and black on a faint earth-tone multicam-style pattern. Matte (no glow),
+/* ================= Field Op skin =================
+   Picked in Settings > Appearance. Modern field-manual print look: muted green, khaki
+   and black over a dark OCP-style camo pattern. Matte (no glow),
    square corners, condensed uppercase headings on OD bands, numbered paragraphs. */
-[data-skin='fieldmanual'] {
-  --od: #5e4d33;
-  --od-rgb: 94, 77, 51;
-  --fde: #c9ae80;
-  --fde-rgb: 201, 174, 128;
-  --coyote: #8f7448;
-  --ok: #9aa067;
-  --guarded: #9aa067;
-  --info: #b8a47e;
-  --info-rgb: 184, 164, 126;
-  --text: #e4ddca;
-  --muted: #ab9f86;
-  --dim: #76694f;
+[data-skin='fieldop'] {
+  --od: #4e5a3c;
+  --od-rgb: 78, 90, 60;
+  --fde: #c2b893;
+  --fde-rgb: 194, 184, 147;
+  --coyote: #7c8660;
+  --ok: #9aab6e;
+  --guarded: #9aab6e;
+  --info: #a9b08a;
+  --info-rgb: 169, 176, 138;
+  --text: #e2e0cf;
+  --muted: #a5a58c;
+  --dim: #6f725c;
   --fm-head: 'Bahnschrift', 'Roboto Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
-  --camo: url('./assets/camo/fieldmanual.svg');
+  --camo: url('./assets/camo/fieldop.svg');
 }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) body { background: var(--camo) 0 0 / 240px 240px, var(--bg); }
+:is([data-skin='fieldop'], [data-skin='nightop']) body { background: var(--camo) 0 0 / 400px 400px, var(--bg); }
 
 /* Matte: no glows anywhere */
-:is([data-skin='fieldmanual'], [data-skin='nightop']) * { text-shadow: none !important; }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) :is(.led, .meter i, .sitrep::before, .feed i, .seg button.on, .btn, .tile) { box-shadow: none !important; }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) :is(.led-warn, .led-crit) { animation: none; }
+:is([data-skin='fieldop'], [data-skin='nightop']) * { text-shadow: none !important; }
+:is([data-skin='fieldop'], [data-skin='nightop']) :is(.led, .meter i, .sitrep::before, .feed i, .seg button.on, .btn, .tile) { box-shadow: none !important; }
+:is([data-skin='fieldop'], [data-skin='nightop']) :is(.led-warn, .led-crit) { animation: none; }
 
 /* Headings: condensed caps, like a manual's section titles */
-:is([data-skin='fieldmanual'], [data-skin='nightop']) :is(.tile h3, .panel-head h2, .modal-head h2, .modal-body h3, .brand, .sr-tag, .fa-head b, .overlay-head, .field-card h2, .field-card summary) {
+:is([data-skin='fieldop'], [data-skin='nightop']) :is(.tile h3, .panel-head h2, .modal-head h2, .modal-body h3, .brand, .sr-tag, .fa-head b, .overlay-head, .field-card h2, .field-card summary) {
   font-family: var(--fm-head); font-stretch: condensed; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text);
 }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .tile h3 { font-size: 13px; }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .modal-head h2 { font-size: 17px; }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) :is(.modal-body h3, .sr-tag, .brand) { color: var(--fde); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .tcode { color: var(--fde); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .tcode::after { content: '.'; color: var(--fde); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .tile h3 { font-size: 13px; }
+:is([data-skin='fieldop'], [data-skin='nightop']) .modal-head h2 { font-size: 17px; }
+:is([data-skin='fieldop'], [data-skin='nightop']) :is(.modal-body h3, .sr-tag, .brand) { color: var(--fde); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .tcode { color: var(--fde); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .tcode::after { content: '.'; color: var(--fde); }
 
 /* Panels: square, matte, OD title band, thin tan rule */
-:is([data-skin='fieldmanual'], [data-skin='nightop']) :is(.tile, .sitrep, .modal, .agent-card, .callout, .incident, .field-card, .btn, .icon-btn, .seg, .alerts-chip, .feed-chip, .theme-swatch) { border-radius: 0; }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .tile { border-color: rgba(var(--fde-rgb), .22); background: rgba(var(--panel-rgb), var(--panel-a)); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .tile::before, :is([data-skin='fieldmanual'], [data-skin='nightop']) .tile::after { display: none; }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .tile > header { background: rgba(var(--od-rgb), .55); border-bottom: 1px solid rgba(var(--fde-rgb), .35); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .dashboard { background: transparent; }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .dashboard::after { display: none; }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .sitrep { background: rgba(var(--panel-rgb), var(--panel-a)); border-color: rgba(var(--fde-rgb), .25); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .sitrep::before { background: var(--od); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) :is(.kpi b, .gauge-num, .sr-id b, .clock) { color: var(--text); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .kpi { border-left-color: rgba(var(--fde-rgb), .2); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .meter i { border-radius: 0; background: rgba(var(--fde-rgb), .12); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .meter i.on { background: var(--ok); }
+:is([data-skin='fieldop'], [data-skin='nightop']) :is(.tile, .sitrep, .modal, .agent-card, .callout, .incident, .field-card, .btn, .icon-btn, .seg, .alerts-chip, .feed-chip, .theme-swatch) { border-radius: 0; }
+:is([data-skin='fieldop'], [data-skin='nightop']) .tile { border-color: rgba(var(--fde-rgb), .22); background: rgba(var(--panel-rgb), var(--panel-a)); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .tile::before, :is([data-skin='fieldop'], [data-skin='nightop']) .tile::after { display: none; }
+:is([data-skin='fieldop'], [data-skin='nightop']) .tile > header { background: rgba(var(--od-rgb), .55); border-bottom: 1px solid rgba(var(--fde-rgb), .35); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .dashboard { background: transparent; }
+:is([data-skin='fieldop'], [data-skin='nightop']) .dashboard::after { display: none; }
+:is([data-skin='fieldop'], [data-skin='nightop']) .sitrep { background: rgba(var(--panel-rgb), var(--panel-a)); border-color: rgba(var(--fde-rgb), .25); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .sitrep::before { background: var(--od); }
+:is([data-skin='fieldop'], [data-skin='nightop']) :is(.kpi b, .gauge-num, .sr-id b, .clock) { color: var(--text); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .kpi { border-left-color: rgba(var(--fde-rgb), .2); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .meter i { border-radius: 0; background: rgba(var(--fde-rgb), .12); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .meter i.on { background: var(--ok); }
 
 /* Dialogs: like a printed page header */
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .modal { border: 1px solid rgba(var(--fde-rgb), .4); box-shadow: 0 18px 50px rgba(0, 0, 0, .65); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .modal-head { background: var(--od); border-bottom: 2px solid var(--fde); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .modal-back { background: rgba(8, 9, 6, .75); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .modal { border: 1px solid rgba(var(--fde-rgb), .4); box-shadow: 0 18px 50px rgba(0, 0, 0, .65); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .modal-head { background: var(--od); border-bottom: 2px solid var(--fde); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .modal-back { background: rgba(8, 9, 6, .75); }
 
 /* Bars and tabs */
-:is([data-skin='fieldmanual'], [data-skin='nightop']) :is(.cmdbar, .rail) { background: rgba(var(--panel-rgb), var(--panel-a)); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .cmdbar { border-bottom: 2px solid var(--od); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .cmdbar::after { display: none; }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .rail .tabs button.on { color: var(--text); border-bottom-color: var(--fde); }
+:is([data-skin='fieldop'], [data-skin='nightop']) :is(.cmdbar, .rail) { background: rgba(var(--panel-rgb), var(--panel-a)); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .cmdbar { border-bottom: 2px solid var(--od); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .cmdbar::after { display: none; }
+:is([data-skin='fieldop'], [data-skin='nightop']) .rail .tabs button.on { color: var(--text); border-bottom-color: var(--fde); }
 
 /* Controls: flat, tan outline; primary is solid coyote like a printed tab */
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .btn { font-family: var(--fm-head); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border-color: rgba(var(--fde-rgb), .45); color: var(--text); background: rgba(var(--od-rgb), .25); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .btn:hover:not(:disabled) { border-color: var(--fde); color: var(--text); background: rgba(var(--od-rgb), .5); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .btn.primary { background: var(--coyote); border-color: var(--fde); color: #12130e; }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .btn.primary:hover:not(:disabled) { color: #12130e; filter: brightness(1.1); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .seg { border-color: rgba(var(--fde-rgb), .3); background: rgba(0, 0, 0, .3); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .seg button { font-family: var(--fm-head); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .seg button.on { background: var(--od); color: var(--text); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .btn { font-family: var(--fm-head); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border-color: rgba(var(--fde-rgb), .45); color: var(--text); background: rgba(var(--od-rgb), .25); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .btn:hover:not(:disabled) { border-color: var(--fde); color: var(--text); background: rgba(var(--od-rgb), .5); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .btn.primary { background: var(--coyote); border-color: var(--fde); color: #12130e; }
+:is([data-skin='fieldop'], [data-skin='nightop']) .btn.primary:hover:not(:disabled) { color: #12130e; filter: brightness(1.1); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .seg { border-color: rgba(var(--fde-rgb), .3); background: rgba(0, 0, 0, .3); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .seg button { font-family: var(--fm-head); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+:is([data-skin='fieldop'], [data-skin='nightop']) .seg button.on { background: var(--od); color: var(--text); }
 
 /* Phone (Field Agent) */
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .fa-head { background: rgba(var(--panel-rgb), .95); border-bottom: 2px solid var(--od); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .fa-head :is(.field-mark, b) { color: var(--fde); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .fa-head em { color: var(--ok); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) :is(.field-card, .fieldapp > section, .fieldapp > div[class$='-card']) { border-color: rgba(var(--fde-rgb), .25); background: rgba(var(--panel-rgb), .9); }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .fieldapp { background: transparent; }
+:is([data-skin='fieldop'], [data-skin='nightop']) .fa-head { background: rgba(var(--panel-rgb), .95); border-bottom: 2px solid var(--od); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .fa-head :is(.field-mark, b) { color: var(--fde); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .fa-head em { color: var(--ok); }
+:is([data-skin='fieldop'], [data-skin='nightop']) :is(.field-card, .fieldapp > section, .fieldapp > div[class$='-card']) { border-color: rgba(var(--fde-rgb), .25); background: rgba(var(--panel-rgb), .9); }
+:is([data-skin='fieldop'], [data-skin='nightop']) .fieldapp { background: transparent; }
 
-/* Night Op: same print look as Field manual, in black, multicam-black grays and flat dark earth,
+/* Night Op: same print look as Field Op, in black, multicam-black grays and flat dark earth,
    with a few small red accents (section numbers, the SITREP edge, selected tabs, alert lights). */
 [data-skin='nightop'] {
   --od: #2b2a26;
@@ -1414,4 +1414,4 @@ fieldset.plain:disabled { opacity: .5; }
 [data-skin='nightop'] .seg button.on { background: var(--od); box-shadow: inset 0 -2px 0 var(--red) !important; }
 [data-skin='nightop'] .modal-head { border-bottom-color: var(--red); }
 [data-skin='nightop'] .cmdbar { border-bottom-color: #2b2a26; }
-:is([data-skin='fieldmanual'], [data-skin='nightop']) .field-btn.go { background: var(--coyote); border-color: var(--fde); color: #12110e; }
+:is([data-skin='fieldop'], [data-skin='nightop']) .field-btn.go { background: var(--coyote); border-color: var(--fde); color: #12110e; }
