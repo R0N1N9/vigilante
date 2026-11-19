@@ -44,3 +44,16 @@ describe('alert colors', () => {
     expect(withDefaults({ appearance: { ...DEFAULT_APPEARANCE, alert: undefined as unknown as string } }).appearance.alert).toBeUndefined;
   });
 });
+
+describe('Netrunner skin', () => {
+  it('sets the skin attribute only for the Netrunner preset', async () => {
+    const { applyAppearance } = await import('../src/lib/theme');
+    const root = { style: { setProperty() {} }, dataset: {} as Record<string, string> } as unknown as HTMLElement;
+    applyAppearance(withTheme(DEFAULT_APPEARANCE, 'netrunner'), root);
+    expect(root.dataset.skin).toBe('netrunner');
+    applyAppearance(withTheme(DEFAULT_APPEARANCE, 'tactical'), root);
+    expect(root.dataset.skin).toBeUndefined();
+    applyAppearance({ ...withTheme(DEFAULT_APPEARANCE, 'netrunner'), theme: 'custom' }, root);
+    expect(root.dataset.skin).toBeUndefined();
+  });
+});

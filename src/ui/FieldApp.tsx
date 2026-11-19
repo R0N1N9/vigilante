@@ -14,6 +14,7 @@ import { ACK_LABEL, directionsLinks, isFor, markLive, MARK_CATEGORIES, MARK_KIND
 
 const MARK_DOT: Record<MarkCategory, string> = { general: '#E6EDF3', hazard: '#FF7A45', entry: '#4C8DFF', rally: '#2BD47D', observation: '#C084FC', vehicle: '#FFD84D', activity: '#FF4D4F', medical: '#FF8FA3', staging: '#7DD3FC' };
 import { BrandMark } from './BrandMark';
+import { applyAppearance, DEFAULT_APPEARANCE, withTheme } from '../lib/theme';
 import { Icon, RichText, type IconName } from './Icon';
 
 /**
@@ -1072,6 +1073,7 @@ export function FieldApp() {
         <b>{APP_UPPER}</b>
         <span>FIELD AGENT</span>
         {channelName && <em className="mono">● {channelName}</em>}
+        <FieldThemeToggle />
       </header>
       <main className="agent-main">
         <section className="agent-pane" hidden={tab !== 'team' && tab !== 'radio'}>
@@ -1102,3 +1104,28 @@ export function FieldApp() {
 }
 
 export function mountFieldApp() { createRoot(document.getElementById('root')!).render(<FieldApp />); }
+
+/** Phone app look: Tactical (default) or Netrunner, kept on this phone. */
+const FIELD_THEME_KEY = 'vigilante.field.theme';
+function FieldThemeToggle() {
+  const [nr, setNr] = useState(() => {
+    try {
+      return localStorage.getItem(FIELD_THEME_KEY) === 'netrunner';
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    applyAppearance(withTheme(DEFAULT_APPEARANCE, nr ? 'netrunner' : 'tactical'));
+    try {
+      localStorage.setItem(FIELD_THEME_KEY, nr ? 'netrunner' : 'tactical');
+    } catch {
+      /* private mode: the choice lasts this visit */
+    }
+  }, [nr]);
+  return (
+    <button type="button" className={`fa-theme${nr ? ' on' : ''}`} onClick={() => setNr(!nr)} title={nr ? 'Switch to the Tactical look' : 'Switch to the Netrunner look'} aria-pressed={nr}>
+      {nr ? 'NR' : 'TAC'}
+    </button>
+  );
+}

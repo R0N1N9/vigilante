@@ -73,7 +73,7 @@ function AppearanceSection({ value: a, onChange }: { value: Appearance; onChange
       <p className="muted small-text">Changes apply right away, in every window.</p>
       <div className="theme-grid">
         {(Object.keys(THEMES) as (keyof typeof THEMES)[]).map((id) => (
-          <button key={id} className={`theme-swatch ${a.theme === id ? 'on' : ''}`} onClick={() => onChange(withTheme(a, id))} style={{ ['--sw' as string]: THEMES[id].accent, ['--sw2' as string]: THEMES[id].alert, ['--swbg' as string]: THEMES[id].panel }}>
+          <button key={id} className={`theme-swatch ${a.theme === id ? 'on' : ''}`} onClick={() => onChange(withTheme(a, id))} style={{ ['--sw' as string]: THEMES[id].accent, ['--sw2' as string]: THEMES[id].swatch ?? THEMES[id].alert, ['--swbg' as string]: THEMES[id].panel }}>
             <i />
             <b>{THEMES[id].label}</b>
             <small>{THEMES[id].note}</small>

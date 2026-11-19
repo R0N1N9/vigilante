@@ -1,5 +1,5 @@
 /** App appearance: theme presets plus custom RGB colors and panel opacity. */
-export type ThemeId = 'tactical' | 'greenred' | 'nightvision' | 'amber' | 'redlight' | 'steel' | 'custom';
+export type ThemeId = 'tactical' | 'netrunner' | 'greenred' | 'nightvision' | 'amber' | 'redlight' | 'steel' | 'custom';
 
 export interface Appearance {
   theme: ThemeId;
@@ -16,10 +16,11 @@ export interface Appearance {
   texture: boolean;
 }
 
-type Palette = { label: string; note: string; accent: string; bg: string; panel: string; alert: string; critical: string };
+type Palette = { label: string; note: string; accent: string; bg: string; panel: string; alert: string; critical: string; /** Second swatch color, if not the alert color. */ swatch?: string; /** Extra styling beyond colors (fonts, panel shapes, glow). */ skin?: string };
 
 export const THEMES: Record<Exclude<ThemeId, 'custom'>, Palette> = {
   tactical: { label: 'Tactical cyan', note: 'Cyan with amber alerts (default)', accent: '#3dd6f5', bg: '#0b0f14', panel: '#0d131a', alert: '#ffb020', critical: '#ff4d4f' },
+  netrunner: { label: 'Netrunner', note: 'Cyan data, red chrome, green signal', accent: '#5df2ee', bg: '#050a0a', panel: '#0a1314', alert: '#f2e04a', critical: '#ff4a55', swatch: '#ff5f5a', skin: 'netrunner' },
   greenred: { label: 'Green & red', note: 'Ops green with red alerts', accent: '#2ee59d', bg: '#070d0a', panel: '#0b1410', alert: '#ff5c5c', critical: '#ff2a6d' },
   nightvision: { label: 'Night vision', note: 'Green phosphor', accent: '#39ff7a', bg: '#060b07', panel: '#0a120c', alert: '#ffb020', critical: '#ff4d4f' },
   amber: { label: 'Amber CRT', note: 'Warm, easy on the eyes', accent: '#ffb020', bg: '#0d0a05', panel: '#15110a', alert: '#ff7a45', critical: '#ff4d4f' },
@@ -87,4 +88,7 @@ export function themeVars(a: Appearance): Record<string, string> {
 
 export function applyAppearance(a: Appearance, root: HTMLElement = document.documentElement) {
   for (const [k, v] of Object.entries(themeVars(a))) root.style.setProperty(k, v);
+  const skin = a.theme === 'custom' ? undefined : THEMES[a.theme]?.skin;
+  if (skin) root.dataset.skin = skin;
+  else delete root.dataset.skin;
 }
