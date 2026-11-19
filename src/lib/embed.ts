@@ -5,7 +5,7 @@ import { THEMES, type ThemeId } from './theme';
  * Embed mode (web build): `embed.html` or `?embed=1`, plus
  *   ?view=dashboard|map           which main view to show
  *   ?city=denver|atlanta|lat,lon  where to watch
- *   ?theme=tactical|greenred|nightvision|amber|redlight|steel
+ *   ?theme=tactical|netrunner|greenred|nightvision|amber|redlight|steel
  * Anything unrecognized is ignored, so a bad parameter never breaks the page.
  */
 export type EmbedView = 'dashboard' | 'map';
