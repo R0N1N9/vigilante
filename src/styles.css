@@ -1307,7 +1307,4 @@ fieldset.plain:disabled { opacity: .5; }
 
 /* Light scanlines over the whole app, controlled by the texture checkbox */
 [data-skin='netrunner'] .app::after { content: ''; position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: var(--texture); background: repeating-linear-gradient(0deg, rgba(var(--accent-rgb), .025) 0 1px, transparent 1px 3px); }
-.fa-theme { margin-left: auto; flex: none; padding: 3px 7px; font: 600 10px var(--mono); letter-spacing: .14em; color: var(--muted); border: 1px solid var(--line-2); border-radius: 3px; }
-.fa-head em + .fa-theme { margin-left: 8px; }
-.fa-theme.on { color: var(--chrome, var(--accent)); border-color: var(--chrome, var(--accent)); border-radius: 0; }
 [data-skin='netrunner'] :is(.field-card h2, .field-card h3, .field-card summary) { font-family: var(--hud); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--chrome); }

@@ -104,6 +104,10 @@ function NoTeam({ onJoin, callsign }: { onJoin: (ch: NtfyChannel, callsign: stri
           <span>Your callsign (how your team sees you)</span>
           <input value={call} onChange={(e) => setCall(e.target.value.slice(0, 32))} placeholder="e.g. Unit 7" />
         </label>
+        <details className="field-profile">
+          <summary>Appearance</summary>
+          <FieldThemeOption />
+        </details>
       </div>
       <div className="field-card">
         <h2>Join a team</h2>
@@ -618,6 +622,10 @@ function FieldTeam({ tab, radioSlot }: { tab: AgentTab; radioSlot?: React.ReactN
           <input value={saved.callsign} onChange={(e) => update({ callsign: e.target.value.slice(0, 32) })} placeholder="e.g. Unit 7" disabled={sharing} />
         </label>
         <details className="field-profile">
+          <summary>Appearance</summary>
+          <FieldThemeOption />
+        </details>
+        <details className="field-profile">
           <summary>Role and contact (optional)</summary>
           {(['role', 'unit', 'phone', 'email'] as const).map((k) => (
             <label key={k}>
@@ -1022,6 +1030,7 @@ type AgentModule = typeof import('../agent');
  * The Team page stays mounted so its streams keep running; Now, Map and the scanner load on first use.
  */
 export function FieldApp() {
+  useFieldThemeSetting();
   const [tab, setTabState] = useState<AgentTab>(() => {
     if (/#join=/.test(location.hash)) return 'team';
     try {
@@ -1073,7 +1082,6 @@ export function FieldApp() {
         <b>{APP_UPPER}</b>
         <span>FIELD AGENT</span>
         {channelName && <em className="mono">● {channelName}</em>}
-        <FieldThemeToggle />
       </header>
       <main className="agent-main">
         <section className="agent-pane" hidden={tab !== 'team' && tab !== 'radio'}>
@@ -1105,27 +1113,55 @@ export function FieldApp() {
 
 export function mountFieldApp() { createRoot(document.getElementById('root')!).render(<FieldApp />); }
 
-/** Phone app look: Tactical (default) or Netrunner, kept on this phone. */
+/** Optional Netrunner look for the phone app, kept on this phone. Off leaves the default look untouched. */
 const FIELD_THEME_KEY = 'vigilante.field.theme';
-function FieldThemeToggle() {
-  const [nr, setNr] = useState(() => {
-    try {
-      return localStorage.getItem(FIELD_THEME_KEY) === 'netrunner';
-    } catch {
-      return false;
-    }
-  });
+const readFieldTheme = () => {
+  try {
+    return localStorage.getItem(FIELD_THEME_KEY) === 'netrunner';
+  } catch {
+    return false;
+  }
+};
+function useFieldTheme(nr: boolean) {
   useEffect(() => {
-    applyAppearance(withTheme(DEFAULT_APPEARANCE, nr ? 'netrunner' : 'tactical'));
+    if (!nr) return;
+    const root = document.documentElement;
+    const before = root.getAttribute('style');
+    applyAppearance(withTheme(DEFAULT_APPEARANCE, 'netrunner'), root);
+    return () => {
+      if (before === null) root.removeAttribute('style');
+      else root.setAttribute('style', before);
+      delete root.dataset.skin;
+    };
+  }, [nr]);
+}
+const FIELD_THEME_EVENT = 'vigilante-field-theme';
+/** Applied once for the whole phone app, so it holds whichever tab is open. */
+function useFieldThemeSetting() {
+  const [nr, setNr] = useState(readFieldTheme);
+  useEffect(() => {
+    const on = () => setNr(readFieldTheme());
+    window.addEventListener(FIELD_THEME_EVENT, on);
+    return () => window.removeEventListener(FIELD_THEME_EVENT, on);
+  }, []);
+  useFieldTheme(nr);
+}
+function FieldThemeOption() {
+  const [nr, setNr] = useState(readFieldTheme);
+  const set = (on: boolean) => {
+    setNr(on);
     try {
-      localStorage.setItem(FIELD_THEME_KEY, nr ? 'netrunner' : 'tactical');
+      if (on) localStorage.setItem(FIELD_THEME_KEY, 'netrunner');
+      else localStorage.removeItem(FIELD_THEME_KEY);
     } catch {
       /* private mode: the choice lasts this visit */
     }
-  }, [nr]);
+    window.dispatchEvent(new Event(FIELD_THEME_EVENT));
+  };
   return (
-    <button type="button" className={`fa-theme${nr ? ' on' : ''}`} onClick={() => setNr(!nr)} title={nr ? 'Switch to the Tactical look' : 'Switch to the Netrunner look'} aria-pressed={nr}>
-      {nr ? 'NR' : 'TAC'}
-    </button>
+    <label className="check-row">
+      <input type="checkbox" checked={nr} onChange={(e) => set(e.target.checked)} />
+      <span>Netrunner theme (red, cyan and green)</span>
+    </label>
   );
 }
