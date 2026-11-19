@@ -1436,7 +1436,7 @@ fieldset.plain:disabled { opacity: .5; }
   --camo: url('./assets/camo/urban.svg');
   --cut2: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
 }
-[data-skin='urban'] body { background: var(--camo) 0 0 / 288px 288px, var(--bg); }
+[data-skin='urban'] body { background: var(--camo) 0 0 / 360px 360px, var(--bg); }
 [data-skin='urban'] :is(.tile, .modal) { clip-path: var(--cut2); }
 [data-skin='urban'] .tile > header { background: rgba(var(--od-rgb), .9); border-bottom-color: rgba(var(--fde-rgb), .25); }
 [data-skin='urban'] :is(.tcode, .tcode::after) { color: var(--ice); }
