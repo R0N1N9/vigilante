@@ -37,6 +37,7 @@
     "data.cityofnewyork.us",
     "data.sf.gov",
     "data.seattle.gov",
-    "www.dallasopendata.com"
+    "www.dallasopendata.com",
+    "api.openmhz.com"
   ]
 }
