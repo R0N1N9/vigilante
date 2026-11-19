@@ -1329,63 +1329,63 @@ fieldset.plain:disabled { opacity: .5; }
   --fm-head: 'Bahnschrift', 'Roboto Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
   --camo: url('./assets/camo/fieldop.svg');
 }
-:is([data-skin='fieldop'], [data-skin='nightop']) body { background: var(--camo) 0 0 / 400px 400px, var(--bg); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) body { background: var(--camo) 0 0 / 400px 400px, var(--bg); }
 
 /* Matte: no glows anywhere */
-:is([data-skin='fieldop'], [data-skin='nightop']) * { text-shadow: none !important; }
-:is([data-skin='fieldop'], [data-skin='nightop']) :is(.led, .meter i, .sitrep::before, .feed i, .seg button.on, .btn, .tile) { box-shadow: none !important; }
-:is([data-skin='fieldop'], [data-skin='nightop']) :is(.led-warn, .led-crit) { animation: none; }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) * { text-shadow: none !important; }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) :is(.led, .meter i, .sitrep::before, .feed i, .seg button.on, .btn, .tile) { box-shadow: none !important; }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) :is(.led-warn, .led-crit) { animation: none; }
 
 /* Headings: condensed caps, like a manual's section titles */
-:is([data-skin='fieldop'], [data-skin='nightop']) :is(.tile h3, .panel-head h2, .modal-head h2, .modal-body h3, .brand, .sr-tag, .fa-head b, .overlay-head, .field-card h2, .field-card summary) {
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) :is(.tile h3, .panel-head h2, .modal-head h2, .modal-body h3, .brand, .sr-tag, .fa-head b, .overlay-head, .field-card h2, .field-card summary) {
   font-family: var(--fm-head); font-stretch: condensed; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text);
 }
-:is([data-skin='fieldop'], [data-skin='nightop']) .tile h3 { font-size: 13px; }
-:is([data-skin='fieldop'], [data-skin='nightop']) .modal-head h2 { font-size: 17px; }
-:is([data-skin='fieldop'], [data-skin='nightop']) :is(.modal-body h3, .sr-tag, .brand) { color: var(--fde); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .tcode { color: var(--fde); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .tcode::after { content: '.'; color: var(--fde); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .tile h3 { font-size: 13px; }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .modal-head h2 { font-size: 17px; }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) :is(.modal-body h3, .sr-tag, .brand) { color: var(--fde); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .tcode { color: var(--fde); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .tcode::after { content: '.'; color: var(--fde); }
 
 /* Panels: square, matte, OD title band, thin tan rule */
-:is([data-skin='fieldop'], [data-skin='nightop']) :is(.tile, .sitrep, .modal, .agent-card, .callout, .incident, .field-card, .btn, .icon-btn, .seg, .alerts-chip, .feed-chip, .theme-swatch) { border-radius: 0; }
-:is([data-skin='fieldop'], [data-skin='nightop']) .tile { border-color: rgba(var(--fde-rgb), .22); background: rgba(var(--panel-rgb), var(--panel-a)); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .tile::before, :is([data-skin='fieldop'], [data-skin='nightop']) .tile::after { display: none; }
-:is([data-skin='fieldop'], [data-skin='nightop']) .tile > header { background: rgba(var(--od-rgb), .55); border-bottom: 1px solid rgba(var(--fde-rgb), .35); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .dashboard { background: transparent; }
-:is([data-skin='fieldop'], [data-skin='nightop']) .dashboard::after { display: none; }
-:is([data-skin='fieldop'], [data-skin='nightop']) .sitrep { background: rgba(var(--panel-rgb), var(--panel-a)); border-color: rgba(var(--fde-rgb), .25); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .sitrep::before { background: var(--od); }
-:is([data-skin='fieldop'], [data-skin='nightop']) :is(.kpi b, .gauge-num, .sr-id b, .clock) { color: var(--text); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .kpi { border-left-color: rgba(var(--fde-rgb), .2); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .meter i { border-radius: 0; background: rgba(var(--fde-rgb), .12); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .meter i.on { background: var(--ok); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) :is(.tile, .sitrep, .modal, .agent-card, .callout, .incident, .field-card, .btn, .icon-btn, .seg, .alerts-chip, .feed-chip, .theme-swatch) { border-radius: 0; }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .tile { border-color: rgba(var(--fde-rgb), .22); background: rgba(var(--panel-rgb), var(--panel-a)); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .tile::before, :is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .tile::after { display: none; }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .tile > header { background: rgba(var(--od-rgb), .55); border-bottom: 1px solid rgba(var(--fde-rgb), .35); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .dashboard { background: transparent; }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .dashboard::after { display: none; }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .sitrep { background: rgba(var(--panel-rgb), var(--panel-a)); border-color: rgba(var(--fde-rgb), .25); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .sitrep::before { background: var(--od); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) :is(.kpi b, .gauge-num, .sr-id b, .clock) { color: var(--text); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .kpi { border-left-color: rgba(var(--fde-rgb), .2); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .meter i { border-radius: 0; background: rgba(var(--fde-rgb), .12); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .meter i.on { background: var(--ok); }
 
 /* Dialogs: like a printed page header */
-:is([data-skin='fieldop'], [data-skin='nightop']) .modal { border: 1px solid rgba(var(--fde-rgb), .4); box-shadow: 0 18px 50px rgba(0, 0, 0, .65); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .modal-head { background: var(--od); border-bottom: 2px solid var(--fde); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .modal-back { background: rgba(8, 9, 6, .75); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .modal { border: 1px solid rgba(var(--fde-rgb), .4); box-shadow: 0 18px 50px rgba(0, 0, 0, .65); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .modal-head { background: var(--od); border-bottom: 2px solid var(--fde); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .modal-back { background: rgba(8, 9, 6, .75); }
 
 /* Bars and tabs */
-:is([data-skin='fieldop'], [data-skin='nightop']) :is(.cmdbar, .rail) { background: rgba(var(--panel-rgb), var(--panel-a)); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .cmdbar { border-bottom: 2px solid var(--od); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .cmdbar::after { display: none; }
-:is([data-skin='fieldop'], [data-skin='nightop']) .rail .tabs button.on { color: var(--text); border-bottom-color: var(--fde); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) :is(.cmdbar, .rail) { background: rgba(var(--panel-rgb), var(--panel-a)); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .cmdbar { border-bottom: 2px solid var(--od); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .cmdbar::after { display: none; }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .rail .tabs button.on { color: var(--text); border-bottom-color: var(--fde); }
 
 /* Controls: flat, tan outline; primary is solid coyote like a printed tab */
-:is([data-skin='fieldop'], [data-skin='nightop']) .btn { font-family: var(--fm-head); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border-color: rgba(var(--fde-rgb), .45); color: var(--text); background: rgba(var(--od-rgb), .25); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .btn:hover:not(:disabled) { border-color: var(--fde); color: var(--text); background: rgba(var(--od-rgb), .5); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .btn.primary { background: var(--coyote); border-color: var(--fde); color: #12130e; }
-:is([data-skin='fieldop'], [data-skin='nightop']) .btn.primary:hover:not(:disabled) { color: #12130e; filter: brightness(1.1); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .seg { border-color: rgba(var(--fde-rgb), .3); background: rgba(0, 0, 0, .3); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .seg button { font-family: var(--fm-head); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
-:is([data-skin='fieldop'], [data-skin='nightop']) .seg button.on { background: var(--od); color: var(--text); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .btn { font-family: var(--fm-head); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border-color: rgba(var(--fde-rgb), .45); color: var(--text); background: rgba(var(--od-rgb), .25); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .btn:hover:not(:disabled) { border-color: var(--fde); color: var(--text); background: rgba(var(--od-rgb), .5); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .btn.primary { background: var(--coyote); border-color: var(--fde); color: #12130e; }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .btn.primary:hover:not(:disabled) { color: #12130e; filter: brightness(1.1); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .seg { border-color: rgba(var(--fde-rgb), .3); background: rgba(0, 0, 0, .3); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .seg button { font-family: var(--fm-head); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .seg button.on { background: var(--od); color: var(--text); }
 
 /* Phone (Field Agent) */
-:is([data-skin='fieldop'], [data-skin='nightop']) .fa-head { background: rgba(var(--panel-rgb), .95); border-bottom: 2px solid var(--od); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .fa-head :is(.field-mark, b) { color: var(--fde); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .fa-head em { color: var(--ok); }
-:is([data-skin='fieldop'], [data-skin='nightop']) :is(.field-card, .fieldapp > section, .fieldapp > div[class$='-card']) { border-color: rgba(var(--fde-rgb), .25); background: rgba(var(--panel-rgb), .9); }
-:is([data-skin='fieldop'], [data-skin='nightop']) .fieldapp { background: transparent; }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .fa-head { background: rgba(var(--panel-rgb), .95); border-bottom: 2px solid var(--od); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .fa-head :is(.field-mark, b) { color: var(--fde); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .fa-head em { color: var(--ok); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) :is(.field-card, .fieldapp > section, .fieldapp > div[class$='-card']) { border-color: rgba(var(--fde-rgb), .25); background: rgba(var(--panel-rgb), .9); }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .fieldapp { background: transparent; }
 
 /* Night Op: same print look as Field Op, in black, multicam-black grays and flat dark earth,
    with a few small red accents (section numbers, the SITREP edge, selected tabs, alert lights). */
@@ -1414,4 +1414,36 @@ fieldset.plain:disabled { opacity: .5; }
 [data-skin='nightop'] .seg button.on { background: var(--od); box-shadow: inset 0 -2px 0 var(--red) !important; }
 [data-skin='nightop'] .modal-head { border-bottom-color: var(--red); }
 [data-skin='nightop'] .cmdbar { border-bottom-color: #2b2a26; }
-:is([data-skin='fieldop'], [data-skin='nightop']) .field-btn.go { background: var(--coyote); border-color: var(--fde); color: #12110e; }
+:is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .field-btn.go { background: var(--coyote); border-color: var(--fde); color: #12110e; }
+
+/* Urban Digital: the same matte print look in cool grays over a gray pixel camo,
+   with an ice-blue accent and cut corners for a slightly futuristic feel. */
+[data-skin='urban'] {
+  --od: #262b31;
+  --od-rgb: 38, 43, 49;
+  --fde: #aab6c0;
+  --fde-rgb: 170, 182, 192;
+  --coyote: #6f8494;
+  --ice: #7fd3ea;
+  --ok: #7fc8b0;
+  --guarded: #7fc8b0;
+  --info: #8fb4cc;
+  --info-rgb: 143, 180, 204;
+  --text: #e3e8ec;
+  --muted: #9aa5ae;
+  --dim: #66717a;
+  --fm-head: 'Bahnschrift', 'Roboto Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+  --camo: url('./assets/camo/urban.svg');
+  --cut2: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+[data-skin='urban'] body { background: var(--camo) 0 0 / 288px 288px, var(--bg); }
+[data-skin='urban'] :is(.tile, .modal) { clip-path: var(--cut2); }
+[data-skin='urban'] .tile > header { background: rgba(var(--od-rgb), .9); border-bottom-color: rgba(var(--fde-rgb), .25); }
+[data-skin='urban'] :is(.tcode, .tcode::after) { color: var(--ice); }
+[data-skin='urban'] .sitrep::before { background: var(--ice); }
+[data-skin='urban'] .rail .tabs button.on { border-bottom-color: var(--ice); }
+[data-skin='urban'] .seg button.on { box-shadow: inset 0 -2px 0 var(--ice) !important; }
+[data-skin='urban'] .modal-head { border-bottom-color: var(--ice); }
+[data-skin='urban'] .cmdbar { border-bottom: 1px solid rgba(127, 211, 234, .45); }
+[data-skin='urban'] .btn.primary { background: var(--coyote); color: #0c0f12; }
+[data-skin='urban'] .field-btn.go { background: var(--coyote); border-color: var(--fde); color: #0c0f12; }

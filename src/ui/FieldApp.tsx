@@ -1115,7 +1115,7 @@ export function mountFieldApp() { createRoot(document.getElementById('root')!).r
 
 /** Optional looks for the phone app, kept on this phone. The default leaves the page's look untouched. */
 const FIELD_THEME_KEY = 'vigilante.field.theme';
-const FIELD_LOOKS = { netrunner: 'Netrunner', fieldop: 'Field Op', nightop: 'Night Op' } as const;
+const FIELD_LOOKS = { netrunner: 'Netrunner', fieldop: 'Field Op', nightop: 'Night Op', urbandigital: 'Urban Digital' } as const;
 type FieldLook = keyof typeof FIELD_LOOKS | '';
 const readFieldTheme = (): FieldLook => {
   try {
