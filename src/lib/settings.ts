@@ -63,8 +63,8 @@ export function randomTopic(): string {
   return `vigilance-${[...a].map((b) => b.toString(36).padStart(2, '0')).join('').slice(0, 14)}`;
 }
 
-/** Themes that were renamed: 'blackcamo' is now 'nightop', 'fieldmanual' is now 'fieldop'. */
+/** Themes that were renamed: 'blackcamo' is now 'nightop', 'fieldmanual' is now 'fieldop', 'urbandigital' is now 'grayzone'. */
 function renamedTheme(a: Appearance): Appearance {
   const t = a.theme as string;
-  return t === 'blackcamo' ? { ...a, theme: 'nightop' } : t === 'fieldmanual' ? { ...a, theme: 'fieldop' } : a;
+  return t === 'blackcamo' ? { ...a, theme: 'nightop' } : t === 'fieldmanual' ? { ...a, theme: 'fieldop' } : t === 'urbandigital' ? { ...a, theme: 'grayzone' } : a;
 }

@@ -1416,7 +1416,7 @@ fieldset.plain:disabled { opacity: .5; }
 [data-skin='nightop'] .cmdbar { border-bottom-color: #2b2a26; }
 :is([data-skin='fieldop'], [data-skin='nightop'], [data-skin='urban']) .field-btn.go { background: var(--coyote); border-color: var(--fde); color: #12110e; }
 
-/* Urban Digital: the same matte print look in cool grays over a gray pixel camo,
+/* Gray Zone: the same matte print look in cool grays over a gray pixel camo,
    with an ice-blue accent and cut corners for a slightly futuristic feel. */
 [data-skin='urban'] {
   --od: #262b31;
