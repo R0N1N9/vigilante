@@ -51,7 +51,7 @@ export function withDefaults(s: Partial<Settings> | null): Settings {
     drones: { ...DEFAULT_SETTINGS.drones, ...(s?.drones ?? {}) },
     map: { ...DEFAULT_SETTINGS.map, ...(s?.map ?? {}) },
     notify: { ...DEFAULT_SETTINGS.notify, ...(s?.notify ?? {}) },
-    appearance: { ...DEFAULT_SETTINGS.appearance, ...(s?.appearance ?? {}) },
+    appearance: renamedTheme({ ...DEFAULT_SETTINGS.appearance, ...(s?.appearance ?? {}) }),
     team: { callsign: s?.team?.callsign ?? '', installId: s?.team?.installId || Math.random().toString(36).slice(2, 10) },
     mesh: { ...DEFAULT_SETTINGS.mesh, ...(s?.mesh ?? {}) },
   };
@@ -61,4 +61,9 @@ export function randomTopic(): string {
   const a = new Uint8Array(9);
   crypto.getRandomValues(a);
   return `vigilance-${[...a].map((b) => b.toString(36).padStart(2, '0')).join('').slice(0, 14)}`;
+}
+
+/** Themes that were renamed: 'blackcamo' is now 'nightop'. */
+function renamedTheme(a: Appearance): Appearance {
+  return (a.theme as string) === 'blackcamo' ? { ...a, theme: 'nightop' } : a;
 }
