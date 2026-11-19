@@ -1308,3 +1308,81 @@ fieldset.plain:disabled { opacity: .5; }
 /* Light scanlines over the whole app, controlled by the texture checkbox */
 [data-skin='netrunner'] .app::after { content: ''; position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: var(--texture); background: repeating-linear-gradient(0deg, rgba(var(--accent-rgb), .025) 0 1px, transparent 1px 3px); }
 [data-skin='netrunner'] :is(.field-card h2, .field-card h3, .field-card summary) { font-family: var(--hud); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--chrome); }
+
+/* ================= Field manual skin =================
+   Picked in Settings > Appearance. Modern field-manual print look: black, OD green,
+   flat dark earth and coyote on a faint multicam-black pattern. Matte (no glow),
+   square corners, condensed uppercase headings on OD bands, numbered paragraphs. */
+[data-skin='fieldmanual'] {
+  --od: #59613a;
+  --od-rgb: 89, 97, 58;
+  --fde: #b59b6d;
+  --fde-rgb: 181, 155, 109;
+  --coyote: #81693f;
+  --ok: #8c9a55;
+  --guarded: #8c9a55;
+  --info: #9aa37a;
+  --info-rgb: 154, 163, 122;
+  --text: #e4ddca;
+  --muted: #a7a08b;
+  --dim: #716c5c;
+  --fm-head: 'Bahnschrift', 'Roboto Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+  --camo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill-opacity='.55'%3E%3Cpath fill='%23202119' d='M10 30c30-20 70-10 80 15s-20 40-50 35S-15 50 10 30z'/%3E%3Cpath fill='%23262820' d='M130 20c40-5 80 20 70 50s-60 20-80 0 0-48 10-50z'/%3E%3Cpath fill='%2316170f' d='M60 120c25-15 65-5 70 20s-30 45-60 35-35-40-10-55z'/%3E%3Cpath fill='%232a2b22' d='M170 130c30 0 60 25 50 50s-50 30-70 10-10-60 20-60z'/%3E%3Cpath fill='%231d1e17' d='M0 190c20-10 50 0 55 20s-25 35-45 25-30-35-10-45z'/%3E%3Cpath fill='%23303127' d='M110 200c15-5 35 5 35 20s-25 20-40 12-10-28 5-32z'/%3E%3C/g%3E%3C/svg%3E");
+}
+[data-skin='fieldmanual'] body { background: var(--camo) 0 0 / 240px 240px, var(--bg); }
+
+/* Matte: no glows anywhere */
+[data-skin='fieldmanual'] * { text-shadow: none !important; }
+[data-skin='fieldmanual'] :is(.led, .meter i, .sitrep::before, .feed i, .seg button.on, .btn, .tile) { box-shadow: none !important; }
+[data-skin='fieldmanual'] :is(.led-warn, .led-crit) { animation: none; }
+
+/* Headings: condensed caps, like a manual's section titles */
+[data-skin='fieldmanual'] :is(.tile h3, .panel-head h2, .modal-head h2, .modal-body h3, .brand, .sr-tag, .fa-head b, .overlay-head, .field-card h2, .field-card summary) {
+  font-family: var(--fm-head); font-stretch: condensed; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text);
+}
+[data-skin='fieldmanual'] .tile h3 { font-size: 13px; }
+[data-skin='fieldmanual'] .modal-head h2 { font-size: 17px; }
+[data-skin='fieldmanual'] :is(.modal-body h3, .sr-tag, .brand) { color: var(--fde); }
+[data-skin='fieldmanual'] .tcode { color: var(--fde); }
+[data-skin='fieldmanual'] .tcode::after { content: '.'; color: var(--fde); }
+
+/* Panels: square, matte, OD title band, thin tan rule */
+[data-skin='fieldmanual'] :is(.tile, .sitrep, .modal, .agent-card, .callout, .incident, .field-card, .btn, .icon-btn, .seg, .alerts-chip, .feed-chip, .theme-swatch) { border-radius: 0; }
+[data-skin='fieldmanual'] .tile { border-color: rgba(var(--fde-rgb), .22); background: rgba(var(--panel-rgb), var(--panel-a)); }
+[data-skin='fieldmanual'] .tile::before, [data-skin='fieldmanual'] .tile::after { display: none; }
+[data-skin='fieldmanual'] .tile > header { background: rgba(var(--od-rgb), .55); border-bottom: 1px solid rgba(var(--fde-rgb), .35); }
+[data-skin='fieldmanual'] .dashboard { background: transparent; }
+[data-skin='fieldmanual'] .dashboard::after { display: none; }
+[data-skin='fieldmanual'] .sitrep { background: rgba(var(--panel-rgb), var(--panel-a)); border-color: rgba(var(--fde-rgb), .25); }
+[data-skin='fieldmanual'] .sitrep::before { background: var(--od); }
+[data-skin='fieldmanual'] :is(.kpi b, .gauge-num, .sr-id b, .clock) { color: var(--text); }
+[data-skin='fieldmanual'] .kpi { border-left-color: rgba(var(--fde-rgb), .2); }
+[data-skin='fieldmanual'] .meter i { border-radius: 0; background: rgba(var(--fde-rgb), .12); }
+[data-skin='fieldmanual'] .meter i.on { background: var(--ok); }
+
+/* Dialogs: like a printed page header */
+[data-skin='fieldmanual'] .modal { border: 1px solid rgba(var(--fde-rgb), .4); box-shadow: 0 18px 50px rgba(0, 0, 0, .65); }
+[data-skin='fieldmanual'] .modal-head { background: var(--od); border-bottom: 2px solid var(--fde); }
+[data-skin='fieldmanual'] .modal-back { background: rgba(8, 9, 6, .75); }
+
+/* Bars and tabs */
+[data-skin='fieldmanual'] :is(.cmdbar, .rail) { background: rgba(var(--panel-rgb), var(--panel-a)); }
+[data-skin='fieldmanual'] .cmdbar { border-bottom: 2px solid var(--od); }
+[data-skin='fieldmanual'] .cmdbar::after { display: none; }
+[data-skin='fieldmanual'] .rail .tabs button.on { color: var(--text); border-bottom-color: var(--fde); }
+
+/* Controls: flat, tan outline; primary is solid coyote like a printed tab */
+[data-skin='fieldmanual'] .btn { font-family: var(--fm-head); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border-color: rgba(var(--fde-rgb), .45); color: var(--text); background: rgba(var(--od-rgb), .25); }
+[data-skin='fieldmanual'] .btn:hover:not(:disabled) { border-color: var(--fde); color: var(--text); background: rgba(var(--od-rgb), .5); }
+[data-skin='fieldmanual'] .btn.primary { background: var(--coyote); border-color: var(--fde); color: #12130e; }
+[data-skin='fieldmanual'] .btn.primary:hover:not(:disabled) { color: #12130e; filter: brightness(1.1); }
+[data-skin='fieldmanual'] .seg { border-color: rgba(var(--fde-rgb), .3); background: rgba(0, 0, 0, .3); }
+[data-skin='fieldmanual'] .seg button { font-family: var(--fm-head); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+[data-skin='fieldmanual'] .seg button.on { background: var(--od); color: var(--text); }
+
+/* Phone (Field Agent) */
+[data-skin='fieldmanual'] .fa-head { background: rgba(var(--panel-rgb), .95); border-bottom: 2px solid var(--od); }
+[data-skin='fieldmanual'] .fa-head :is(.field-mark, b) { color: var(--fde); }
+[data-skin='fieldmanual'] .fa-head em { color: var(--ok); }
+[data-skin='fieldmanual'] :is(.field-card, .fieldapp > section, .fieldapp > div[class$='-card']) { border-color: rgba(var(--fde-rgb), .25); background: rgba(var(--panel-rgb), .9); }
+[data-skin='fieldmanual'] .fieldapp { background: transparent; }
