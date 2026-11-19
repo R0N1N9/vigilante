@@ -28,6 +28,8 @@ export interface Settings {
   /** Team chat identity and the Meshtastic radio connection. */
   team: { callsign: string; installId: string };
   mesh: MeshRadioSettings;
+  /** Scanner radio: which source is listed first and used by default. OpenMHz plays in the app; Broadcastify opens its own player. */
+  radio: { source: 'openmhz' | 'broadcastify' };
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -40,6 +42,7 @@ export const DEFAULT_SETTINGS: Settings = {
   appearance: DEFAULT_APPEARANCE,
   team: { callsign: '', installId: '' },
   mesh: DEFAULT_MESH_RADIO,
+  radio: { source: 'openmhz' },
 };
 
 /** Fill in fields added in newer versions. */
@@ -54,6 +57,7 @@ export function withDefaults(s: Partial<Settings> | null): Settings {
     appearance: renamedTheme({ ...DEFAULT_SETTINGS.appearance, ...(s?.appearance ?? {}) }),
     team: { callsign: s?.team?.callsign ?? '', installId: s?.team?.installId || Math.random().toString(36).slice(2, 10) },
     mesh: { ...DEFAULT_SETTINGS.mesh, ...(s?.mesh ?? {}) },
+    radio: { source: s?.radio?.source === 'broadcastify' ? 'broadcastify' : 'openmhz' },
   };
 }
 

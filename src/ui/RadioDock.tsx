@@ -1,6 +1,7 @@
 /** Top-bar radio: what you're tuned to, plus the city's live scanners (OpenMHz) to play in the app. */
 import { useEffect, useRef, useState } from 'react';
-import { useStore } from '../data/store';
+import { getState, useStore } from '../data/store';
+import { setShared } from '../data/bus';
 import { getJson } from '../lib/http';
 import { getPack, type CityPack } from '../lib/packs';
 import { nearSystems, parseSystems, systemPage, systemsUrl, type OmhzSystem } from '../lib/openmhz';
@@ -79,8 +80,39 @@ export function ScannerList({ pack, compact = false, share = false }: { pack: Ci
   );
 }
 
+export type RadioSource = 'openmhz' | 'broadcastify';
+export const RADIO_SOURCES: Record<RadioSource, { label: string; note: string }> = {
+  openmhz: { label: 'OpenMHz', note: 'Plays live scanner calls right here in the app' },
+  broadcastify: { label: 'Broadcastify', note: 'Opens Broadcastify’s own player for each feed' },
+};
+export const setRadioSource = (source: RadioSource) => {
+  const s = getState().settings;
+  setShared({ settings: { ...s, radio: { ...s.radio, source } } });
+};
+
+/** Broadcastify feeds for the city (they open Broadcastify's own player). */
+export function BroadcastifyList({ pack }: { pack: CityPack }) {
+  return (
+    <>
+      {pack.radioFeeds
+        .filter((f) => /broadcastify\.com/.test(f.url))
+        .map((f) => (
+          <button key={f.url} className="rd-feed" onClick={() => void openRadio(f)} title="Opens Broadcastify's player">
+            <span className="rd-play">↗</span>
+            <span className="rd-label">
+              {f.name}
+              <small>{f.agency}</small>
+            </span>
+          </button>
+        ))}
+    </>
+  );
+}
+
 export function RadioDock() {
   const pack = useStore((s) => getPack(s.packId));
+  const source = useStore((s) => s.settings.radio?.source ?? 'openmhz');
+  const [cog, setCog] = useState(false);
   const tuned = useTuned();
   const vol = useVolume();
   const [open, setOpen] = useState(false);
@@ -145,20 +177,40 @@ export function RadioDock() {
               </button>
             </p>
           )}
-          <div className="rd-head">Live scanners · {pack.name}</div>
-          <ScannerList pack={pack} />
-          <div className="rd-head">Broadcastify (opens their player)</div>
-          {pack.radioFeeds
-            .filter((f) => /broadcastify\.com/.test(f.url))
-            .map((f) => (
-              <button key={f.url} className="rd-feed" onClick={() => void openRadio(f)} title="Opens Broadcastify's player">
-                <span className="rd-play">↗</span>
-                <span className="rd-label">
-                  {f.name}
-                  <small>{f.agency}</small>
-                </span>
-              </button>
-            ))}
+          <div className="rd-cogrow">
+            <span className="rd-head">Radio source · {RADIO_SOURCES[source].label}</span>
+            <button className={`rd-cog${cog ? ' on' : ''}`} onClick={() => setCog(!cog)} title="Choose the default radio source" aria-expanded={cog}>
+              <Icon name="cog" />
+            </button>
+          </div>
+          {cog && (
+            <div className="rd-sources" role="radiogroup" aria-label="Default radio source">
+              {(Object.keys(RADIO_SOURCES) as RadioSource[]).map((k) => (
+                <label key={k} className={source === k ? 'on' : ''}>
+                  <input type="radio" name="radio-source" checked={source === k} onChange={() => setRadioSource(k)} />
+                  <span>
+                    <b>{RADIO_SOURCES[k].label}</b>
+                    <small>{RADIO_SOURCES[k].note}</small>
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
+          {source === 'openmhz' ? (
+            <>
+              <div className="rd-head">Live scanners · {pack.name}</div>
+              <ScannerList pack={pack} />
+              <div className="rd-head">Broadcastify (opens their player)</div>
+              <BroadcastifyList pack={pack} />
+            </>
+          ) : (
+            <>
+              <div className="rd-head">Broadcastify · {pack.name}</div>
+              <BroadcastifyList pack={pack} />
+              <div className="rd-head">Live scanners in the app (OpenMHz)</div>
+              <ScannerList pack={pack} />
+            </>
+          )}
         </div>
       )}
     </div>

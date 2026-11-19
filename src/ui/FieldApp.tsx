@@ -14,6 +14,7 @@ import { ACK_LABEL, directionsLinks, isFor, markLive, MARK_CATEGORIES, MARK_KIND
 
 const MARK_DOT: Record<MarkCategory, string> = { general: '#E6EDF3', hazard: '#FF7A45', entry: '#4C8DFF', rally: '#2BD47D', observation: '#C084FC', vehicle: '#FFD84D', activity: '#FF4D4F', medical: '#FF8FA3', staging: '#7DD3FC' };
 import { BrandMark } from './BrandMark';
+import { getTuned, useTuned } from '../lib/liveRadio';
 import { applyAppearance, DEFAULT_APPEARANCE, withTheme } from '../lib/theme';
 import { Icon, RichText, type IconName } from './Icon';
 
@@ -359,7 +360,9 @@ function FieldTeam({ tab, radioSlot }: { tab: AgentTab; radioSlot?: React.ReactN
     const prof = saved.shareProfile && saved.profile ? cleanProfile(saved.profile) : undefined;
     const on = state === 'on';
     const dev = on && saved.shareDevice ? deviceFromUA(navigator.userAgent) : undefined;
-    const radio = on && saved.shareRadio && saved.listening?.f ? cleanListening(saved.listening) : undefined;
+    // What I'm listening to: a frequency typed in, and/or the live scanner playing in this app.
+    const scanner = getTuned();
+    const radio = on && saved.shareRadio ? cleanListening({ ...saved.listening, ...(scanner ? { sys: scanner.system, sysName: scanner.name } : {}) }) : undefined;
     const r: PositionReport = {
       v: 1,
       id: saved.deviceId,
@@ -388,6 +391,13 @@ function FieldTeam({ tab, radioSlot }: { tab: AgentTab; radioSlot?: React.ReactN
     setLastSent(Date.now());
     setSent((n) => n + 1);
   };
+
+  // Tell the team promptly when I tune in, switch scanners or stop.
+  const tunedTo = useTuned()?.system;
+  useEffect(() => {
+    if (sharing && saved.shareRadio && fixRef.current) void report(fixRef.current).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tunedTo]);
 
   // Location sharing loop (only while the person has it switched on)
   useEffect(() => {

@@ -76,3 +76,9 @@ it('lists the extra looks after the classic presets, in order', () => {
   expect(Object.keys(THEMES).slice(-4)).toEqual(['netrunner', 'fieldop', 'nightop', 'grayzone']);
   expect(DEFAULT_APPEARANCE.theme).toBe('tactical');
 });
+
+it('defaults the radio source to OpenMHz and keeps a Broadcastify choice', () => {
+  expect(withDefaults(null).radio.source).toBe('openmhz');
+  expect(withDefaults({ radio: { source: 'broadcastify' } }).radio.source).toBe('broadcastify');
+  expect(withDefaults({ radio: { source: 'other' as never } }).radio.source).toBe('openmhz');
+});

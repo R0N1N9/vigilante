@@ -124,6 +124,9 @@ export function setVolume(v: number) {
   emit();
 }
 
+/** What this device is tuned to, outside React (for team reports). */
+export const getTuned = () => tuned;
+
 const subscribe = (f: () => void) => {
   subs.add(f);
   return () => void subs.delete(f);

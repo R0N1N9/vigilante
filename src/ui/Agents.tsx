@@ -1,7 +1,8 @@
 import { openDeploy } from './Deploy';
 import { deviceOf } from '../lib/waypoints';
 import { AgentIntel, Avatar, intelSummary, TeamIntel, useAgentIntel } from './Intel';
-import { describeDevice, describeListening } from '../lib/teamext';
+import { describeDevice, describeListening, memberColor } from '../lib/teamext';
+import { stop as stopRadio, tune as tuneRadio, useTuned } from '../lib/liveRadio';
 import { RadioPanel } from './Voice';
 import { useEffect, useMemo, useState } from 'react';
 import { setShared } from '../data/bus';
@@ -384,6 +385,7 @@ export function TeamView({ map }: { map: React.ReactNode }) {
         <div className="tv-map tile">{map}</div>
         <div className="tv-side">
           <RadioPanel />
+          <TeamListening />
           <WaypointList />
           <MarkList />
           <TeamIntel />
@@ -417,6 +419,46 @@ export function TeamView({ map }: { map: React.ReactNode }) {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** What each teammate is tuned to (from their reports), with one tap to listen along. */
+function TeamListening() {
+  const team = useStore((s) => s.team);
+  const me = useTuned();
+  const now = useNow();
+  const rows = team.filter((m) => m.radio && agentStatus(m, now) !== 'offline');
+  if (!rows.length && !me) return null;
+  return (
+    <div className="tv-listening">
+      <div className="tv-chat-head mono">
+        <Icon name="radio" size={12} /> TEAM RADIO · WHO'S LISTENING
+      </div>
+      {me && (
+        <div className="tl-row me">
+          <b>You</b>
+          <span>scanner: {me.name}</span>
+          <button className="btn small" onClick={stopRadio}>
+            ■ Stop
+          </button>
+        </div>
+      )}
+      {rows.map((m) => {
+        const r = m.radio!;
+        const same = !!r.sys && me?.system === r.sys;
+        return (
+          <div key={m.id} className="tl-row">
+            <b style={{ color: memberColor(m.id) }}>{m.name}</b>
+            <span>{describeListening(r)}</span>
+            {r.sys && (
+              <button className={`btn small${same ? ' on' : ''}`} onClick={() => (same ? stopRadio() : void tuneRadio(r.sys!, r.sysName || r.sys!))} title={same ? 'Stop' : `Listen to ${r.sysName || r.sys} with ${m.name}`}>
+                {same ? '■ Stop' : '▶ Listen'}
+              </button>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
