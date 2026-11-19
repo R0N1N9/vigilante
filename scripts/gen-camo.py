@@ -3,7 +3,7 @@
 import math, random, sys, urllib.parse
 W = 400
 def shape(rng, cx, cy, size, angle, stretch=(1.9, .75), jag=True):
-    n = rng.randint(14, 20) if jag else rng.randint(11, 14); pts = []
+    n = rng.randint(14, 20) if jag else rng.randint(8, 10); pts = []
     for i in range(n):
         a = 2*math.pi*i/n + rng.uniform(-.25,.25)
         r = size*((rng.uniform(.6, 1.0) if i % 3 else rng.uniform(.35, .7)) if jag else (rng.uniform(.6, 1.0) if i % 4 else rng.uniform(.3, .55)))
@@ -45,8 +45,13 @@ def gen(seed, tones, twig, speck, splotch=False):
         for gx in range(grid):
             for gy in range(grid):
                 cx = (gx + rng.uniform(0, 1)) * cell; cy = (gy + rng.uniform(0, 1)) * cell
-                pts = shape(rng, cx, cy, size*rng.uniform(.7,1.3), rng.uniform(-.7,.7), (1.4, .9) if splotch else (1.9, .75), not splotch)
-                for q in wrapped(pts): d += blob(q) if splotch else path(q)
+                if splotch:
+                    sz = size*rng.uniform(.7,1.3); ang = rng.uniform(-.6,.6)
+                    for k in range(rng.randint(2, 4)):
+                        ox, oy = (rng.uniform(-.9,.9)*sz*1.3, rng.uniform(-.6,.6)*sz) if k else (0, 0)
+                        for q in wrapped(shape(rng, cx+ox, cy+oy, sz*rng.uniform(.55,.9), ang+rng.uniform(-.4,.4), (1.35, .95), False)): d += blob(q)
+                else:
+                    for q in wrapped(shape(rng, cx, cy, size*rng.uniform(.7,1.3), rng.uniform(-.7,.7))): d += path(q)
         body.append(f"<path fill='{tone}' d='{d}'/>")
     d=''
     for _ in range(0 if twig is None else 5):
@@ -59,6 +64,6 @@ def gen(seed, tones, twig, speck, splotch=False):
     return 'url("data:image/svg+xml,' + urllib.parse.quote(svg, safe="/:=' ,.-") + '")'
 which = sys.argv[1]
 if which == 'nightop':   # multicam black: black base, charcoal/gray brush shapes, gray branches
-    print(gen(7, [('#181816', 5, 34), ('#201f1c', 6, 24), ('#292824', 5, 17), ('#33322d', 4, 10)], None, '#060606', splotch=True))
+    print(gen(7, [('#161614', 4, 38), ('#1d1c1a', 5, 27), ('#252420', 5, 18), ('#2e2d29', 6, 11), ('#38372f', 4, 6)], None, '#060606', splotch=True))
 else:                     # field manual: flat dark earth / coyote tones, very low contrast
     print(gen(11, [('#2a2418', 5, 34), ('#332b1d', 6, 24), ('#3d3322', 5, 17), ('#473b27', 4, 10)], '#4a3e2a', '#17130c'))
