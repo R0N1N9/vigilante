@@ -61,6 +61,6 @@ describe('Netrunner skin', () => {
 });
 
 it('lists the extra looks after the classic presets, in order', () => {
-  expect(Object.keys(THEMES).slice(-2)).toEqual(['netrunner', 'fieldmanual']);
+  expect(Object.keys(THEMES).slice(-3)).toEqual(['netrunner', 'fieldmanual', 'blackcamo']);
   expect(DEFAULT_APPEARANCE.theme).toBe('tactical');
 });

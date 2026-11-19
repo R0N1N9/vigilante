@@ -1,5 +1,5 @@
 /** App appearance: theme presets plus custom RGB colors and panel opacity. */
-export type ThemeId = 'tactical' | 'greenred' | 'nightvision' | 'amber' | 'redlight' | 'steel' | 'netrunner' | 'fieldmanual' | 'custom';
+export type ThemeId = 'tactical' | 'greenred' | 'nightvision' | 'amber' | 'redlight' | 'steel' | 'netrunner' | 'fieldmanual' | 'blackcamo' | 'custom';
 
 export interface Appearance {
   theme: ThemeId;
@@ -27,6 +27,7 @@ export const THEMES: Record<Exclude<ThemeId, 'custom'>, Palette> = {
   steel: { label: 'Steel', note: 'Muted blue-gray', accent: '#9ec9ff', bg: '#0a0d12', panel: '#10151d', alert: '#ffb020', critical: '#ff4d4f' },
   netrunner: { label: 'Netrunner', note: 'Cyan data, red chrome, green signal', accent: '#5df2ee', bg: '#050a0a', panel: '#0a1314', alert: '#f2e04a', critical: '#ff4a55', swatch: '#ff5f5a', skin: 'netrunner' },
   fieldmanual: { label: 'Field manual', note: 'Black, OD green, flat dark earth', accent: '#c8b28a', bg: '#0d0e0b', panel: '#1a1c16', alert: '#c9a227', critical: '#b0472c', swatch: '#5a6236', skin: 'fieldmanual' },
+  blackcamo: { label: 'Black camo', note: 'Black, flat dark earth, a touch of red', accent: '#c2a77a', bg: '#0b0b0a', panel: '#171614', alert: '#d0a24c', critical: '#b8322a', swatch: '#2e2c28', skin: 'blackcamo' },
 };
 
 export const DEFAULT_APPEARANCE: Appearance = { theme: 'tactical', ...pick(THEMES.tactical), panelOpacity: 0.92, texture: true };
