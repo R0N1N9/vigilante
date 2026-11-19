@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/brand/vigilance-icon.svg" width="120" alt="Vigilante logo"></p>
+
 # Vigilante
 
 **The live web app: [r0n1n9.github.io/vigilante](https://r0n1n9.github.io/vigilante/)**
@@ -11,6 +13,35 @@ A situational-awareness console that runs in any browser, and **Vigilante Field 
 | **Vigil** | Android app | [R0N1N9/vigil](https://github.com/R0N1N9/vigil) |
 
 All three join the same teams: same invites and QR codes, same end-to-end encrypted team protocol ([`docs/TEAM_PROTOCOL.md`](docs/TEAM_PROTOCOL.md)). Vigilante and Vigilance share one codebase. This repo publishes the web build, which shows the Vigilante name; the desktop app lives in the Vigilance repo.
+
+<p align="center">
+  <img src="docs/screenshots/console-dashboard.png" width="900" alt="Vigilante console dashboard for Denver: SITREP strip, tactical locator, stability index, active situations and the News tab with the local TV player">
+  <br><sub>The console's dashboard for Denver: SITREP strip, tactical locator, stability index, active situations, and the News tab with the local TV player.</sub>
+</p>
+
+## Features
+
+- **Live, keyless public data** for Denver, Atlanta or any US location: aircraft (ADS-B), FAA no-fly zones, NWS
+  weather alerts and radar, crime and 311 open data, road incidents, transit disruptions, power outages, wildfires,
+  satellite heat, earthquakes, river gauges, air quality, traffic cameras, local news and scanner radio.
+- **Dashboard:** SITREP strip, Neighborhood Stability Index, tactical locator map, analyst insights, active
+  situations, sector ratings, camera grid and local TV.
+- **Map** with a Layers panel (tactical or satellite basemap, relief, contours, 3D) and a side rail of Alerts,
+  Team, News, Radio, City, Hazards, Cams, Sky and Watch tabs.
+- **Developing incidents, monitors and alerts:** signals that line up in place and time become incident cards;
+  keyword, radius, aircraft and threshold monitors; phone alerts through ntfy.
+- **Teams:** end-to-end encrypted team channels with chat, opt-in location sharing, marks, waypoints, photos and
+  push-to-talk, joined by QR code from the **Deploy** button.
+- **Field Agent** phone app in any browser, and an **embeddable** widget for other websites.
+
+## Screenshots
+
+| | |
+|---|---|
+| <img src="docs/screenshots/map-layers-drone-sim.png" alt="Map view with the Layers panel and the Sky tab showing a simulated drone"> | <img src="docs/screenshots/field-agent-phone.png" width="260" alt="Vigilante Field Agent on a phone: join or create a team"> |
+| **Map view:** the Layers panel, and Sky → Drones with a simulated drone (real Remote ID scanning needs the desktop app). | **Field Agent** on a phone: join a team by invite or create one; Intel, Map, Radio and Team tabs. |
+
+These were captured from a local build (`npm run build:web`, `npm run preview:web`) in a sandbox with no internet access, so the live feeds and map tiles are empty; on the live site the map and panels fill with live data.
 
 ## Field Agent (phones)
 
@@ -44,6 +75,22 @@ npm test
 ```bash
 npm run build:web
 ```
+
+## Project layout
+
+```
+packs/             City packs: center, radius, time zone, news feeds, TV channels, neighborhood gazetteer
+config/hosts.json  Data hosts the app may fetch from (shared with the dev proxy and the web proxy)
+src/lib/           Pure logic (unit-tested): ADS-B, NWS, TFRs, traffic, news, correlation, watch areas, alert rules, brief
+src/data/          Store, cross-window sync bus, polling engine (one module per source)
+src/map/           MapLibre map, icons, basemap styles
+src/ui/            Command bar, panels, cards, the Field Agent app
+web/               Web build: Vite config, index/embed pages, embed.js loader, security headers
+web/proxy/         Cloudflare Worker CORS proxy for the web build (same host allowlist)
+tests/             Vitest unit tests
+```
+
+Built with React 19, TypeScript, Vite and MapLibre GL.
 
 ## Web app and embedding
 
