@@ -62,10 +62,35 @@ def gen(seed, tones, twig, speck, splotch=False, ground=None):
     body.append(f"<path fill='{speck}' d='{d}'/>")
     svg = f"<svg xmlns='http://www.w3.org/2000/svg' width='{W}' height='{W}'>{''.join(body)}</svg>"
     return 'url("data:image/svg+xml,' + urllib.parse.quote(svg, safe="/:=' ,.-") + '")'
+def digital(seed, tones, cell=5, n=48):
+    # Pixel camo: smooth periodic value noise, quantized into tones, drawn as merged square runs.
+    rng = random.Random(seed); L = 8; lat = [[rng.random() for _ in range(L)] for _ in range(L)]
+    lat2 = [[rng.random() for _ in range(L*2)] for _ in range(L*2)]
+    def noise(g, size, x, y):
+        fx, fy = x/n*size, y/n*size; x0, y0 = int(fx) % size, int(fy) % size; x1, y1 = (x0+1) % size, (y0+1) % size
+        tx, ty = fx-int(fx), fy-int(fy); sx, sy = tx*tx*(3-2*tx), ty*ty*(3-2*ty)
+        a = g[y0][x0]*(1-sx)+g[y0][x1]*sx; b = g[y1][x0]*(1-sx)+g[y1][x1]*sx
+        return a*(1-sy)+b*sy
+    v = [[.65*noise(lat, L, x, y)+.35*noise(lat2, L*2, x, y)+rng.uniform(-.025, .025) for x in range(n)] for y in range(n)]
+    flat = sorted(c for row in v for c in row); cuts = [flat[int(len(flat)*q)] for q in (.3, .58, .82)]
+    level = lambda c: sum(c > k for k in cuts)
+    W2 = n*cell; paths = ['']*len(tones)
+    for y in range(n):
+        x = 0
+        while x < n:
+            l = level(v[y][x]); x2 = x
+            while x2 + 1 < n and level(v[y][x2+1]) == l: x2 += 1
+            if l: paths[l] += f'M{x*cell} {y*cell}h{(x2-x+1)*cell}v{cell}h-{(x2-x+1)*cell}z'
+            x = x2 + 1
+    body = f"<rect width='{W2}' height='{W2}' fill='{tones[0]}'/>" + ''.join(f"<path fill='{tones[i]}' d='{paths[i]}'/>" for i in range(1, len(tones)) if paths[i])
+    svg = f"<svg xmlns='http://www.w3.org/2000/svg' width='{W2}' height='{W2}' shape-rendering='crispEdges'>{body}</svg>"
+    return 'url("data:image/svg+xml,' + urllib.parse.quote(svg, safe="/:=' ,.-") + '")'
 which = sys.argv[1]
-if which == 'nightop':   # multicam black: black base, charcoal/gray brush shapes, gray branches
+if which == 'urban':     # urban digital: cool grays
+    print(digital(31, ['#15181b', '#1e2226', '#292e33', '#363c43'], cell=6))
+elif which == 'nightop':   # multicam black: black base, charcoal/gray brush shapes, gray branches
     print(gen(7, [('#161614', 4, 38), ('#1d1c1a', 5, 27), ('#252420', 5, 18), ('#2e2d29', 6, 11), ('#38372f', 4, 6)], None, '#060606', splotch=True))
 else:                     # field op: OCP-style tones (tan, khaki, olive, brown) darkened for a background, with branches
     # OCP-style, toned down for a background: khaki ground, large tan and pale-green shapes, olive and
     # dark green, a neutral (not orange) brown, cream flecks; thin dark branches
-    print(gen(23, [('#575039', 5, 40), ('#4a4f37', 4, 28), ('#3c432e', 5, 19), ('#3b3528', 5, 12), ('#2f3526', 4, 8)], '#2b261d', '#6b6449', splotch=True, ground='#4a4431'))
+    print(gen(23, [('#575039', 5, 40), ('#4a4f37', 4, 28), ('#3c432e', 5, 19), ('#3b3528', 5, 12), ('#2f3526', 4, 8)], None, '#6b6449', splotch=True, ground='#4a4431'))
