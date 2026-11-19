@@ -45,6 +45,10 @@ describe('alert colors', () => {
   });
 });
 
+it('moves the renamed Field manual theme to Field Op', () => {
+  expect(withDefaults({ appearance: { ...DEFAULT_APPEARANCE, theme: 'fieldmanual' as never } }).appearance.theme).toBe('fieldop');
+});
+
 it('moves the renamed Black camo theme to Night Op', () => {
   expect(withDefaults({ appearance: { ...DEFAULT_APPEARANCE, theme: 'blackcamo' as never } }).appearance.theme).toBe('nightop');
 });
@@ -55,8 +59,8 @@ describe('Netrunner skin', () => {
     const root = { style: { setProperty() {} }, dataset: {} as Record<string, string> } as unknown as HTMLElement;
     applyAppearance(withTheme(DEFAULT_APPEARANCE, 'netrunner'), root);
     expect(root.dataset.skin).toBe('netrunner');
-    applyAppearance(withTheme(DEFAULT_APPEARANCE, 'fieldmanual'), root);
-    expect(root.dataset.skin).toBe('fieldmanual');
+    applyAppearance(withTheme(DEFAULT_APPEARANCE, 'fieldop'), root);
+    expect(root.dataset.skin).toBe('fieldop');
     applyAppearance(withTheme(DEFAULT_APPEARANCE, 'tactical'), root);
     expect(root.dataset.skin).toBeUndefined();
     applyAppearance({ ...withTheme(DEFAULT_APPEARANCE, 'netrunner'), theme: 'custom' }, root);
@@ -65,6 +69,6 @@ describe('Netrunner skin', () => {
 });
 
 it('lists the extra looks after the classic presets, in order', () => {
-  expect(Object.keys(THEMES).slice(-3)).toEqual(['netrunner', 'fieldmanual', 'nightop']);
+  expect(Object.keys(THEMES).slice(-3)).toEqual(['netrunner', 'fieldop', 'nightop']);
   expect(DEFAULT_APPEARANCE.theme).toBe('tactical');
 });

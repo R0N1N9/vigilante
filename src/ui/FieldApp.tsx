@@ -1115,12 +1115,12 @@ export function mountFieldApp() { createRoot(document.getElementById('root')!).r
 
 /** Optional looks for the phone app, kept on this phone. The default leaves the page's look untouched. */
 const FIELD_THEME_KEY = 'vigilante.field.theme';
-const FIELD_LOOKS = { netrunner: 'Netrunner', fieldmanual: 'Field manual', nightop: 'Night Op' } as const;
+const FIELD_LOOKS = { netrunner: 'Netrunner', fieldop: 'Field Op', nightop: 'Night Op' } as const;
 type FieldLook = keyof typeof FIELD_LOOKS | '';
 const readFieldTheme = (): FieldLook => {
   try {
     const raw = localStorage.getItem(FIELD_THEME_KEY) ?? '';
-    const v = raw === 'blackcamo' ? 'nightop' : raw; // renamed
+    const v = raw === 'blackcamo' ? 'nightop' : raw === 'fieldmanual' ? 'fieldop' : raw; // renamed
     return v in FIELD_LOOKS ? (v as FieldLook) : '';
   } catch {
     return '';
