@@ -1,5 +1,5 @@
 /** App appearance: theme presets plus custom RGB colors and panel opacity. */
-export type ThemeId = 'tactical' | 'netrunner' | 'greenred' | 'nightvision' | 'amber' | 'redlight' | 'steel' | 'custom';
+export type ThemeId = 'tactical' | 'greenred' | 'nightvision' | 'amber' | 'redlight' | 'steel' | 'netrunner' | 'custom';
 
 export interface Appearance {
   theme: ThemeId;
@@ -20,12 +20,12 @@ type Palette = { label: string; note: string; accent: string; bg: string; panel:
 
 export const THEMES: Record<Exclude<ThemeId, 'custom'>, Palette> = {
   tactical: { label: 'Tactical cyan', note: 'Cyan with amber alerts (default)', accent: '#3dd6f5', bg: '#0b0f14', panel: '#0d131a', alert: '#ffb020', critical: '#ff4d4f' },
-  netrunner: { label: 'Netrunner', note: 'Cyan data, red chrome, green signal', accent: '#5df2ee', bg: '#050a0a', panel: '#0a1314', alert: '#f2e04a', critical: '#ff4a55', swatch: '#ff5f5a', skin: 'netrunner' },
   greenred: { label: 'Green & red', note: 'Ops green with red alerts', accent: '#2ee59d', bg: '#070d0a', panel: '#0b1410', alert: '#ff5c5c', critical: '#ff2a6d' },
   nightvision: { label: 'Night vision', note: 'Green phosphor', accent: '#39ff7a', bg: '#060b07', panel: '#0a120c', alert: '#ffb020', critical: '#ff4d4f' },
   amber: { label: 'Amber CRT', note: 'Warm, easy on the eyes', accent: '#ffb020', bg: '#0d0a05', panel: '#15110a', alert: '#ff7a45', critical: '#ff4d4f' },
   redlight: { label: 'Red low-light', note: 'Keeps night vision in a dark vehicle', accent: '#ff4d4f', bg: '#0b0606', panel: '#140b0b', alert: '#ffb020', critical: '#ff2a9d' },
   steel: { label: 'Steel', note: 'Muted blue-gray', accent: '#9ec9ff', bg: '#0a0d12', panel: '#10151d', alert: '#ffb020', critical: '#ff4d4f' },
+  netrunner: { label: 'Netrunner', note: 'Cyan data, red chrome, green signal', accent: '#5df2ee', bg: '#050a0a', panel: '#0a1314', alert: '#f2e04a', critical: '#ff4a55', swatch: '#ff5f5a', skin: 'netrunner' },
 };
 
 export const DEFAULT_APPEARANCE: Appearance = { theme: 'tactical', ...pick(THEMES.tactical), panelOpacity: 0.92, texture: true };
