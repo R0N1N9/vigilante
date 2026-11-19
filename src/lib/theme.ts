@@ -1,5 +1,5 @@
 /** App appearance: theme presets plus custom RGB colors and panel opacity. */
-export type ThemeId = 'tactical' | 'greenred' | 'nightvision' | 'amber' | 'redlight' | 'steel' | 'netrunner' | 'fieldop' | 'nightop' | 'urbandigital' | 'custom';
+export type ThemeId = 'tactical' | 'greenred' | 'nightvision' | 'amber' | 'redlight' | 'steel' | 'netrunner' | 'fieldop' | 'nightop' | 'grayzone' | 'custom';
 
 export interface Appearance {
   theme: ThemeId;
@@ -28,7 +28,7 @@ export const THEMES: Record<Exclude<ThemeId, 'custom'>, Palette> = {
   netrunner: { label: 'Netrunner', note: 'Cyan data, red chrome, green signal', accent: '#5df2ee', bg: '#050a0a', panel: '#0a1314', alert: '#f2e04a', critical: '#ff4a55', swatch: '#ff5f5a', skin: 'netrunner' },
   fieldop: { label: 'Field Op', note: 'Muted green, OCP-style camo', accent: '#c2b893', bg: '#0f110d', panel: '#1a1e17', alert: '#c2a64a', critical: '#a5443a', swatch: '#4e5a3c', skin: 'fieldop' },
   nightop: { label: 'Night Op', note: 'Black, flat dark earth, a touch of red', accent: '#c2a77a', bg: '#0b0b0a', panel: '#171614', alert: '#d0a24c', critical: '#b8322a', swatch: '#2e2c28', skin: 'nightop' },
-  urbandigital: { label: 'Urban Digital', note: 'Gray pixel camo, ice-blue accents', accent: '#aab6c0', bg: '#0e1013', panel: '#171a1e', alert: '#d6b24a', critical: '#d64545', swatch: '#7fd3ea', skin: 'urban' },
+  grayzone: { label: 'Gray Zone', note: 'Gray pixel camo, ice-blue accents', accent: '#aab6c0', bg: '#0e1013', panel: '#171a1e', alert: '#d6b24a', critical: '#d64545', swatch: '#7fd3ea', skin: 'urban' },
 };
 
 export const DEFAULT_APPEARANCE: Appearance = { theme: 'tactical', ...pick(THEMES.tactical), panelOpacity: 0.92, texture: true };

@@ -45,6 +45,10 @@ describe('alert colors', () => {
   });
 });
 
+it('moves the renamed Urban Digital theme to Gray Zone', () => {
+  expect(withDefaults({ appearance: { ...DEFAULT_APPEARANCE, theme: 'urbandigital' as never } }).appearance.theme).toBe('grayzone');
+});
+
 it('moves the renamed Field manual theme to Field Op', () => {
   expect(withDefaults({ appearance: { ...DEFAULT_APPEARANCE, theme: 'fieldmanual' as never } }).appearance.theme).toBe('fieldop');
 });
@@ -69,6 +73,6 @@ describe('Netrunner skin', () => {
 });
 
 it('lists the extra looks after the classic presets, in order', () => {
-  expect(Object.keys(THEMES).slice(-4)).toEqual(['netrunner', 'fieldop', 'nightop', 'urbandigital']);
+  expect(Object.keys(THEMES).slice(-4)).toEqual(['netrunner', 'fieldop', 'nightop', 'grayzone']);
   expect(DEFAULT_APPEARANCE.theme).toBe('tactical');
 });
