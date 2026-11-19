@@ -34,6 +34,25 @@ export function ShareFeed({ name, agency, url }: { name: string; agency: string;
 export function RadioTab() {
   const pack = useStore((s) => getPack(s.packId));
   const tuned = useTuned();
+  const source = useStore((s) => s.settings.radio?.source ?? 'openmhz');
+  const live = (
+      <div className="radio-live">
+      {tuned && (
+        <div className="rd-now">
+          <div>
+            <small className={tuned.emergency ? 'emerg' : ''}>{tuned.status === 'playing' ? (tuned.emergency ? 'EMERGENCY CALL' : 'ON AIR') : tuned.status === 'waiting' ? 'LISTENING · QUIET' : tuned.status === 'loading' ? 'TUNING…' : 'NO SIGNAL'}</small>
+            <b>{tuned.name}</b>
+            {tuned.now && <em>{tuned.now}</em>}
+          </div>
+          <button className="btn small" onClick={stop}>
+            ■ Stop
+          </button>
+        </div>
+      )}
+      <div className="rd-head">Live scanners (OpenMHz)</div>
+      <ScannerList pack={pack} share />
+    </div>
+  );
   return (
     <div className="list">
       <div className="callout">
@@ -43,22 +62,7 @@ export function RadioTab() {
         </p>
         <p className="muted">{pack.notes}</p>
       </div>
-      <div className="radio-live">
-        {tuned && (
-          <div className="rd-now">
-            <div>
-              <small className={tuned.emergency ? 'emerg' : ''}>{tuned.status === 'playing' ? (tuned.emergency ? 'EMERGENCY CALL' : 'ON AIR') : tuned.status === 'waiting' ? 'LISTENING · QUIET' : tuned.status === 'loading' ? 'TUNING…' : 'NO SIGNAL'}</small>
-              <b>{tuned.name}</b>
-              {tuned.now && <em>{tuned.now}</em>}
-            </div>
-            <button className="btn small" onClick={stop}>
-              ■ Stop
-            </button>
-          </div>
-        )}
-        <div className="rd-head">Live scanners (OpenMHz)</div>
-        <ScannerList pack={pack} share />
-      </div>
+      {source === 'openmhz' && live}
       {pack.radioFeeds.map((f) => (
         <article key={f.url} className="radio-row">
           <button className="radio-play" onClick={() => listen(f)} title={`Listen to ${f.name}`}>
@@ -79,6 +83,7 @@ export function RadioTab() {
           )}
         </article>
       ))}
+      {source === 'broadcastify' && live}
       <p className="muted small-text note">
         Some agencies (e.g. Denver PD) encrypt their radio; those can't be heard anywhere. Rows marked "Browse" open the full Broadcastify list for that area so you can pick a specific feed.
       </p>
