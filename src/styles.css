@@ -1310,86 +1310,86 @@ fieldset.plain:disabled { opacity: .5; }
 [data-skin='netrunner'] :is(.field-card h2, .field-card h3, .field-card summary) { font-family: var(--hud); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--chrome); }
 
 /* ================= Field manual skin =================
-   Picked in Settings > Appearance. Modern field-manual print look: black, OD green,
-   flat dark earth and coyote on a faint multicam-black pattern. Matte (no glow),
+   Picked in Settings > Appearance. Modern field-manual print look: flat dark earth,
+   coyote and black on a faint earth-tone multicam-style pattern. Matte (no glow),
    square corners, condensed uppercase headings on OD bands, numbered paragraphs. */
 [data-skin='fieldmanual'] {
-  --od: #59613a;
-  --od-rgb: 89, 97, 58;
-  --fde: #b59b6d;
-  --fde-rgb: 181, 155, 109;
-  --coyote: #81693f;
-  --ok: #8c9a55;
-  --guarded: #8c9a55;
-  --info: #9aa37a;
-  --info-rgb: 154, 163, 122;
+  --od: #5e4d33;
+  --od-rgb: 94, 77, 51;
+  --fde: #c9ae80;
+  --fde-rgb: 201, 174, 128;
+  --coyote: #8f7448;
+  --ok: #9aa067;
+  --guarded: #9aa067;
+  --info: #b8a47e;
+  --info-rgb: 184, 164, 126;
   --text: #e4ddca;
-  --muted: #a7a08b;
-  --dim: #716c5c;
+  --muted: #ab9f86;
+  --dim: #76694f;
   --fm-head: 'Bahnschrift', 'Roboto Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
-  --camo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill-opacity='.55'%3E%3Cpath fill='%23202119' d='M10 30c30-20 70-10 80 15s-20 40-50 35S-15 50 10 30z'/%3E%3Cpath fill='%23262820' d='M130 20c40-5 80 20 70 50s-60 20-80 0 0-48 10-50z'/%3E%3Cpath fill='%2316170f' d='M60 120c25-15 65-5 70 20s-30 45-60 35-35-40-10-55z'/%3E%3Cpath fill='%232a2b22' d='M170 130c30 0 60 25 50 50s-50 30-70 10-10-60 20-60z'/%3E%3Cpath fill='%231d1e17' d='M0 190c20-10 50 0 55 20s-25 35-45 25-30-35-10-45z'/%3E%3Cpath fill='%23303127' d='M110 200c15-5 35 5 35 20s-25 20-40 12-10-28 5-32z'/%3E%3C/g%3E%3C/svg%3E");
+  --camo: url('./assets/camo/fieldmanual.svg');
 }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) body { background: var(--camo) 0 0 / 240px 240px, var(--bg); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) body { background: var(--camo) 0 0 / 240px 240px, var(--bg); }
 
 /* Matte: no glows anywhere */
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) * { text-shadow: none !important; }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) :is(.led, .meter i, .sitrep::before, .feed i, .seg button.on, .btn, .tile) { box-shadow: none !important; }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) :is(.led-warn, .led-crit) { animation: none; }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) * { text-shadow: none !important; }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) :is(.led, .meter i, .sitrep::before, .feed i, .seg button.on, .btn, .tile) { box-shadow: none !important; }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) :is(.led-warn, .led-crit) { animation: none; }
 
 /* Headings: condensed caps, like a manual's section titles */
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) :is(.tile h3, .panel-head h2, .modal-head h2, .modal-body h3, .brand, .sr-tag, .fa-head b, .overlay-head, .field-card h2, .field-card summary) {
+:is([data-skin='fieldmanual'], [data-skin='nightop']) :is(.tile h3, .panel-head h2, .modal-head h2, .modal-body h3, .brand, .sr-tag, .fa-head b, .overlay-head, .field-card h2, .field-card summary) {
   font-family: var(--fm-head); font-stretch: condensed; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text);
 }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .tile h3 { font-size: 13px; }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .modal-head h2 { font-size: 17px; }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) :is(.modal-body h3, .sr-tag, .brand) { color: var(--fde); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .tcode { color: var(--fde); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .tcode::after { content: '.'; color: var(--fde); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .tile h3 { font-size: 13px; }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .modal-head h2 { font-size: 17px; }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) :is(.modal-body h3, .sr-tag, .brand) { color: var(--fde); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .tcode { color: var(--fde); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .tcode::after { content: '.'; color: var(--fde); }
 
 /* Panels: square, matte, OD title band, thin tan rule */
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) :is(.tile, .sitrep, .modal, .agent-card, .callout, .incident, .field-card, .btn, .icon-btn, .seg, .alerts-chip, .feed-chip, .theme-swatch) { border-radius: 0; }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .tile { border-color: rgba(var(--fde-rgb), .22); background: rgba(var(--panel-rgb), var(--panel-a)); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .tile::before, :is([data-skin='fieldmanual'], [data-skin='blackcamo']) .tile::after { display: none; }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .tile > header { background: rgba(var(--od-rgb), .55); border-bottom: 1px solid rgba(var(--fde-rgb), .35); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .dashboard { background: transparent; }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .dashboard::after { display: none; }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .sitrep { background: rgba(var(--panel-rgb), var(--panel-a)); border-color: rgba(var(--fde-rgb), .25); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .sitrep::before { background: var(--od); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) :is(.kpi b, .gauge-num, .sr-id b, .clock) { color: var(--text); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .kpi { border-left-color: rgba(var(--fde-rgb), .2); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .meter i { border-radius: 0; background: rgba(var(--fde-rgb), .12); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .meter i.on { background: var(--ok); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) :is(.tile, .sitrep, .modal, .agent-card, .callout, .incident, .field-card, .btn, .icon-btn, .seg, .alerts-chip, .feed-chip, .theme-swatch) { border-radius: 0; }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .tile { border-color: rgba(var(--fde-rgb), .22); background: rgba(var(--panel-rgb), var(--panel-a)); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .tile::before, :is([data-skin='fieldmanual'], [data-skin='nightop']) .tile::after { display: none; }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .tile > header { background: rgba(var(--od-rgb), .55); border-bottom: 1px solid rgba(var(--fde-rgb), .35); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .dashboard { background: transparent; }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .dashboard::after { display: none; }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .sitrep { background: rgba(var(--panel-rgb), var(--panel-a)); border-color: rgba(var(--fde-rgb), .25); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .sitrep::before { background: var(--od); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) :is(.kpi b, .gauge-num, .sr-id b, .clock) { color: var(--text); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .kpi { border-left-color: rgba(var(--fde-rgb), .2); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .meter i { border-radius: 0; background: rgba(var(--fde-rgb), .12); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .meter i.on { background: var(--ok); }
 
 /* Dialogs: like a printed page header */
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .modal { border: 1px solid rgba(var(--fde-rgb), .4); box-shadow: 0 18px 50px rgba(0, 0, 0, .65); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .modal-head { background: var(--od); border-bottom: 2px solid var(--fde); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .modal-back { background: rgba(8, 9, 6, .75); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .modal { border: 1px solid rgba(var(--fde-rgb), .4); box-shadow: 0 18px 50px rgba(0, 0, 0, .65); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .modal-head { background: var(--od); border-bottom: 2px solid var(--fde); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .modal-back { background: rgba(8, 9, 6, .75); }
 
 /* Bars and tabs */
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) :is(.cmdbar, .rail) { background: rgba(var(--panel-rgb), var(--panel-a)); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .cmdbar { border-bottom: 2px solid var(--od); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .cmdbar::after { display: none; }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .rail .tabs button.on { color: var(--text); border-bottom-color: var(--fde); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) :is(.cmdbar, .rail) { background: rgba(var(--panel-rgb), var(--panel-a)); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .cmdbar { border-bottom: 2px solid var(--od); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .cmdbar::after { display: none; }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .rail .tabs button.on { color: var(--text); border-bottom-color: var(--fde); }
 
 /* Controls: flat, tan outline; primary is solid coyote like a printed tab */
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .btn { font-family: var(--fm-head); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border-color: rgba(var(--fde-rgb), .45); color: var(--text); background: rgba(var(--od-rgb), .25); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .btn:hover:not(:disabled) { border-color: var(--fde); color: var(--text); background: rgba(var(--od-rgb), .5); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .btn.primary { background: var(--coyote); border-color: var(--fde); color: #12130e; }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .btn.primary:hover:not(:disabled) { color: #12130e; filter: brightness(1.1); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .seg { border-color: rgba(var(--fde-rgb), .3); background: rgba(0, 0, 0, .3); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .seg button { font-family: var(--fm-head); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .seg button.on { background: var(--od); color: var(--text); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .btn { font-family: var(--fm-head); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border-color: rgba(var(--fde-rgb), .45); color: var(--text); background: rgba(var(--od-rgb), .25); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .btn:hover:not(:disabled) { border-color: var(--fde); color: var(--text); background: rgba(var(--od-rgb), .5); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .btn.primary { background: var(--coyote); border-color: var(--fde); color: #12130e; }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .btn.primary:hover:not(:disabled) { color: #12130e; filter: brightness(1.1); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .seg { border-color: rgba(var(--fde-rgb), .3); background: rgba(0, 0, 0, .3); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .seg button { font-family: var(--fm-head); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .seg button.on { background: var(--od); color: var(--text); }
 
 /* Phone (Field Agent) */
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .fa-head { background: rgba(var(--panel-rgb), .95); border-bottom: 2px solid var(--od); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .fa-head :is(.field-mark, b) { color: var(--fde); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .fa-head em { color: var(--ok); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) :is(.field-card, .fieldapp > section, .fieldapp > div[class$='-card']) { border-color: rgba(var(--fde-rgb), .25); background: rgba(var(--panel-rgb), .9); }
-:is([data-skin='fieldmanual'], [data-skin='blackcamo']) .fieldapp { background: transparent; }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .fa-head { background: rgba(var(--panel-rgb), .95); border-bottom: 2px solid var(--od); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .fa-head :is(.field-mark, b) { color: var(--fde); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .fa-head em { color: var(--ok); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) :is(.field-card, .fieldapp > section, .fieldapp > div[class$='-card']) { border-color: rgba(var(--fde-rgb), .25); background: rgba(var(--panel-rgb), .9); }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .fieldapp { background: transparent; }
 
-/* Black camo: same print look as Field manual, in black, multicam-black grays and flat dark earth,
+/* Night Op: same print look as Field manual, in black, multicam-black grays and flat dark earth,
    with a few small red accents (section numbers, the SITREP edge, selected tabs, alert lights). */
-[data-skin='blackcamo'] {
+[data-skin='nightop'] {
   --od: #2b2a26;
   --od-rgb: 43, 42, 38;
   --fde: #c2a77a;
@@ -1404,14 +1404,14 @@ fieldset.plain:disabled { opacity: .5; }
   --muted: #a39d8f;
   --dim: #6f6a60;
   --fm-head: 'Bahnschrift', 'Roboto Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
-  --camo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cg%3E%3Cpath fill='%231f1e1b' d='M0 20c35-25 85-12 95 18s-25 48-60 40S-20 40 0 20z'/%3E%3Cpath fill='%23292824' d='M140 10c45-8 95 22 82 58s-70 22-92 0 0-55 10-58z'/%3E%3Cpath fill='%2314130f' d='M55 125c30-18 75-6 82 22s-34 52-70 40-40-46-12-62z'/%3E%3Cpath fill='%23302e29' d='M180 140c35 0 70 28 58 56s-58 34-80 12-12-68 22-68z'/%3E%3Cpath fill='%231a1916' d='M-5 205c24-12 58 0 63 22s-28 40-52 28-34-40-11-50z'/%3E%3Cpath fill='%233a3832' d='M115 215c18-6 40 6 40 22s-28 24-46 14-12-32 6-36z'/%3E%3Cpath fill='%23231f1a' d='M95 70c14-6 30 2 32 14s-16 20-28 14-16-22-4-28z'/%3E%3Cpath fill='%23343128' d='M215 85c10-4 22 4 22 12s-14 14-22 10-10-18 0-22z'/%3E%3C/g%3E%3C/svg%3E");
+  --camo: url('./assets/camo/nightop.svg');
 }
-[data-skin='blackcamo'] body { background: var(--camo) 0 0 / 260px 260px, var(--bg); }
-[data-skin='blackcamo'] .tile > header { background: rgba(var(--od-rgb), .85); }
-[data-skin='blackcamo'] :is(.tcode, .tcode::after) { color: var(--red); }
-[data-skin='blackcamo'] .sitrep::before { background: var(--red); }
-[data-skin='blackcamo'] .rail .tabs button.on { border-bottom-color: var(--red); }
-[data-skin='blackcamo'] .seg button.on { background: var(--od); box-shadow: inset 0 -2px 0 var(--red) !important; }
-[data-skin='blackcamo'] .modal-head { border-bottom-color: var(--red); }
-[data-skin='blackcamo'] .cmdbar { border-bottom-color: #2b2a26; }
-[data-skin='blackcamo'] .field-btn.go { background: var(--coyote); border-color: var(--fde); color: #12110e; }
+[data-skin='nightop'] body { background: var(--camo) 0 0 / 400px 400px, var(--bg); }
+[data-skin='nightop'] .tile > header { background: rgba(var(--od-rgb), .85); }
+[data-skin='nightop'] :is(.tcode, .tcode::after) { color: var(--red); }
+[data-skin='nightop'] .sitrep::before { background: var(--red); }
+[data-skin='nightop'] .rail .tabs button.on { border-bottom-color: var(--red); }
+[data-skin='nightop'] .seg button.on { background: var(--od); box-shadow: inset 0 -2px 0 var(--red) !important; }
+[data-skin='nightop'] .modal-head { border-bottom-color: var(--red); }
+[data-skin='nightop'] .cmdbar { border-bottom-color: #2b2a26; }
+:is([data-skin='fieldmanual'], [data-skin='nightop']) .field-btn.go { background: var(--coyote); border-color: var(--fde); color: #12110e; }

@@ -45,6 +45,10 @@ describe('alert colors', () => {
   });
 });
 
+it('moves the renamed Black camo theme to Night Op', () => {
+  expect(withDefaults({ appearance: { ...DEFAULT_APPEARANCE, theme: 'blackcamo' as never } }).appearance.theme).toBe('nightop');
+});
+
 describe('Netrunner skin', () => {
   it('sets the skin attribute only for the Netrunner preset', async () => {
     const { applyAppearance } = await import('../src/lib/theme');
@@ -61,6 +65,6 @@ describe('Netrunner skin', () => {
 });
 
 it('lists the extra looks after the classic presets, in order', () => {
-  expect(Object.keys(THEMES).slice(-3)).toEqual(['netrunner', 'fieldmanual', 'blackcamo']);
+  expect(Object.keys(THEMES).slice(-3)).toEqual(['netrunner', 'fieldmanual', 'nightop']);
   expect(DEFAULT_APPEARANCE.theme).toBe('tactical');
 });
