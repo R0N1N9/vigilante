@@ -2,9 +2,13 @@
 
 # Vigilante
 
+**Part of the Vigilance Suite**: Vigilance (desktop), Vigilante (web and phone) and Vigil (Android).
+
 **The live web app: [r0n1n9.github.io/vigilante](https://r0n1n9.github.io/vigilante/)**
 
 A situational-awareness console that runs in any browser, and **Vigilante Field Agent**, its phone app for iPhone and Android with nothing to install. Built for people who keep watch over a place: physical security and asset protection teams, executive protection details, security patrol and neighborhood watch.
+
+**The Vigilance Suite: three apps, one team.**
 
 | App | What | Where |
 |---|---|---|
