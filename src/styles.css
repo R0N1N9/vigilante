@@ -1501,3 +1501,5 @@ fieldset.plain:disabled { opacity: .5; }
 .tl-row { display: grid; grid-template-columns: minmax(70px, auto) 1fr auto; gap: 8px; align-items: center; font-size: 12px; padding: 3px 0; border-top: 1px solid var(--line); }
 .tl-row span { color: var(--muted); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tl-row.me b { color: var(--accent); }
+.about-names { display: flex; flex-direction: column; gap: 2px; }
+.about-names small { font: 600 10px var(--mono); letter-spacing: .16em; color: var(--muted); text-transform: uppercase; }

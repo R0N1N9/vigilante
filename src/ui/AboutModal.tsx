@@ -1,5 +1,5 @@
 import { WEB_APP_URL } from '../lib/comms';
-import { APP, APP_UPPER } from '../lib/brand';
+import { APP, APP_UPPER, SUITE } from '../lib/brand';
 import { setState } from '../data/store';
 import { embedUrl } from '../lib/embed';
 import { isWeb } from '../lib/http';
@@ -45,11 +45,17 @@ export function AboutModal() {
       <section>
         <div className="about-brand">
           <img src={appIcon} alt="" width={56} height={56} />
-          <b>{APP_UPPER}</b>
+          <span className="about-names">
+            <b>{APP_UPPER}</b>
+            <small>Part of the {SUITE}</small>
+          </span>
         </div>
         <p className="small-text">
           <b>{APP}</b> is an open-source situational-awareness console for asset protection, executive protection, patrol and neighborhood watch. It uses public, keyless data
           sources and never tracks or identifies individuals.
+        </p>
+        <p className="small-text">
+          The <b>{SUITE}</b> is three apps that work together on the same teams: <b>Vigilance</b> for the desktop (Mac, Windows, Linux), <b>Vigilante</b> on the web and as the Field Agent phone app, and <b>Vigil</b> for Android.
         </p>
         <AppLink url={WEB_APP_URL} label="Vigilante web app (opens on any phone or computer)" note="Scan with a phone camera to open the live web app. On a phone it opens Vigilante Field Agent: area scan, live map, push-to-talk, team chat. Nothing to install." />
         <AppLink url={DESKTOP_APP.url} label={DESKTOP_APP.label} note="Source code, desktop installers and docs. The desktop app adds drone Remote ID scanning, Meshtastic radios, multi-monitor pop-outs and keys kept off the web." />
