@@ -1,7 +1,7 @@
 {
   "name": "Vigilante Field Agent",
   "short_name": "Vigilante",
-  "description": "Vigilante Field Agent: join or create a team from any phone. Area scan, live map, push-to-talk, marks, photos, chat, SOS and opt-in location sharing.",
+  "description": "Vigilante Field Agent, part of the Vigilance Suite: join or create a team from any phone. Area scan, live map, push-to-talk, marks, photos, chat, SOS and opt-in location sharing.",
   "start_url": "./?view=field",
   "scope": "./",
   "display": "standalone",
